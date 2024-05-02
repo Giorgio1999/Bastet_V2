@@ -4,7 +4,7 @@
 #include "Move.h"
 #include <string>
 #include <vector>
-
+//This is the engine class implementation
 Engine::Engine(){
 	board = Board();
 }
