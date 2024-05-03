@@ -18,6 +18,7 @@ class Board
 		Board();
 		void Clear();
 		void MakeMove(const Move& move);
+		void UpdateColorBoards();
 
 		std::string ShowBoard();
 };

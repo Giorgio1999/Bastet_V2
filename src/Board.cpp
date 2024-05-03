@@ -108,6 +108,14 @@ void Board::MakeMove(const Move &move)
 	// TO DO: Maybe check for checks?
 
 	// Update Color Boards
+	UpdateColorBoards();
+
+	// Update turn flag
+	whiteToMove = !whiteToMove;
+}
+
+void Board::UpdateColorBoards()
+{
 	colorBoards[0] = 0;
 	colorBoards[1] = 0;
 	for (auto i = 0; i < 6; i++)
@@ -115,9 +123,6 @@ void Board::MakeMove(const Move &move)
 		colorBoards[0] |= pieceBoards[i];
 		colorBoards[1] |= pieceBoards[i + 6];
 	}
-
-	// Update turn flag
-	whiteToMove = !whiteToMove;
 }
 
 std::string Board::ShowBoard()

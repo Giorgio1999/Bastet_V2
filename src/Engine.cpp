@@ -19,6 +19,7 @@ void Engine::NewGame()
 void Engine::SetBoard(const Board &newBoard)
 {
 	board = newBoard;
+	board.UpdateColorBoards();
 }
 
 void Engine::MakeMove(const Move &move)

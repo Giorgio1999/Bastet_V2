@@ -10,7 +10,7 @@
 void MoveGenerator::GetPseudoLegalMoves(const Engine &engine, std::vector<Move> &pseudoLegalMoves)
 {
     GetPseudoLegalPawnMoves(engine, pseudoLegalMoves);
-    GetPseudoLegalKnightMoves(engine,pseudoLegalMoves);
+    GetPseudoLegalKnightMoves(engine, pseudoLegalMoves);
 }
 
 void GetPseudoLegalPawnMoves(const Engine &engine, std::vector<Move> &pseudoLegalMoves)
@@ -77,7 +77,7 @@ void GetPseudoLegalPawnMoves(const Engine &engine, std::vector<Move> &pseudoLega
         captures = engine.board.pieceBoards[colorIndex] << 7 | engine.board.pieceBoards[colorIndex] << 9;
     }
     captures = captures & (engine.board.colorBoards[color] | engine.board.ghostBoard); // check for capturable pieces there
-    for (auto i = 1; i < 7; i++) // pawns at the edge need to be handled seperately to prevent telepawns
+    for (auto i = 1; i < 7; i++)                                                       // pawns at the edge need to be handled seperately to prevent telepawns
     {
         auto j = startRank + colorDirection; // Again only consider captures between start rank and one short of promotion
         for (auto k = 0; k < 5; k++)
@@ -201,6 +201,42 @@ void GetPseudoLegalPawnMoves(const Engine &engine, std::vector<Move> &pseudoLega
     }
 }
 
-void GetPseudoLegalKnightMoves(const Engine& engine, std::vector<Move> &pseudoLegalMoves){
-
+void GetPseudoLegalKnightMoves(const Engine &engine, std::vector<Move> &pseudoLegalMoves)
+{
+    auto color = engine.board.whiteToMove;
+    auto colorIndex = color ? 0 : 6;
+    uint_fast64_t thisBoard = ~engine.board.colorBoards[!color];
+    for (auto i = 0; i < 8; i++)
+    {
+        for (auto j = 0; j < 8; j++)
+        {
+            if (CheckBit(engine.board.pieceBoards[1 + colorIndex], i, j))
+            {
+                for (auto di = -2; di < 3; di += 4)
+                {
+                    for (auto dj = -1; dj < 2; dj += 2)
+                    {
+                        auto ii = i + di;
+                        auto jj = j + dj;
+                        if (ii >= 0 && ii < 8 && jj >= 0 && jj < 8)
+                        {
+                            if (CheckBit(thisBoard, ii, jj))
+                            {
+                                pseudoLegalMoves.push_back(Move(i, j, ii, jj));
+                            }
+                        }
+                        ii = i + dj;
+                        jj = j + di;
+                        if (ii >= 0 && ii < 8 && jj >= 0 && jj < 8)
+                        {
+                            if (CheckBit(thisBoard, ii, jj))
+                            {
+                                pseudoLegalMoves.push_back(Move(i, j, ii, jj));
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
 }
