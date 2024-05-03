@@ -28,12 +28,12 @@ void EngineController::SetPosition()
 	engine.SetBoard(startpos);
 }
 
-void EngineController::SetPosition(std::string fenString)
+void EngineController::SetPosition(const std::string &fenString)
 {
 	engine.SetBoard(Fen2Position(fenString));
 }
 
-void EngineController::MakeMoves(std::string moveHistory)
+void EngineController::MakeMoves(std::string &moveHistory)
 {
 	std::vector<Move> moves = Str2Moves(moveHistory);
 	for (const auto &move : moves)
@@ -69,7 +69,7 @@ std::string EngineController::Search()
 	return Move2Str(engine.GetBestMove());
 }
 
-std::string EngineController::Perft(int depth)
+std::string EngineController::Perft(const int &depth)
 {
 	auto start = std::chrono::high_resolution_clock::now();
 	int numberOfLeafs = engine.Perft(depth);
@@ -80,7 +80,7 @@ std::string EngineController::Perft(int depth)
 	return returnString;
 }
 
-std::string EngineController::SplitPerft(int depth)
+std::string EngineController::SplitPerft(const int &depth)
 {
 	std::vector<Move> legalMoves;
 	engine.GetLegalMoves(legalMoves);

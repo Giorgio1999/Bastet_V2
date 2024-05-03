@@ -16,7 +16,7 @@ void Board::Clear()
 	ghostBoard = ZERO;
 }
 
-void Board::MakeMove(Move move)
+void Board::MakeMove(const Move &move)
 {
 	// Clear ghosts
 	ghostBoard = ZERO;
@@ -24,7 +24,7 @@ void Board::MakeMove(Move move)
 	Coord start = move.startCoord;
 	Coord target = move.targetCoord;
 
-	bool wasCastled = false; // Castling flag
+	auto wasCastled = false; // Castling flag
 
 	auto color = whiteToMove ? 0 : 6;
 	for (auto i = color; i < 6 + color; i++)
@@ -108,13 +108,13 @@ void Board::MakeMove(Move move)
 	// TO DO: Maybe check for checks?
 
 	// Update Color Boards
-	colorBoards[0] = 0;	colorBoards[1] = 0;
+	colorBoards[0] = 0;
+	colorBoards[1] = 0;
 	for (auto i = 0; i < 6; i++)
 	{
 		colorBoards[0] |= pieceBoards[i];
 		colorBoards[1] |= pieceBoards[i + 6];
 	}
-
 
 	// Update turn flag
 	whiteToMove = !whiteToMove;

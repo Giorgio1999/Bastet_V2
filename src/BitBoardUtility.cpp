@@ -4,35 +4,35 @@
 #include <string>
 #include <iostream>
 
-bool CheckBit(const uint_fast64_t& value,const int& index)
+bool CheckBit(const uint_fast64_t &value, const int &index)
 {
 	uint_fast64_t bitIndex = ONE << index;
 	return (value & bitIndex) == bitIndex;
 }
 
-bool CheckBit(const uint_fast64_t& value,const int& i,const int& j)
+bool CheckBit(const uint_fast64_t &value, const int &i, const int &j)
 {
 	return CheckBit(value, j * 8 + i);
 }
 
-void SetBit(uint_fast64_t &value,const int& index)
+void SetBit(uint_fast64_t &value, const int &index)
 {
 	uint_fast64_t bitIndex = ONE << index;
 	value |= bitIndex;
 }
 
-void SetBit(uint_fast64_t &value,const int& i,const int& j)
+void SetBit(uint_fast64_t &value, const int &i, const int &j)
 {
 	SetBit(value, j * 8 + i);
 }
 
-void UnsetBit(uint_fast64_t &value, const int& index)
+void UnsetBit(uint_fast64_t &value, const int &index)
 {
 	uint_fast64_t bitIndex = ONE << index;
 	value &= ~bitIndex;
 }
 
-void UnsetBit(uint_fast64_t &value, const int& i,const int& j)
+void UnsetBit(uint_fast64_t &value, const int &i, const int &j)
 {
 	UnsetBit(value, j * 8 + i);
 }
