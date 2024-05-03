@@ -17,7 +17,7 @@ void Listen() {
 		if (key == "isready") {
 			while (!engineController.IsReady())
 			{
-				continue;
+				engineController.TestReady();
 			}
 			std::cout << "readyok\n";
 		}

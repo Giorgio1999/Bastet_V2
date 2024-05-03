@@ -2,7 +2,9 @@
 #include "Piece.h"
 #include "Move.h"
 #include "Board.h"
+#include "BitBoardUtility.h"
 #include <string>
+#include <cstdint>
 
 Board Fen2Position() {
 	return Fen2Position(startingPosition);
@@ -130,10 +132,9 @@ Board Fen2Position(std::string fen) {
 	}
 	std::string enPassant = rights.substr(castling.length()+3, rights.length() - 1);
 	enPassant = enPassant.substr(0, enPassant.find_first_of(' '));
-	if (enPassant == "-") {
-		//TO DO: handle enpassant
-	}
-	else {
+	if (enPassant != "-") {
+		Coord ghostPosition = Str2Coord(enPassant);
+		SetBit(board.ghostBoards[board.whiteToMove?1:0],ghostPosition.x,ghostPosition.y);
 	}
 	return board;
 }

@@ -1,6 +1,7 @@
 #include "Board.h"
 #include "BitBoardUtility.h"
 #include <string>
+#include <cstdint>
 
 Board::Board() {
 }
@@ -8,17 +9,17 @@ Board::Board() {
 
 void Board::Clear(){
 	for (auto& piece : pieceBoards) {
-		piece = 0Ui64;
+		piece = ZERO;
 	}
 	for (auto& ghost : ghostBoards) {
-		ghost = 0Ui64;
+		ghost = ZERO;
 	}
 }
 
 void Board::MakeMove(Move move){
 	//Clear ghosts
 	for (auto& ghost : ghostBoards) {
-		ghost = 0Ui64;
+		ghost = ZERO;
 	}
 
 	Coord start = move.startCoord;

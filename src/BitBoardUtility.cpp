@@ -1,8 +1,9 @@
 #include "BitBoardUtility.h"
 #include <vector>
+#include <cstdint>
 
 bool CheckBit(uint_fast64_t value, int index) {
-	uint_fast64_t bitIndex = 1Ui64 << index;
+	uint_fast64_t bitIndex = ONE << index;
 	return (value & bitIndex) == bitIndex;
 }
 
@@ -11,7 +12,7 @@ bool CheckBit(uint_fast64_t value, int i, int j) {
 }
 
 void SetBit(uint_fast64_t& value, int index) {
-	uint_fast64_t bitIndex = 1Ui64 << index;
+	uint_fast64_t bitIndex = ONE << index;
 	value |= bitIndex;
 }
 
@@ -20,7 +21,7 @@ void SetBit(uint_fast64_t& value, int i, int j) {
 }
 
 void UnsetBit(uint_fast64_t& value, int index) {
-	uint_fast64_t bitIndex = 1Ui64 << index;
+	uint_fast64_t bitIndex = ONE << index;
 	value &= ~bitIndex;
 }
 

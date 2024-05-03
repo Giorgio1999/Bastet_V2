@@ -1,6 +1,0 @@
-CXX = g++
-objects = main.o BitboardUtility.o Board.o Engine.o EngineController.o FenParser.o Move.o Piece.o UciHandler.o
-#main.cpp BitboardUtility.cpp Board.cpp Engine.cpp EngineController.cpp FenParser.cpp Move.cpp Piece.cpp UciHandler.cpp
-
-main: $(objects)
-	$(CXX) -o $(objects) -I../header

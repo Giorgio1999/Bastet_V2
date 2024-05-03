@@ -8,7 +8,9 @@
 EngineController::EngineController(){}
 
 void EngineController::BootEngine() {
-	engine = Engine::Engine();
+	engine = Engine();
+	startpos = Fen2Position();
+	isReady = true;
 }
 
 void EngineController::NewGame() {
@@ -16,7 +18,10 @@ void EngineController::NewGame() {
 }
 
 void EngineController::SetPosition() {
-	engine.SetBoard(Fen2Position());
+	if(!isReady){
+		startpos = Fen2Position();
+	}
+	engine.SetBoard(startpos);
 }
 
 void EngineController::SetPosition(std::string fenString) {
@@ -63,4 +68,8 @@ std::string EngineController::SplitPerft(int depth) {
 
 void EngineController::UndoLastMove() {
 	engine.UndoLastMove();
+}
+
+void EngineController::TestReady(){
+	isReady = true;
 }

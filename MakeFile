@@ -1,0 +1,19 @@
+CXX = C:/msys64/mingw64/bin/g++.exe
+CXXFLAGS = -Iheader -g -O2
+TARGET = Bastet_V2
+SRCS = $(wildcard src/*.cpp)
+HEADERS = $(wildcard header/*.h)
+OBJS = $(patsubst src/%.cpp,obj/%.o,$(SRCS))
+
+all: $(TARGET)
+
+$(TARGET): $(OBJS)
+	$(CXX) $(CXXFLAGS) -o $@ $^
+
+
+obj/%.o: src/%.cpp $(HEADERS)
+	$(CXX) $(CXXFLAGS) -c -o $@ $<
+
+clean:
+	del /Q /F $(TARGET).exe 
+	del /Q /F obj\*.o
