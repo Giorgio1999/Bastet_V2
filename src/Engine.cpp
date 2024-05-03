@@ -2,6 +2,7 @@
 #include "Board.h"
 #include "Piece.h"
 #include "Move.h"
+#include "MoveGenerator.h"
 #include <string>
 #include <vector>
 //This is the engine class implementation
@@ -31,27 +32,8 @@ std::string Engine::ShowBoard() {
 	return board.ShowBoard();
 }
 
-void Engine::GetPseudoLegalMoves(std::vector<Move>& moveVector) {
-}
-
-void Engine::GetPseudoLegalPawnMoves(std::vector<Move>& moveVector) {
-}
-
-void Engine::GetPseudoLegalKnightMoves(std::vector<Move>& moveVector) {
-}
-
-void Engine::GetPseudoLegalBishopMoves(std::vector<Move>& moveVector){
-}
-
-void Engine::GetPseudoLegalRookMoves(std::vector<Move>& moveVector){
-}
-
-void Engine::GetPseudoLegalQueenMoves(std::vector<Move>& moveVector){
-	GetPseudoLegalRookMoves(moveVector);
-	GetPseudoLegalBishopMoves(moveVector);
-}
-
-void Engine::GetPseudoLegalKingMoves(std::vector<Move>& moveVector){
+void Engine::GetPseudoLegalMoves(std::vector<Move>& pseudoLegalMoves){
+	MoveGenerator::GetPseudoLegalMoves(*this,pseudoLegalMoves);
 }
 
 Move Engine::GetBestMove() {
@@ -60,9 +42,8 @@ Move Engine::GetBestMove() {
 	return legalmoves[0];
 }
 
-void Engine::GetLegalMoves(std::vector<Move>& moveVector) {
-	std::vector<Move> pseudoMoves;
-	GetPseudoLegalMoves(pseudoMoves);
+void Engine::GetLegalMoves(std::vector<Move>& legalMoves) {
+	GetPseudoLegalMoves(legalMoves);
 }
 
 int Engine::Perft(int depth) {
@@ -73,8 +54,9 @@ int Engine::Perft(int depth) {
 	}
 	int numberOfLeafs = 0;
 	for (const auto& current : legalMoves) {
-		board.MakeMove(current);
+		MakeMove(current);
 		numberOfLeafs += Perft(depth-1);
+		UndoLastMove();
 	}
 	return numberOfLeafs;
 }

@@ -18,17 +18,10 @@ class Engine {
 		void UndoLastMove();				//Reverts to previous position
 		std::string ShowBoard();			//Debug tool to display current board in console
 
-		void GetPseudoLegalMoves(std::vector<Move>& moveVector);	//Gets Pseudo legal moves and writes them into the given vector
-		void GetPseudoLegalPawnMoves(std::vector<Move>& moveVector);	//function for every piecetype
-		void GetPseudoLegalKnightMoves(std::vector<Move>& moveVector);
-		void GetPseudoLegalBishopMoves(std::vector<Move>& moveVector);
-		void GetPseudoLegalRookMoves(std::vector<Move>& moveVector);
-		void GetPseudoLegalQueenMoves(std::vector<Move>& moveVector);
-		void GetPseudoLegalKingMoves(std::vector<Move>& moveVector);
-		
-		void GetLegalMoves(std::vector<Move>& moveVector);	//Filters legal moves out of pseudolegal moves
+		void GetPseudoLegalMoves(std::vector<Move>& pseudoLegalMoves);	//Gets pseudolegal moves. Implementation in MoveGenerator.cpp
+		void GetLegalMoves(std::vector<Move>& legalMoves);	//Gets legalMoves
 
-		Move GetBestMove();
+		Move GetBestMove();	//Returns best move after search
 
 		int Perft(int depth);
 };

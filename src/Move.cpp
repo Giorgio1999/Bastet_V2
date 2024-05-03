@@ -28,7 +28,7 @@ Move::Move(int i1, int j1, int i2, int j2) {
 }
 
 std::string Coord2Str(Coord coord) {
-	auto tmp = "";
+	std::string tmp = "";
 	tmp += cols.at(coord.x);
 	tmp += rows.at(coord.y);
 	return tmp;

@@ -5,53 +5,72 @@
 #include <list>
 #include <chrono>
 
-EngineController::EngineController(){}
+EngineController::EngineController() {}
 
-void EngineController::BootEngine() {
+void EngineController::BootEngine()
+{
 	engine = Engine();
 	startpos = Fen2Position();
 	isReady = true;
 }
 
-void EngineController::NewGame() {
+void EngineController::NewGame()
+{
 	engine.NewGame();
 }
 
-void EngineController::SetPosition() {
-	if(!isReady){
+void EngineController::SetPosition()
+{
+	if (!isReady)
+	{
 		startpos = Fen2Position();
 	}
 	engine.SetBoard(startpos);
 }
 
-void EngineController::SetPosition(std::string fenString) {
+void EngineController::SetPosition(std::string fenString)
+{
 	engine.SetBoard(Fen2Position(fenString));
 }
 
-void EngineController::MakeMoves(std::string moveHistory) {
+void EngineController::MakeMoves(std::string moveHistory)
+{
 	std::vector<Move> moves = Str2Moves(moveHistory);
-	for (const auto& move : moves) {
+	for (const auto &move : moves)
+	{
 		engine.MakeMove(move);
 	}
 }
 
-bool EngineController::IsReady() {
+bool EngineController::IsReady()
+{
 	return isReady;
 }
 
-std::string EngineController::ShowBoard() {
+std::string EngineController::ShowBoard()
+{
 	return engine.ShowBoard();
 }
 
-std::string EngineController::GetLegalMoves() {
-	return "";
+std::string EngineController::GetLegalMoves()
+{
+	std::vector<Move> legalMoves;
+	engine.GetLegalMoves(legalMoves);
+	std::string movesString = "";
+	for (const auto &move : legalMoves)
+	{
+		movesString += Move2Str(move) + " ";
+	}
+	return movesString;
 }
 
-std::string EngineController::Search() {
+std::string EngineController::Search()
+{
 	return Move2Str(engine.GetBestMove());
 }
 
-std::string EngineController::Perft(int depth) {
+std::string EngineController::Perft(int depth)
+{
 	auto start = std::chrono::high_resolution_clock::now();
 	int numberOfLeafs = engine.Perft(depth);
 	auto end = std::chrono::high_resolution_clock::now();
@@ -61,15 +80,29 @@ std::string EngineController::Perft(int depth) {
 	return returnString;
 }
 
-std::string EngineController::SplitPerft(int depth) {
-	//TO DO: Split perft implementation
-	return "";
+std::string EngineController::SplitPerft(int depth)
+{
+	std::vector<Move> legalMoves;
+	engine.GetLegalMoves(legalMoves);
+	std::string returnString = "";
+	for (const auto &move : legalMoves)
+	{
+		engine.MakeMove(move);
+		returnString += Move2Str(move) += ": ";
+		auto res = engine.Perft(depth);
+		returnString += std::to_string(res);
+		engine.UndoLastMove();
+		returnString += "\n";
+	}
+	return returnString;
 }
 
-void EngineController::UndoLastMove() {
+void EngineController::UndoLastMove()
+{
 	engine.UndoLastMove();
 }
 
-void EngineController::TestReady(){
+void EngineController::TestReady()
+{
 	isReady = true;
 }
