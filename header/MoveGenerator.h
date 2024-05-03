@@ -8,3 +8,4 @@ namespace MoveGenerator{
 }
 
 void GetPseudoLegalPawnMoves(const Engine& engine, std::vector<Move>& pseudoLegalMoves);
+void GetPseudoLegalKnightMoves(const Engine& engine, std::vector<Move>& pseudoLegalMoves);

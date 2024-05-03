@@ -10,6 +10,7 @@
 void MoveGenerator::GetPseudoLegalMoves(const Engine &engine, std::vector<Move> &pseudoLegalMoves)
 {
     GetPseudoLegalPawnMoves(engine, pseudoLegalMoves);
+    GetPseudoLegalKnightMoves(engine,pseudoLegalMoves);
 }
 
 void GetPseudoLegalPawnMoves(const Engine &engine, std::vector<Move> &pseudoLegalMoves)
@@ -75,10 +76,10 @@ void GetPseudoLegalPawnMoves(const Engine &engine, std::vector<Move> &pseudoLega
     {
         captures = engine.board.pieceBoards[colorIndex] << 7 | engine.board.pieceBoards[colorIndex] << 9;
     }
-    captures = captures & (engine.board.colorBoards[color] | engine.board.ghostBoards[color]); // check for capturable pieces there
-    for (auto i = 1; i < 7; i++)                                                               // pawns at the edge need to be handled seperately to prevent telepawns
+    captures = captures & (engine.board.colorBoards[color] | engine.board.ghostBoard); // check for capturable pieces there
+    for (auto i = 1; i < 7; i++) // pawns at the edge need to be handled seperately to prevent telepawns
     {
-        auto j = startRank + 1; // Again only consider captures between start rank and one short of promotion
+        auto j = startRank + colorDirection; // Again only consider captures between start rank and one short of promotion
         for (auto k = 0; k < 5; k++)
         {
             if (CheckBit(captures, i, j))
@@ -95,7 +96,7 @@ void GetPseudoLegalPawnMoves(const Engine &engine, std::vector<Move> &pseudoLega
             j += colorDirection;
         }
     }
-    auto j = startRank+1; // Treatment of the border pawns
+    auto j = startRank + colorDirection; // Treatment of the border pawns
     for (auto k = 0; k < 5; k++)
     {
         if (CheckBit(captures, 0, j))
@@ -107,7 +108,7 @@ void GetPseudoLegalPawnMoves(const Engine &engine, std::vector<Move> &pseudoLega
         }
         j += colorDirection;
     }
-    j = startRank+1;
+    j = startRank + colorDirection;
     for (auto k = 0; k < 5; k++)
     {
         if (CheckBit(captures, 7, j))
@@ -198,4 +199,8 @@ void GetPseudoLegalPawnMoves(const Engine &engine, std::vector<Move> &pseudoLega
             }
         }
     }
+}
+
+void GetPseudoLegalKnightMoves(const Engine& engine, std::vector<Move> &pseudoLegalMoves){
+
 }

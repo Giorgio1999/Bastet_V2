@@ -14,7 +14,7 @@ Board Fen2Position(std::string fen) {
 	Board board;
 	std::string position = fen.substr(0, fen.find_first_of(' '));
 	int increment = 0;
-	for (int i = 0; i < position.length();i++) {
+	for (auto i = 0; i < position.length();i++) {
 		char current = position[i];
 		if (current != '/') {
 			uint_fast64_t tmp = (uint_fast64_t)1 << increment;
@@ -94,7 +94,6 @@ Board Fen2Position(std::string fen) {
 			}
 		}
 	}
-	//TO DO: flags and stuff
 	std::string rights = fen.substr(fen.find_first_of(' ') + 1, fen.length() - 1);
 	char current = rights[0];
 	switch (current) {
@@ -134,7 +133,7 @@ Board Fen2Position(std::string fen) {
 	enPassant = enPassant.substr(0, enPassant.find_first_of(' '));
 	if (enPassant != "-") {
 		Coord ghostPosition = Str2Coord(enPassant);
-		SetBit(board.ghostBoards[board.whiteToMove?1:0],ghostPosition.x,ghostPosition.y);
+		SetBit(board.ghostBoard,ghostPosition.x,ghostPosition.y);
 	}
 	return board;
 }

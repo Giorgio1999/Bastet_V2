@@ -13,19 +13,13 @@ void Board::Clear()
 	{
 		piece = ZERO;
 	}
-	for (auto &ghost : ghostBoards)
-	{
-		ghost = ZERO;
-	}
+	ghostBoard = ZERO;
 }
 
 void Board::MakeMove(Move move)
 {
 	// Clear ghosts
-	for (auto &ghost : ghostBoards)
-	{
-		ghost = ZERO;
-	}
+	ghostBoard = ZERO;
 
 	Coord start = move.startCoord;
 	Coord target = move.targetCoord;
@@ -38,7 +32,7 @@ void Board::MakeMove(Move move)
 		// Pawn double pushes. leaves ghost
 		if (i == color && std::abs(start.y - target.y) > 1)
 		{
-			SetBit(ghostBoards[color == 0], start.x, start.y + (whiteToMove ? -1 : 1));
+			SetBit(ghostBoard, start.x, start.y + (whiteToMove ? -1 : 1));
 		}
 		// Generic moving
 		if (CheckBit(pieceBoards[i], start.x, start.y))
@@ -114,11 +108,13 @@ void Board::MakeMove(Move move)
 	// TO DO: Maybe check for checks?
 
 	// Update Color Boards
+	colorBoards[0] = 0;	colorBoards[1] = 0;
 	for (auto i = 0; i < 6; i++)
 	{
 		colorBoards[0] |= pieceBoards[i];
 		colorBoards[1] |= pieceBoards[i + 6];
 	}
+
 
 	// Update turn flag
 	whiteToMove = !whiteToMove;
@@ -146,17 +142,12 @@ std::string Board::ShowBoard()
 		boardVisual += std::to_string(right) + " ";
 	}
 	boardVisual += "\nGhost Boards:\n";
-	for (const auto &ghost : ghostBoards)
+	for (auto i = 0; i < 8; i++)
 	{
-		for (auto i = 0; i < 8; i++)
+		for (auto j = 0; j < 8; j++)
 		{
-			for (auto j = 0; j < 8; j++)
-			{
-				boardVisual += std::to_string(CheckBit(ghost, j, i));
-			}
-			boardVisual += "\n";
+			boardVisual += std::to_string(CheckBit(ghostBoard, j, i));
 		}
-		boardVisual += "\n";
 		boardVisual += "\n";
 	}
 	return boardVisual;
