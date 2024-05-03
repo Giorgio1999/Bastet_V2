@@ -16,3 +16,5 @@ void SetBit(uint_fast64_t& value, int i, int j);	//Sets bit at i,j in 2d board
 void UnsetBit(uint_fast64_t& value, int index);	//Unsets bit at index in 1d board
 
 void UnsetBit(uint_fast64_t& value, int i, int j);	//Unsets bit at i,j in 2d baord
+
+void PrintBitBoard(const uint_fast64_t& value); //Prints Bitboard to std::cout

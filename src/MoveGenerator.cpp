@@ -30,8 +30,7 @@ void GetPseudoLegalPawnMoves(const Engine &engine, std::vector<Move> &pseudoLega
     { // if black, push down
         pushes = pushes << 8;
     }
-    pushes &= ~engine.board.colorBoards[color]; // remove pawns which landed on occupied squares
-    pushes &= ~engine.board.colorBoards[!color];
+    pushes &= (~engine.board.colorBoards[color] | ~engine.board.colorBoards[!color]); // remove pawns which landed on occupied squares
     for (auto i = 0; i < 8; i++)
     {
         auto j = startRank + 1; // we only care for pawn moves between start rank and one short of promotion rank
@@ -55,8 +54,7 @@ void GetPseudoLegalPawnMoves(const Engine &engine, std::vector<Move> &pseudoLega
     { // if black push down
         doublePushes = pushes << 8;
     }
-    doublePushes &= ~engine.board.colorBoards[color]; // remove pawns which landed on occupied squares
-    doublePushes &= ~engine.board.colorBoards[!color];
+    doublePushes &= (~engine.board.colorBoards[color] | ~engine.board.colorBoards[!color]); // remove pawns which landed on occupied squares
 
     auto fourthRank = color ? 4 : 3; // valid double push target squares
     for (auto i = 0; i < 8; i++)
@@ -97,7 +95,7 @@ void GetPseudoLegalPawnMoves(const Engine &engine, std::vector<Move> &pseudoLega
             j += colorDirection;
         }
     }
-    auto j = 0; // Treatment of the border pawns
+    auto j = startRank+1; // Treatment of the border pawns
     for (auto k = 0; k < 5; k++)
     {
         if (CheckBit(captures, 0, j))
@@ -109,7 +107,7 @@ void GetPseudoLegalPawnMoves(const Engine &engine, std::vector<Move> &pseudoLega
         }
         j += colorDirection;
     }
-    j = 0;
+    j = startRank+1;
     for (auto k = 0; k < 5; k++)
     {
         if (CheckBit(captures, 7, j))
@@ -122,16 +120,17 @@ void GetPseudoLegalPawnMoves(const Engine &engine, std::vector<Move> &pseudoLega
         j += colorDirection;
     }
 
-    // Promotion - if a pawn move ends on the promotion rank, we need to assign convert tos to the moves
+    // Promotion - if a pawn move ends on the promotion rank, we need to assign convert to to the moves
     // First nonborder pawns
     for (auto i = 1; i < 7; i++)
     {
         if (CheckBit(pushes, i, promotionRank))
         {
             Move promotion = Move(i, promotionRank - colorDirection, i, promotionRank);
-            for (auto pieceType = 1; pieceType < 6; pieceType++)
+            for (auto pieceType = 2; pieceType < 6; pieceType++)
             {
                 promotion.convertTo = (PieceType)pieceType;
+                promotion.promotion = true;
                 pseudoLegalMoves.push_back(promotion);
             }
         }
@@ -140,18 +139,20 @@ void GetPseudoLegalPawnMoves(const Engine &engine, std::vector<Move> &pseudoLega
             if (CheckBit(engine.board.pieceBoards[colorIndex], i - 1, promotionRank - colorDirection)) // Captures are diagonal moves
             {
                 Move promotion = Move(i - 1, promotionRank - colorDirection, i, promotionRank);
-                for (auto pieceType = 1; pieceType < 6; pieceType++)
+                for (auto pieceType = 2; pieceType < 6; pieceType++)
                 {
                     promotion.convertTo = (PieceType)pieceType;
+                    promotion.promotion = true;
                     pseudoLegalMoves.push_back(promotion);
                 }
             }
             if (CheckBit(engine.board.pieceBoards[colorIndex], i + 1, promotionRank - colorDirection)) // Because two pawns might capture on the same square, we need to check from where the captures came
             {
                 Move promotion = Move(i + 1, j - colorDirection, i, promotionRank);
-                for (auto pieceType = 1; pieceType < 6; pieceType++)
+                for (auto pieceType = 2; pieceType < 6; pieceType++)
                 {
                     promotion.convertTo = (PieceType)pieceType;
+                    promotion.promotion = true;
                     pseudoLegalMoves.push_back(promotion);
                 }
             }
@@ -163,9 +164,10 @@ void GetPseudoLegalPawnMoves(const Engine &engine, std::vector<Move> &pseudoLega
         if (CheckBit(pushes, i, promotionRank))
         {
             Move promotion = Move(i, promotionRank - colorDirection, i, promotionRank);
-            for (auto pieceType = 1; pieceType < 6; pieceType++)
+            for (auto pieceType = 2; pieceType < 6; pieceType++)
             {
                 promotion.convertTo = (PieceType)pieceType;
+                promotion.promotion = true;
                 pseudoLegalMoves.push_back(promotion);
             }
         }
@@ -174,10 +176,11 @@ void GetPseudoLegalPawnMoves(const Engine &engine, std::vector<Move> &pseudoLega
     {
         if (CheckBit(engine.board.pieceBoards[colorIndex], 0 + 1, promotionRank - colorDirection)) // Because two pawns might capture on the same square, we need to check from where the captures came
         {
-            Move promotion = Move(0 + 1, j - colorDirection, 0, promotionRank);
-            for (auto pieceType = 1; pieceType < 6; pieceType++)
+            Move promotion = Move(0 + 1, promotionRank - colorDirection, 0, promotionRank);
+            for (auto pieceType = 2; pieceType < 6; pieceType++)
             {
                 promotion.convertTo = (PieceType)pieceType;
+                promotion.promotion = true;
                 pseudoLegalMoves.push_back(promotion);
             }
         }
@@ -187,9 +190,10 @@ void GetPseudoLegalPawnMoves(const Engine &engine, std::vector<Move> &pseudoLega
         if (CheckBit(engine.board.pieceBoards[colorIndex], 7 - 1, promotionRank - colorDirection)) // Captures are diagonal moves
         {
             Move promotion = Move(7 - 1, promotionRank - colorDirection, 7, promotionRank);
-            for (auto pieceType = 1; pieceType < 6; pieceType++)
+            for (auto pieceType = 2; pieceType < 6; pieceType++)
             {
                 promotion.convertTo = (PieceType)pieceType;
+                promotion.promotion = true;
                 pseudoLegalMoves.push_back(promotion);
             }
         }
