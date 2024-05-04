@@ -13,8 +13,8 @@ void MoveGenerator::GetPseudoLegalMoves(const Engine &engine, std::vector<Move> 
     GetPseudoLegalPawnMoves(engine, pseudoLegalMoves);
     GetPseudoLegalKnightMoves(engine, pseudoLegalMoves);
     GetPseudoLegalKingMoves(engine, pseudoLegalMoves);
-    GetPseudoLegalRookMoves(engine, engine.board.pieceBoards[3 + colorIndex] | engine.board.pieceBoards[4 + colorIndex], pseudoLegalMoves);
-    GetPseudoLegalBishopMoves(engine, engine.board.pieceBoards[2 + colorIndex] | engine.board.pieceBoards[4 + colorIndex], pseudoLegalMoves);
+    GetPseudoLegalRookMoves(engine, engine.board.pieceBoards[3 + colorIndex] | engine.board.pieceBoards[4 + colorIndex], pseudoLegalMoves); //rook + queen
+    GetPseudoLegalBishopMoves(engine, engine.board.pieceBoards[2 + colorIndex] | engine.board.pieceBoards[4 + colorIndex], pseudoLegalMoves);   //bishop + queen
 }
 
 void GetPseudoLegalPawnMoves(const Engine &engine, std::vector<Move> &pseudoLegalMoves)
