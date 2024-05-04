@@ -9,9 +9,12 @@
 
 void MoveGenerator::GetPseudoLegalMoves(const Engine &engine, std::vector<Move> &pseudoLegalMoves)
 {
+    auto colorIndex = engine.board.whiteToMove ? 0 : 6;
     GetPseudoLegalPawnMoves(engine, pseudoLegalMoves);
     GetPseudoLegalKnightMoves(engine, pseudoLegalMoves);
     GetPseudoLegalKingMoves(engine, pseudoLegalMoves);
+    GetPseudoLegalRookMoves(engine, engine.board.pieceBoards[3 + colorIndex] | engine.board.pieceBoards[4 + colorIndex], pseudoLegalMoves);
+    GetPseudoLegalBishopMoves(engine, engine.board.pieceBoards[2 + colorIndex] | engine.board.pieceBoards[4 + colorIndex], pseudoLegalMoves);
 }
 
 void GetPseudoLegalPawnMoves(const Engine &engine, std::vector<Move> &pseudoLegalMoves)
@@ -297,6 +300,136 @@ void GetPseudoLegalKingMoves(const Engine &engine, std::vector<Move> &pseudoLega
         if (!occupied)
         {
             pseudoLegalMoves.push_back(Move(4, firstRank, 6, firstRank));
+        }
+    }
+}
+
+void GetPseudoLegalRookMoves(const Engine &engine, const uint_fast64_t &rookPieceBoard, std::vector<Move> &pseudoLegalMoves)
+{
+    auto color = engine.board.whiteToMove;
+    uint_fast64_t thisBoard = engine.board.colorBoards[!color];
+    uint_fast64_t otherBoard = engine.board.colorBoards[color];
+
+    for (auto i = 0; i < 8; i++)
+    {
+        for (auto j = 0; j < 8; j++)
+        {
+            if (CheckBit(rookPieceBoard, i, j))
+            {
+                for (auto di = 1; di < 8 - i; di++)
+                {
+                    if (CheckBit(thisBoard, i + di, j))
+                    {
+                        break;
+                    }
+                    pseudoLegalMoves.push_back(Move(i, j, i + di, j));
+                    if (CheckBit(otherBoard, i + di, j))
+                    {
+                        break;
+                    }
+                }
+                for (auto di = -1; di >= -i; di--)
+                {
+                    if (CheckBit(thisBoard, i + di, j))
+                    {
+                        break;
+                    }
+                    pseudoLegalMoves.push_back(Move(i, j, i + di, j));
+                    if (CheckBit(otherBoard, i + di, j))
+                    {
+                        break;
+                    }
+                }
+                for (auto dj = 1; dj < 8 - j; dj++)
+                {
+                    if (CheckBit(thisBoard, i, j + dj))
+                    {
+                        break;
+                    }
+                    pseudoLegalMoves.push_back(Move(i, j, i, j + dj));
+                    if (CheckBit(otherBoard, i, j + dj))
+                    {
+                        break;
+                    }
+                }
+                for (auto dj = -1; dj >= -j; dj--)
+                {
+                    if (CheckBit(thisBoard, i, j + dj))
+                    {
+                        break;
+                    }
+                    pseudoLegalMoves.push_back(Move(i, j, i, j + dj));
+                    if (CheckBit(otherBoard, i, j + dj))
+                    {
+                        break;
+                    }
+                }
+            }
+        }
+    }
+}
+
+void GetPseudoLegalBishopMoves(const Engine &engine, const uint_fast64_t &bishopPieceBoard, std::vector<Move> &pseudoLegalMoves)
+{
+    auto color = engine.board.whiteToMove;
+    uint_fast64_t thisBoard = engine.board.colorBoards[!color];
+    uint_fast64_t otherBoard = engine.board.colorBoards[color];
+
+    for (auto i = 0; i < 8; i++)
+    {
+        for (auto j = 0; j < 8; j++)
+        {
+            if (CheckBit(bishopPieceBoard, i, j))
+            {
+                for (auto d = 1; d < std::min(8 - i, 8 - j); d++)
+                {
+                    if (CheckBit(thisBoard, i + d, j + d))
+                    {
+                        break;
+                    }
+                    pseudoLegalMoves.push_back(Move(i, j, i + d, j + d));
+                    if (CheckBit(otherBoard, i + d, j + d))
+                    {
+                        break;
+                    }
+                }
+                for (auto d = -1; d >= std::max(-i, -j); d--)
+                {
+                    if (CheckBit(thisBoard, i + d, j + d))
+                    {
+                        break;
+                    }
+                    pseudoLegalMoves.push_back(Move(i, j, i + d, j + d));
+                    if (CheckBit(otherBoard, i + d, j + d))
+                    {
+                        break;
+                    }
+                }
+                for (auto d = 1; d < std::min(8 - i, j); d++)
+                {
+                    if (CheckBit(thisBoard, i + d, j - d))
+                    {
+                        break;
+                    }
+                    pseudoLegalMoves.push_back(Move(i, j, i + d, j - d));
+                    if (CheckBit(otherBoard, i + d, j - d))
+                    {
+                        break;
+                    }
+                }
+                for (auto d = 1; d < std::min(i, 8 - j); d++)
+                {
+                    if (CheckBit(thisBoard, i - d, j + d))
+                    {
+                        break;
+                    }
+                    pseudoLegalMoves.push_back(Move(i, j, i - d, j + d));
+                    if (CheckBit(otherBoard, i - d, j + d))
+                    {
+                        break;
+                    }
+                }
+            }
         }
     }
 }
