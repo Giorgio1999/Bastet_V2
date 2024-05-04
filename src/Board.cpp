@@ -110,6 +110,9 @@ void Board::MakeMove(const Move &move)
 	// Update Color Boards
 	UpdateColorBoards();
 
+	// Update King coords
+	UpdateKingCoords(move);
+
 	// Update turn flag
 	whiteToMove = !whiteToMove;
 }
@@ -123,6 +126,29 @@ void Board::UpdateColorBoards()
 		colorBoards[0] |= pieceBoards[i];
 		colorBoards[1] |= pieceBoards[i + 6];
 	}
+}
+
+void Board::InitialiseKingCoords()
+{
+	for (auto i = 0; i < 8; i++)
+	{
+		for (auto j = 0; j < 8; j++)
+		{
+			if (CheckBit(pieceBoards[5], i, j))
+			{
+				kingCoords[0] = Coord(i, j);
+			}
+			if (CheckBit(pieceBoards[11], i, j))
+			{
+				kingCoords[1] = Coord(i, j);
+			}
+		}
+	}
+}
+
+void Board::UpdateKingCoords(const Move &move)
+{
+	kingCoords[!whiteToMove] = kingCoords[!whiteToMove] == move.startCoord ? move.targetCoord : kingCoords[!whiteToMove];
 }
 
 std::string Board::ShowBoard()

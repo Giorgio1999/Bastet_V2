@@ -11,6 +11,7 @@ void MoveGenerator::GetPseudoLegalMoves(const Engine &engine, std::vector<Move> 
 {
     GetPseudoLegalPawnMoves(engine, pseudoLegalMoves);
     GetPseudoLegalKnightMoves(engine, pseudoLegalMoves);
+    GetPseudoLegalKingMoves(engine, pseudoLegalMoves);
 }
 
 void GetPseudoLegalPawnMoves(const Engine &engine, std::vector<Move> &pseudoLegalMoves)
@@ -205,20 +206,20 @@ void GetPseudoLegalKnightMoves(const Engine &engine, std::vector<Move> &pseudoLe
 {
     auto color = engine.board.whiteToMove;
     auto colorIndex = color ? 0 : 6;
-    uint_fast64_t thisBoard = ~engine.board.colorBoards[!color];
-    for (auto i = 0; i < 8; i++)
+    uint_fast64_t thisBoard = ~engine.board.colorBoards[!color]; // friendly blockers
+    for (auto i = 0; i < 8; i++)                                 // loop over all squares to find knights
     {
         for (auto j = 0; j < 8; j++)
         {
             if (CheckBit(engine.board.pieceBoards[1 + colorIndex], i, j))
             {
-                for (auto di = -2; di < 3; di += 4)
+                for (auto di = -2; di < 3; di += 4) // Loop over all knight increments
                 {
                     for (auto dj = -1; dj < 2; dj += 2)
                     {
                         auto ii = i + di;
                         auto jj = j + dj;
-                        if (ii >= 0 && ii < 8 && jj >= 0 && jj < 8)
+                        if (ii >= 0 && ii < 8 && jj >= 0 && jj < 8) // Check for knight moves with 2x y
                         {
                             if (CheckBit(thisBoard, ii, jj))
                             {
@@ -227,7 +228,7 @@ void GetPseudoLegalKnightMoves(const Engine &engine, std::vector<Move> &pseudoLe
                         }
                         ii = i + dj;
                         jj = j + di;
-                        if (ii >= 0 && ii < 8 && jj >= 0 && jj < 8)
+                        if (ii >= 0 && ii < 8 && jj >= 0 && jj < 8) // Check for knight moves with x 2y
                         {
                             if (CheckBit(thisBoard, ii, jj))
                             {
@@ -237,6 +238,65 @@ void GetPseudoLegalKnightMoves(const Engine &engine, std::vector<Move> &pseudoLe
                     }
                 }
             }
+        }
+    }
+}
+
+void GetPseudoLegalKingMoves(const Engine &engine, std::vector<Move> &pseudoLegalMoves)
+{
+    auto color = engine.board.whiteToMove;
+    Coord kingCoord = engine.board.kingCoords[!color];
+    auto castleColorIndex = color ? 0 : 2;                                                    // to obtain colored castling rules
+    uint_fast64_t combinedColors = engine.board.colorBoards[0] | engine.board.colorBoards[1]; // Bitboard with both friendly and unfriendly blockers for castling
+    auto firstRank = color ? 7 : 0;
+
+    // normal king moves
+    uint_fast64_t moves = ZERO;
+    SetBit(moves, kingCoord.x, kingCoord.y);
+    moves = moves >> 8 | moves >> 9 | moves >> 1 | moves << 7 | moves << 8 | moves << 9 | moves << 1 | moves >> 7; // all king increments
+    moves &= ~engine.board.colorBoards[!color];                                                                    // removes blocked suqares
+    for (auto i = 0; i < 8; i++)
+    {
+        for (auto j = 0; j < 8; j++)
+        {
+            if (CheckBit(moves, i, j) && (std::abs(i - kingCoord.x) == 1 || std::abs(j - kingCoord.y) == 1))
+            { // moves are set bits of moves which lie in range of the king
+                pseudoLegalMoves.push_back(Move(kingCoord.x, kingCoord.y, i, j));
+            }
+        }
+    }
+
+    // fucking castling
+    auto occupied = false;
+    if (engine.board.castlingRights[castleColorIndex + 1])
+    { // Queenside castling
+        for (auto di = -1; di > -4; di--)
+        { // loop from king to left rook
+            if (CheckBit(combinedColors, 4 + di, firstRank))
+            { // if occupied square is found break
+                occupied = true;
+                break;
+            }
+        }
+        if (!occupied)
+        { // valid move if no blockers inbetween
+            pseudoLegalMoves.push_back(Move(4, firstRank, 2, firstRank));
+        }
+    }
+    occupied = false; // same but for kingside
+    if (engine.board.castlingRights[castleColorIndex])
+    {
+        for (auto di = 1; di < 3; di++)
+        {
+            if (CheckBit(combinedColors, 4 + di, firstRank))
+            {
+                occupied = true;
+                break;
+            }
+        }
+        if (!occupied)
+        {
+            pseudoLegalMoves.push_back(Move(4, firstRank, 6, firstRank));
         }
     }
 }
