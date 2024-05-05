@@ -42,11 +42,11 @@ void Board::MakeMove(const Move &move)
 				}
 			}
 			// Enpassant
-			if (CheckBit(pieceBoards[i], start.x, start.y))
+			if (CheckBit(pieceBoards[i], start.x, start.y) && !CheckBit(colorBoards[whiteToMove], target.x, target.y))
 			{
 				if (std::abs(start.x - target.x) > 0)
 				{
-					UnsetBit(pieceBoards[otherColor], target.x, target.y + colorDirection);
+					UnsetBit(pieceBoards[otherColor], target.x, target.y - colorDirection);
 				}
 			}
 		}
@@ -149,9 +149,9 @@ void Board::MakeSimpleMove(const Move &move)
 			// Enpassant
 			if (CheckBit(pieceBoards[i], start.x, start.y))
 			{
-				if (std::abs(start.x - target.x) > 0)
+				if (std::abs(start.x - target.x) > 0 && !CheckBit(colorBoards[whiteToMove], target.x, target.y))
 				{
-					UnsetBit(pieceBoards[otherColor], target.x, target.y + colorDirection);
+					UnsetBit(pieceBoards[otherColor], target.x, target.y - colorDirection);
 				}
 			}
 		}

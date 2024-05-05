@@ -38,7 +38,7 @@ void GetPseudoLegalPawnMoves(const Engine &engine, std::vector<Move> &pseudoLega
     pushes &= (~engine.board.colorBoards[color] & ~engine.board.colorBoards[!color]); // remove pawns which landed on occupied squares
     for (auto i = 0; i < 8; i++)
     {
-        auto j = startRank + 1; // we only care for pawn moves between start rank and one short of promotion rank
+        auto j = startRank + colorDirection; // we only care for pawn moves between start rank and one short of promotion rank
         for (auto k = 0; k < 6; k++)
         {
             if (CheckBit(pushes, i, j))

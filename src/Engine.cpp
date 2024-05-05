@@ -30,7 +30,7 @@ void Engine::MakeMove(const Move &move)
 	gameHistory.push_back(board);
 	board.MakeMove(move);
 	GenerateAttacks(!board.whiteToMove);
-	PrintBitBoard(board.attackBoard);
+	//PrintBitBoard(board.attackBoard);
 }
 
 void Engine::MakeSimpleMove(const Move& move){
