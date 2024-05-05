@@ -28,7 +28,7 @@ void Board::MakeMove(const Move &move)
 
 	auto color = whiteToMove ? 0 : 6;
 	auto otherColor = whiteToMove ? 6 : 0;
-	auto colorDirection = color ? -1:1;
+	auto colorDirection = whiteToMove ? -1 : 1;
 	for (auto i = color; i < 6 + color; i++)
 	{ // go trough all pieces of the color to move and find the piece at start
 		if (i == color)
@@ -38,7 +38,7 @@ void Board::MakeMove(const Move &move)
 			{
 				if (std::abs(start.y - target.y) > 1)
 				{
-					SetBit(ghostBoard, start.x, start.y + (whiteToMove ? -1 : 1));
+					SetBit(ghostBoard, start.x, start.y + colorDirection);
 				}
 			}
 			// Enpassant
@@ -141,7 +141,7 @@ void Board::MakeSimpleMove(const Move &move)
 
 	auto color = whiteToMove ? 0 : 6;
 	auto otherColor = whiteToMove ? 6 : 0;
-	auto colorDirection = color ? -1 : 1;
+	auto colorDirection = whiteToMove ? -1 : 1;
 	for (auto i = color; i < 6 + color; i++)
 	{ // go trough all pieces of the color to move and find the piece at start
 		if (i == color)

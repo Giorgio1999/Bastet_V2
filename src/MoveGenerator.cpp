@@ -4,7 +4,7 @@
 #include "MoveGenerator.h"
 #include <vector>
 #include <cstdint>
-// Testing of specific position 8/2p5/3p4/KP5r/1R3p1k/8/4P1P1/8 w - - 0 1 moves e2e4 h5f5 e4f5
+// Testing of specific position: position 8/2p5/3p4/KP5r/1R3p1k/8/4P1P1/8 w - - 0 1 moves e2e3 d6d5 b5b6 c7c6
 //  These are all functionalities connected to move generation
 
 void MoveGenerator::GetPseudoLegalMoves(const Engine &engine, std::vector<Move> &pseudoLegalMoves)
@@ -568,7 +568,6 @@ void GenerateRookAttacks(const Engine &engine, const bool &color, const uint_fas
     // Same as move generation
     uint_fast64_t bothBoards = engine.board.colorBoards[!color] | engine.board.colorBoards[color];
     UnsetBit(bothBoards,engine.board.kingCoords[color].x,engine.board.kingCoords[color].y); //Remove enemy king from blockers so slider can see behind king
-    PrintBitBoard(bothBoards);
     for (auto i = 0; i < 8; i++) // Loop to find square of rook piece
     {
         for (auto j = 0; j < 8; j++)
