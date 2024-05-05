@@ -27,12 +27,28 @@ void Board::MakeMove(const Move &move)
 	auto wasCastled = false; // Castling flag
 
 	auto color = whiteToMove ? 0 : 6;
+	auto otherColor = whiteToMove ? 6 : 0;
+	auto colorDirection = whiteToMove ? -1 : 1;
 	for (auto i = color; i < 6 + color; i++)
 	{ // go trough all pieces of the color to move and find the piece at start
-		// Pawn double pushes. leaves ghost
-		if (i == color && std::abs(start.y - target.y) > 1)
+		if (i == color)
 		{
-			SetBit(ghostBoard, start.x, start.y + (whiteToMove ? -1 : 1));
+			// Pawn double pushes. leaves ghost
+			if (CheckBit(pieceBoards[i], start.x, start.y))
+			{
+				if (std::abs(start.y - target.y) > 1)
+				{
+					SetBit(ghostBoard, start.x, start.y + colorDirection);
+				}
+			}
+			// Enpassant
+			if (CheckBit(pieceBoards[i], start.x, start.y))
+			{
+				if (std::abs(start.x - target.x) > 0)
+				{
+					UnsetBit(pieceBoards[otherColor], target.x, target.y + colorDirection);
+				}
+			}
 		}
 		// Generic moving
 		if (CheckBit(pieceBoards[i], start.x, start.y))
@@ -112,6 +128,62 @@ void Board::MakeMove(const Move &move)
 
 	// Update King coords
 	UpdateKingCoords(move);
+
+	// Update turn flag
+	whiteToMove = !whiteToMove;
+}
+
+void Board::MakeSimpleMove(const Move &move)
+{
+	ghostBoard = 0;
+	Coord start = move.startCoord;
+	Coord target = move.targetCoord;
+
+	auto color = whiteToMove ? 0 : 6;
+	auto otherColor = whiteToMove ? 6 : 0;
+	auto colorDirection = whiteToMove ? -1 : 1;
+	for (auto i = color; i < 6 + color; i++)
+	{ // go trough all pieces of the color to move and find the piece at start
+		if (i == color)
+		{
+			// Enpassant
+			if (CheckBit(pieceBoards[i], start.x, start.y))
+			{
+				if (std::abs(start.x - target.x) > 0)
+				{
+					UnsetBit(pieceBoards[otherColor], target.x, target.y + colorDirection);
+				}
+			}
+		}
+		// Generic moving
+		if (CheckBit(pieceBoards[i], start.x, start.y))
+		{ // is piece found, set piece bitboard at target and unset at start
+			SetBit(pieceBoards[i], target.x, target.y);
+			UnsetBit(pieceBoards[i], start.x, start.y);
+			break;
+		}
+	}
+	color = whiteToMove ? 6 : 0;
+	for (auto i = color; i < 6 + color; i++)
+	{ // for all not to move pieces, find piece at target and unset
+		if (CheckBit(pieceBoards[i], target.x, target.y))
+		{
+			UnsetBit(pieceBoards[i], target.x, target.y);
+			break;
+		}
+	}
+
+	color = whiteToMove ? 0 : 6;
+
+	// Promotions
+	if (move.convertTo != none)
+	{
+		UnsetBit(pieceBoards[color], target.x, target.y);
+		SetBit(pieceBoards[color + (int)move.convertTo], target.x, target.y);
+	}
+
+	// Update Color Boards
+	UpdateColorBoards();
 
 	// Update turn flag
 	whiteToMove = !whiteToMove;

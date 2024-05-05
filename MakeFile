@@ -1,5 +1,5 @@
 CXX = C:/msys64/mingw64/bin/g++.exe
-CXXFLAGS = -Iheader -g -Wall -Ofast
+CXXFLAGS = -Iheader -Wall -O3
 TARGET = Bastet_V2
 SRCS = $(wildcard src/*.cpp)
 HEADERS = $(wildcard header/*.h)

@@ -89,7 +89,7 @@ std::string EngineController::SplitPerft(const int &depth)
 	{
 		engine.MakeMove(move);
 		returnString += Move2Str(move) += ": ";
-		auto res = engine.Perft(depth);
+		auto res = engine.Perft(depth-1);
 		returnString += std::to_string(res);
 		engine.UndoLastMove();
 		returnString += "\n";

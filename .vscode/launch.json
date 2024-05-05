@@ -27,5 +27,6 @@
             ],
             "preLaunchTask": "build project",
         }
+
     ]
 }

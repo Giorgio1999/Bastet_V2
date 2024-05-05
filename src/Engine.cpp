@@ -3,6 +3,7 @@
 #include "Piece.h"
 #include "Move.h"
 #include "MoveGenerator.h"
+#include "BitBoardUtility.h"
 #include <string>
 #include <vector>
 // This is the engine class implementation
@@ -21,12 +22,21 @@ void Engine::SetBoard(const Board &newBoard)
 	board = newBoard;
 	board.UpdateColorBoards();
 	board.InitialiseKingCoords();
+	GenerateAttacks(!board.whiteToMove);
 }
 
 void Engine::MakeMove(const Move &move)
 {
 	gameHistory.push_back(board);
 	board.MakeMove(move);
+	GenerateAttacks(!board.whiteToMove);
+	PrintBitBoard(board.attackBoard);
+}
+
+void Engine::MakeSimpleMove(const Move& move){
+	gameHistory.push_back(board);
+	board.MakeSimpleMove(move);
+	GenerateAttacks(board.whiteToMove);
 }
 
 void Engine::UndoLastMove()
@@ -45,6 +55,12 @@ void Engine::GetPseudoLegalMoves(std::vector<Move> &pseudoLegalMoves)
 	MoveGenerator::GetPseudoLegalMoves(*this, pseudoLegalMoves);
 }
 
+void Engine::GenerateAttacks(const bool &color)
+{
+	board.attackBoard = 0;
+	MoveGenerator::GenerateAttacks(*this, color, board.attackBoard);
+}
+
 Move Engine::GetBestMove()
 {
 	std::vector<Move> legalmoves;
@@ -54,14 +70,14 @@ Move Engine::GetBestMove()
 
 void Engine::GetLegalMoves(std::vector<Move> &legalMoves)
 {
-	GetPseudoLegalMoves(legalMoves);
+	MoveGenerator::GetLegalMoves(*this, legalMoves);
 }
 
 int Engine::Perft(const int &depth)
 {
 	std::vector<Move> legalMoves;
 	GetLegalMoves(legalMoves);
-	if (depth <= 0)
+	if (depth == 0)
 	{
 		return (int)legalMoves.size();
 	}

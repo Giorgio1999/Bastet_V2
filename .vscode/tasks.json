@@ -20,6 +20,16 @@
                 "isDefault": true
             },
             "detail": "make clean"
+        },
+        {
+            "type": "shell",
+            "label": "run engine",
+            "command": "Bastet_V2.exe",
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "detail": "run"
         }
     ]
 }
