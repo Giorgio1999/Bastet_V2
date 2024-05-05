@@ -75,7 +75,7 @@ std::string EngineController::Perft(const int &depth)
 	int numberOfLeafs = engine.Perft(depth);
 	auto end = std::chrono::high_resolution_clock::now();
 	float duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
-	auto mnps = numberOfLeafs / duration / 1000000. * 60.;
+	auto mnps = numberOfLeafs / duration / 1000000. * 1000.;
 	std::string returnString = "Positions found: " + std::to_string(numberOfLeafs) + ", Speed = " + std::to_string(mnps) + "Mn/s";
 	return returnString;
 }
