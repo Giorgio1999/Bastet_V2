@@ -4,16 +4,19 @@
 #include <string>
 #include <thread>
 #include <atomic>
-
-std::atomic<bool> stopFlag(false);
+#include <future>
 
 void Listen()
 {
-	EngineController engineController = EngineController();
+	EngineController engineController;
 	std::string instruction = "";
 	while (std::getline(std::cin, instruction))
 	{
 		std::string key = instruction.substr(0, instruction.find(' '));
+		if (instruction == "")
+		{
+			continue;
+		}
 		if (key == "uci")
 		{
 			std::cout << "id name Bastet\n";
@@ -32,7 +35,6 @@ void Listen()
 		if (key == "ucinewgame")
 		{
 			engineController.NewGame();
-			// std::cout << "setting up new game\n";
 		}
 		if (key == "position" && instruction.length() != key.length())
 		{
@@ -41,19 +43,16 @@ void Listen()
 			if (positionKey == "startpos")
 			{
 				engineController.SetPosition();
-				// std::cout << "setting up starting position\n";
 			}
 			else
 			{
 				std::string fenString = arguments.substr(0, arguments.find("m"));
 				engineController.SetPosition(fenString);
-				// std::cout << "setting up fen: " << fenString << "\n";
 			}
 			if (instruction.find("moves") < instruction.length())
 			{
 				std::string moveHistory = instruction.substr(instruction.find("moves ") + 1 + 5, instruction.length());
 				engineController.MakeMoves(moveHistory);
-				// std::cout << "parsing move history: " << moveHistory << "\n";
 			}
 		}
 		if (key == "go")
@@ -75,16 +74,17 @@ void Listen()
 				}
 			}
 			// TO DO: parse options and dispatch engine search, once finished return here and
-			// std::string bestmove;
-			// std::thread searchThread(&EngineController::Search,bestmove);
-			// searchThread.join();
-			// std::string bestmoveString = "bestmove " + bestmove;
-			// std::cout << bestmoveString << "\n";
-			// std::cout << "dispatching engine, with: wtime " << wTime << ", btime " << bTime << "\n";
+			std::thread([&engineController]
+						{std::string result = "bestmove";
+						result += engineController.Search();
+						std::cout << result;
+						engineController.SetStopFlag(false); })
+				.detach();
 		}
 		if (key == "stop")
 		{
-			stopFlag = true;
+			engineController.SetStopFlag(true);
+			continue;
 		}
 		if (key == "quit")
 		{
@@ -93,19 +93,31 @@ void Listen()
 		// Custom keys from here on
 		if (key == "showboard")
 		{
-			std::cout << engineController.ShowBoard() << "\n";
+			std::cout << engineController.ShowBoard();
 		}
 		if (key == "legalmoves")
 		{
-			std::cout << engineController.GetLegalMoves() << "\n";
+			std::cout << engineController.GetLegalMoves();
 		}
 		if (key == "perft")
 		{
-			std::cout << engineController.Perft(std::stoi(instruction.substr(instruction.find(' ') + 1, instruction.length())) - 1) << "\n";
+			auto depth = std::stoi(instruction.substr(instruction.find(' ') + 1, instruction.length()));
+			std::thread([&engineController, &depth]
+						{
+				std::string result = engineController.Perft(depth);
+				std::cout << result << "\n";
+				engineController.SetStopFlag(false); })
+				.detach();
 		}
 		if (key == "splitperft")
 		{
-			std::cout << engineController.SplitPerft(std::stoi(instruction.substr(instruction.find(' ') + 1, instruction.length()))) << "\n";
+			auto depth = std::stoi(instruction.substr(instruction.find(' ') + 1, instruction.length()));
+			std::thread([&engineController, &depth]
+						{
+				std::string result = engineController.SplitPerft(depth);
+				std::cout << result << "\n"; 
+				engineController.SetStopFlag(false); })
+				.detach();
 		}
 		if (key == "undolastmove")
 		{

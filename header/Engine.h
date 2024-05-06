@@ -4,12 +4,15 @@
 #include "Move.h"
 #include <string>
 #include <vector>
+#include <atomic>
+
 
 // This will include the core functionality
 
 class Engine
 {
 public:
+	bool stopFlag;
 	std::vector<Board> gameHistory; // History of the game, consisting of boards. For undo or perhaps draw checks?
 	Board board;					// Board representation
 	Engine();

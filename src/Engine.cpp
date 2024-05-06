@@ -6,10 +6,12 @@
 #include "BitBoardUtility.h"
 #include <string>
 #include <vector>
+
 // This is the engine class implementation
 Engine::Engine()
 {
 	board = Board();
+	stopFlag = false;
 }
 
 void Engine::NewGame()
@@ -77,15 +79,17 @@ int Engine::Perft(const int &depth)
 {
 	std::vector<Move> legalMoves;
 	GetLegalMoves(legalMoves);
-	if (depth == 0)
+	if (depth == 1)
 	{
-		return 1;
+		return legalMoves.size();
 	}
 	int numberOfLeafs = 0;
 	for (const auto &current : legalMoves)
 	{
 		MakeMove(current);
-		numberOfLeafs += Perft(depth - 1);
+		if(!stopFlag){
+			numberOfLeafs += Perft(depth - 1);
+		}
 		UndoLastMove();
 	}
 	return numberOfLeafs;

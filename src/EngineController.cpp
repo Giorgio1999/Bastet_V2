@@ -4,6 +4,7 @@
 #include <string>
 #include <list>
 #include <chrono>
+#include <iostream>
 
 EngineController::EngineController() {}
 
@@ -12,6 +13,10 @@ void EngineController::BootEngine()
 	engine = Engine();
 	startpos = Fen2Position();
 	isReady = true;
+}
+
+void EngineController::SetStopFlag(const bool& value){
+	engine.stopFlag = value;
 }
 
 void EngineController::NewGame()
@@ -64,9 +69,9 @@ std::string EngineController::GetLegalMoves()
 	return movesString;
 }
 
-void EngineController::Search(std::string&& bestmove)
+std::string EngineController::Search()
 {
-	bestmove =  Move2Str(engine.GetBestMove());
+	return Move2Str(engine.GetBestMove());
 }
 
 std::string EngineController::Perft(const int &depth)
