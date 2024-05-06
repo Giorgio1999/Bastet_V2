@@ -79,7 +79,7 @@ int Engine::Perft(const int &depth)
 	GetLegalMoves(legalMoves);
 	if (depth == 0)
 	{
-		return (int)legalMoves.size();
+		return 1;
 	}
 	int numberOfLeafs = 0;
 	for (const auto &current : legalMoves)

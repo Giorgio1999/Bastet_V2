@@ -4,7 +4,7 @@
 #include "MoveGenerator.h"
 #include <vector>
 #include <cstdint>
-// Testing of specific position: position 8/2p5/3p4/KP5r/1R3p1k/8/4P1P1/8 w - - 0 1 moves e2e3 d6d5 b5b6 c7c6
+// Testing of specific position: position 8/2p5/3p4/KP5r/1R3p1k/8/4P1P1/8 w - - 0 1 moves e2e4 f4f3 g2g4 f3f2 b4b1
 //  These are all functionalities connected to move generation
 
 void MoveGenerator::GetPseudoLegalMoves(const Engine &engine, std::vector<Move> &pseudoLegalMoves)
@@ -39,7 +39,7 @@ void GetPseudoLegalPawnMoves(const Engine &engine, std::vector<Move> &pseudoLega
     for (auto i = 0; i < 8; i++)
     {
         auto j = startRank + colorDirection; // we only care for pawn moves between start rank and one short of promotion rank
-        for (auto k = 0; k < 6; k++)
+        for (auto k = 0; k < 5; k++)
         {
             if (CheckBit(pushes, i, j))
             {
@@ -84,7 +84,7 @@ void GetPseudoLegalPawnMoves(const Engine &engine, std::vector<Move> &pseudoLega
     for (auto i = 1; i < 7; i++)                                                       // pawns at the edge need to be handled seperately to prevent telepawns
     {
         auto j = startRank + colorDirection; // Again only consider captures between start rank and one short of promotion
-        for (auto k = 0; k < 6; k++)
+        for (auto k = 0; k < 5; k++)
         {
             if (CheckBit(captures, i, j))
             {
@@ -101,7 +101,7 @@ void GetPseudoLegalPawnMoves(const Engine &engine, std::vector<Move> &pseudoLega
         }
     }
     auto j = startRank + colorDirection; // Treatment of the border pawns
-    for (auto k = 0; k < 6; k++)
+    for (auto k = 0; k < 5; k++)
     {
         if (CheckBit(captures, 0, j))
         {
@@ -113,7 +113,7 @@ void GetPseudoLegalPawnMoves(const Engine &engine, std::vector<Move> &pseudoLega
         j += colorDirection;
     }
     j = startRank + colorDirection;
-    for (auto k = 0; k < 6; k++)
+    for (auto k = 0; k < 5; k++)
     {
         if (CheckBit(captures, 7, j))
         {
@@ -270,36 +270,41 @@ void GetPseudoLegalKingMoves(const Engine &engine, std::vector<Move> &pseudoLega
     }
 
     // fucking castling
-    auto occupied = false;
-    if (engine.board.castlingRights[castleColorIndex + 1])
-    { // Queenside castling
-        for (auto di = -1; di > -4; di--)
-        { // loop from king to left rook
-            if (CheckBit(combinedColors, 4 + di, firstRank))
-            { // if occupied square is found or attacked square break
-                occupied = true;
-                break;
+    if (!CheckBit(engine.board.attackBoard,kingCoord.x,kingCoord.y)){    //cant castle if check
+        auto occupied = false;
+        uint_fast64_t relevantAttacks = engine.board.attackBoard;
+        UnsetBit(relevantAttacks,4-3,firstRank);    //here attacks dont matter
+        combinedColors = engine.board.colorBoards[0] | engine.board.colorBoards[1] | relevantAttacks;
+        if (engine.board.castlingRights[castleColorIndex + 1])
+        { // Queenside castling
+            for (auto di = -1; di > -4; di--)
+            { // loop from king to left rook
+                if (CheckBit(combinedColors, 4 + di, firstRank))
+                { // if occupied square is found or attacked square break
+                    occupied = true;
+                    break;
+                }
+            }
+            if (!occupied)
+            { // valid move if no blockers inbetween
+                pseudoLegalMoves.push_back(Move(4, firstRank, 2, firstRank));
             }
         }
-        if (!occupied)
-        { // valid move if no blockers inbetween
-            pseudoLegalMoves.push_back(Move(4, firstRank, 2, firstRank));
-        }
-    }
-    occupied = false; // same but for kingside
-    if (engine.board.castlingRights[castleColorIndex])
-    {
-        for (auto di = 1; di < 3; di++)
+        occupied = false; // same but for kingside
+        if (engine.board.castlingRights[castleColorIndex])
         {
-            if (CheckBit(combinedColors, 4 + di, firstRank))
+            for (auto di = 1; di < 3; di++)
             {
-                occupied = true;
-                break;
+                if (CheckBit(combinedColors, 4 + di, firstRank))
+                {
+                    occupied = true;
+                    break;
+                }
             }
-        }
-        if (!occupied)
-        {
-            pseudoLegalMoves.push_back(Move(4, firstRank, 6, firstRank));
+            if (!occupied)
+            {
+                pseudoLegalMoves.push_back(Move(4, firstRank, 6, firstRank));
+            }
         }
     }
 }
@@ -505,7 +510,6 @@ void GenerateKnightAttacks(const Engine &engine, const bool &color, uint_fast64_
 {
     // This is basically the same as the move generation function but with setting attackboard bits
     auto colorIndex = color ? 0 : 6;
-    uint_fast64_t thisBoard = ~engine.board.colorBoards[!color]; // friendly blockers
     for (auto i = 0; i < 8; i++)                                 // loop over all squares to find knights
     {
         for (auto j = 0; j < 8; j++)
@@ -520,19 +524,13 @@ void GenerateKnightAttacks(const Engine &engine, const bool &color, uint_fast64_
                         auto jj = j + dj;
                         if (ii >= 0 && ii < 8 && jj >= 0 && jj < 8) // Check for knight moves with 2x y
                         {
-                            if (CheckBit(thisBoard, ii, jj))
-                            {
                                 SetBit(attackBoard, ii, jj);
-                            }
                         }
                         ii = i + dj;
                         jj = j + di;
                         if (ii >= 0 && ii < 8 && jj >= 0 && jj < 8) // Check for knight moves with x 2y
                         {
-                            if (CheckBit(thisBoard, ii, jj))
-                            {
                                 SetBit(attackBoard, ii, jj);
-                            }
                         }
                     }
                 }
@@ -550,7 +548,6 @@ void GenerateKingAttacks(const Engine &engine, const bool &color, uint_fast64_t 
     uint_fast64_t moves = ZERO;
     SetBit(moves, kingCoord.x, kingCoord.y);
     moves = moves >> 8 | moves >> 9 | moves >> 1 | moves << 7 | moves << 8 | moves << 9 | moves << 1 | moves >> 7; // all king increments
-    moves &= ~engine.board.colorBoards[!color];                                                                    // removes blocked suqares
     for (auto i = 0; i < 8; i++)
     {
         for (auto j = 0; j < 8; j++)

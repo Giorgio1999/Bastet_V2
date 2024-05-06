@@ -64,9 +64,9 @@ std::string EngineController::GetLegalMoves()
 	return movesString;
 }
 
-std::string EngineController::Search()
+void EngineController::Search(std::string&& bestmove)
 {
-	return Move2Str(engine.GetBestMove());
+	bestmove =  Move2Str(engine.GetBestMove());
 }
 
 std::string EngineController::Perft(const int &depth)
@@ -89,7 +89,13 @@ std::string EngineController::SplitPerft(const int &depth)
 	{
 		engine.MakeMove(move);
 		returnString += Move2Str(move) += ": ";
-		auto res = engine.Perft(depth-1);
+		auto res = 0;
+		if(depth != 1){
+			res = engine.Perft(depth-2);
+		}
+		else{
+			res = 1;
+		}
 		returnString += std::to_string(res);
 		engine.UndoLastMove();
 		returnString += "\n";

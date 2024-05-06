@@ -90,23 +90,23 @@ void Board::MakeMove(const Move &move)
 	if (move.convertTo != none)
 	{
 		UnsetBit(pieceBoards[color], target.x, target.y);
-		SetBit(pieceBoards[color + (int)move.convertTo], target.x, target.y);
+		SetBit(pieceBoards[color + (int)move.convertTo - 1], target.x, target.y);
 	}
 
 	// Update castling flags
-	if (start.x == 7 && start.y == 7)
+	if ((start.x == 7 && start.y == 7) || (target.x == 7 && target.y == 7))
 	{
 		castlingRights[0] = false;
 	}
-	if (start.x == 0 && start.y == 7)
+	if ((start.x == 0 && start.y == 7) || (target.x == 0 && target.y == 7))
 	{
 		castlingRights[1] = false;
 	}
-	if (start.x == 7 && start.y == 0)
+	if ((start.x == 7 && start.y == 0) || (target.x == 7 && target.y == 0))
 	{
 		castlingRights[2] = false;
 	}
-	if (start.x == 0 && start.y == 0)
+	if ((start.x == 0 && start.y == 0) || (target.x == 0 && target.y == 0))
 	{
 		castlingRights[3] = false;
 	}
@@ -179,7 +179,7 @@ void Board::MakeSimpleMove(const Move &move)
 	if (move.convertTo != none)
 	{
 		UnsetBit(pieceBoards[color], target.x, target.y);
-		SetBit(pieceBoards[color + (int)move.convertTo], target.x, target.y);
+		SetBit(pieceBoards[color + (int)move.convertTo-1], target.x, target.y);
 	}
 
 	// Update Color Boards

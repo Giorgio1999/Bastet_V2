@@ -2,6 +2,10 @@
 #include "EngineController.h"
 #include <iostream>
 #include <string>
+#include <thread>
+#include <atomic>
+
+std::atomic<bool> stopFlag(false);
 
 void Listen()
 {
@@ -71,14 +75,16 @@ void Listen()
 				}
 			}
 			// TO DO: parse options and dispatch engine search, once finished return here and
-			std::string bestmove = "bestmove " + engineController.Search();
-			std::cout << bestmove << "\n";
+			// std::string bestmove;
+			// std::thread searchThread(&EngineController::Search,bestmove);
+			// searchThread.join();
+			// std::string bestmoveString = "bestmove " + bestmove;
+			// std::cout << bestmoveString << "\n";
 			// std::cout << "dispatching engine, with: wtime " << wTime << ", btime " << bTime << "\n";
 		}
 		if (key == "stop")
 		{
-			// TO DO: stop engine and return search results
-			// std::cout << "stopping\n";
+			stopFlag = true;
 		}
 		if (key == "quit")
 		{
@@ -99,7 +105,7 @@ void Listen()
 		}
 		if (key == "splitperft")
 		{
-			std::cout << engineController.SplitPerft(std::stoi(instruction.substr(instruction.find(' ') + 1, instruction.length())) - 1) << "\n";
+			std::cout << engineController.SplitPerft(std::stoi(instruction.substr(instruction.find(' ') + 1, instruction.length()))) << "\n";
 		}
 		if (key == "undolastmove")
 		{
