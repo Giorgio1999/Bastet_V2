@@ -119,6 +119,15 @@ void Listen()
 				engineController.SetStopFlag(false); })
 				.detach();
 		}
+		if (key == "fullperft")
+		{
+			// std::thread([&engineController]
+			// 			{
+			// 	engineController.FullPerftTest();
+			// 	engineController.SetStopFlag(false); })
+			// 	.detach();
+			engineController.FullPerftTest();
+		}
 		if (key == "undolastmove")
 		{
 			engineController.UndoLastMove();

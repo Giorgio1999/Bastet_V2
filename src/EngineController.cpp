@@ -5,6 +5,7 @@
 #include <list>
 #include <chrono>
 #include <iostream>
+#include <fstream>
 
 EngineController::EngineController() {}
 
@@ -116,4 +117,34 @@ void EngineController::UndoLastMove()
 void EngineController::TestReady()
 {
 	isReady = true;
+}
+
+void EngineController::FullPerftTest(){
+	std::string dataPath = "..\\test.txt";
+	std::fstream dataStream(dataPath,std::ios::out);
+	std::string line;
+	if(!dataStream.bad()){
+		dataStream << "hello";
+	}
+	if(!dataStream.is_open()){
+		std::cerr << "Fehler" << "\n";
+		return; 
+	}
+	// while(std::getline(dataStream,line) && !engine.stopFlag){
+	// 	std::string fen = line.substr(0,line.find(','));
+	// 	std::cout << "Position: " << fen << ":\n";
+	// 	engine.SetBoard(Fen2Position(fen));
+	// 	line = line.substr(fen.size()+1,line.size());
+	// 	auto depth =1;
+	// 	while(line.size()>0 && !engine.stopFlag){
+	// 		std::cout << "\tdepth " << depth << ": "; 
+	// 		auto result = engine.Perft(depth);
+	// 		std::string ref = line.substr(0,line.find_first_of(';'));
+	// 		std::cout << result << "(" << ref << ")";
+	// 		auto diff = result-std::stoi(ref);
+	// 		std::cout << " diff: " << diff << "\n";
+	// 		line = line.substr(ref.size()+1,line.size());
+	// 		line = line.substr(0,line.find_first_of(';'));
+	// 	}
+	// }
 }

@@ -26,4 +26,5 @@ public:
 	std::string SplitPerft(const int &depth);		// Split perft prints out number of leaves after each move
 	void UndoLastMove();							// Debug to test functionality
 	void TestReady();								// Test wheter engine is ready
+	void FullPerftTest();					//Runs a full perft test suite
 };
