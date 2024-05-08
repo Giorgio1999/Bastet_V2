@@ -1,5 +1,5 @@
 CXX = g++
-CXXFLAGS = -Iheader -Wall -Wextra -Ofast 
+CXXFLAGS = -Iheader -Wall -Wextra -Ofast
 TARGET = Bastet_V2
 SRCS = $(wildcard src/*.cpp)
 HEADERS = $(wildcard header/*.h)

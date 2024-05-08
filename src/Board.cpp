@@ -185,6 +185,9 @@ void Board::MakeSimpleMove(const Move &move)
 	// Update Color Boards
 	UpdateColorBoards();
 
+	// Update King coords
+	UpdateKingCoords(move);
+
 	// Update turn flag
 	whiteToMove = !whiteToMove;
 }

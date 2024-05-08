@@ -98,7 +98,7 @@ void Listen()
 		}
 		if (key == "legalmoves")
 		{
-			std::cout << engineController.GetLegalMoves();
+			std::cout << engineController.GetLegalMoves() << std::endl;
 		}
 		if (key == "perft")
 		{

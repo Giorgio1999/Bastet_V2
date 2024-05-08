@@ -24,21 +24,21 @@ void Engine::SetBoard(const Board &newBoard)
 	board = newBoard;
 	board.UpdateColorBoards();
 	board.InitialiseKingCoords();
-	GenerateAttacks(!board.whiteToMove);
+	// GenerateAttacks(!board.whiteToMove);
 }
 
 void Engine::MakeMove(const Move &move)
 {
 	gameHistory.push_back(board);
 	board.MakeMove(move);
-	GenerateAttacks(!board.whiteToMove);
+	// GenerateAttacks(!board.whiteToMove);
 	//PrintBitBoard(board.attackBoard);
 }
 
 void Engine::MakeSimpleMove(const Move& move){
 	gameHistory.push_back(board);
 	board.MakeSimpleMove(move);
-	GenerateAttacks(board.whiteToMove);
+	// GenerateAttacks(board.whiteToMove);
 }
 
 void Engine::UndoLastMove()

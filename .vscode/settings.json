@@ -62,6 +62,7 @@
         "future": "cpp",
         "condition_variable": "cpp",
         "mutex": "cpp",
-        "fstream": "cpp"
+        "fstream": "cpp",
+        "terminal.external.linuxExec": "bin/bash"
     }
 }

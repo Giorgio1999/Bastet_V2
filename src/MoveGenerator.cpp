@@ -4,7 +4,7 @@
 #include "MoveGenerator.h"
 #include <vector>
 #include <cstdint>
-// Testing of specific position: position 8/2p5/3p4/KP5r/1R3p1k/8/4P1P1/8 w - - 0 1 moves e2e4 f4f3 g2g4 f3f2 b4b1
+// Testing of specific position: position startpos moves a2a3 a7a6 a1a2 a6a5
 //  These are all functionalities connected to move generation
 
 void MoveGenerator::GetPseudoLegalMoves(const Engine &engine, std::vector<Move> &pseudoLegalMoves)
@@ -249,15 +249,15 @@ void GetPseudoLegalKingMoves(const Engine &engine, std::vector<Move> &pseudoLega
 {
     auto color = engine.board.whiteToMove;
     Coord kingCoord = engine.board.kingCoords[!color];
-    auto castleColorIndex = color ? 0 : 2;                                                                               // to obtain colored castling rules
-    uint_fast64_t combinedColors = engine.board.colorBoards[0] | engine.board.colorBoards[1] | engine.board.attackBoard; // Bitboard with both friendly and unfriendly blockers and attacked squares for castling
+    auto castleColorIndex = color ? 0 : 2;                                                    // to obtain colored castling rules
+    uint_fast64_t combinedColors = engine.board.colorBoards[0] | engine.board.colorBoards[1]; // | engine.board.attackBoard; // Bitboard with both friendly and unfriendly blockers and attacked squares for castling
     auto firstRank = color ? 7 : 0;
 
     // normal king moves
     uint_fast64_t moves = ZERO;
     SetBit(moves, kingCoord.x, kingCoord.y);
     moves = moves >> 8 | moves >> 9 | moves >> 1 | moves << 7 | moves << 8 | moves << 9 | moves << 1 | moves >> 7; // all king increments
-    moves &= ~engine.board.colorBoards[!color] & ~engine.board.attackBoard;                                        // removes friendly blocked suqares and attacked squares
+    moves &= ~engine.board.colorBoards[!color];                                                                    // & ~engine.board.attackBoard;                                        // removes friendly blocked suqares and attacked squares
     for (auto i = 0; i < 8; i++)
     {
         for (auto j = 0; j < 8; j++)
@@ -270,20 +270,28 @@ void GetPseudoLegalKingMoves(const Engine &engine, std::vector<Move> &pseudoLega
     }
 
     // fucking castling
-    if (!CheckBit(engine.board.attackBoard,kingCoord.x,kingCoord.y)){    //cant castle if check
+    // if (!CheckBit(engine.board.attackBoard, kingCoord.x, kingCoord.y))
+    if (!MoveGenerator::IsSquareAttacked(engine, kingCoord, !color))
+    { // cant castle if check
         auto occupied = false;
-        uint_fast64_t relevantAttacks = engine.board.attackBoard;
-        UnsetBit(relevantAttacks,4-3,firstRank);    //here attacks dont matter
-        combinedColors = engine.board.colorBoards[0] | engine.board.colorBoards[1] | relevantAttacks;
+        // uint_fast64_t relevantAttacks = engine.board.attackBoard;
+        // UnsetBit(relevantAttacks, 4 - 3, firstRank); // here attacks dont matter
+        combinedColors = engine.board.colorBoards[0] | engine.board.colorBoards[1]; // | relevantAttacks;
         if (engine.board.castlingRights[castleColorIndex + 1])
         { // Queenside castling
-            for (auto di = -1; di > -4; di--)
+            for (auto di = -1; di > -3; di--)
             { // loop from king to left rook
-                if (CheckBit(combinedColors, 4 + di, firstRank))
-                { // if occupied square is found or attacked square break
+                if (CheckBit(combinedColors, 4 + di, firstRank) || MoveGenerator::IsSquareAttacked(engine, Coord(4 + di, firstRank), !color))
+                {
+                    // if occupied square is found or attacked square break
                     occupied = true;
                     break;
                 }
+            }
+            if (CheckBit(combinedColors, 4 - 3, firstRank)) // last square can be attacked
+            {
+                // if occupied square is found
+                occupied = true;
             }
             if (!occupied)
             { // valid move if no blockers inbetween
@@ -295,7 +303,7 @@ void GetPseudoLegalKingMoves(const Engine &engine, std::vector<Move> &pseudoLega
         {
             for (auto di = 1; di < 3; di++)
             {
-                if (CheckBit(combinedColors, 4 + di, firstRank))
+                if (CheckBit(combinedColors, 4 + di, firstRank) || MoveGenerator::IsSquareAttacked(engine, Coord(4 + di, firstRank), !color))
                 {
                     occupied = true;
                     break;
@@ -510,7 +518,7 @@ void GenerateKnightAttacks(const Engine &engine, const bool &color, uint_fast64_
 {
     // This is basically the same as the move generation function but with setting attackboard bits
     auto colorIndex = color ? 0 : 6;
-    for (auto i = 0; i < 8; i++)                                 // loop over all squares to find knights
+    for (auto i = 0; i < 8; i++) // loop over all squares to find knights
     {
         for (auto j = 0; j < 8; j++)
         {
@@ -524,13 +532,13 @@ void GenerateKnightAttacks(const Engine &engine, const bool &color, uint_fast64_
                         auto jj = j + dj;
                         if (ii >= 0 && ii < 8 && jj >= 0 && jj < 8) // Check for knight moves with 2x y
                         {
-                                SetBit(attackBoard, ii, jj);
+                            SetBit(attackBoard, ii, jj);
                         }
                         ii = i + dj;
                         jj = j + di;
                         if (ii >= 0 && ii < 8 && jj >= 0 && jj < 8) // Check for knight moves with x 2y
                         {
-                                SetBit(attackBoard, ii, jj);
+                            SetBit(attackBoard, ii, jj);
                         }
                     }
                 }
@@ -564,8 +572,8 @@ void GenerateRookAttacks(const Engine &engine, const bool &color, const uint_fas
 {
     // Same as move generation
     uint_fast64_t bothBoards = engine.board.colorBoards[!color] | engine.board.colorBoards[color];
-    UnsetBit(bothBoards,engine.board.kingCoords[color].x,engine.board.kingCoords[color].y); //Remove enemy king from blockers so slider can see behind king
-    for (auto i = 0; i < 8; i++) // Loop to find square of rook piece
+    UnsetBit(bothBoards, engine.board.kingCoords[color].x, engine.board.kingCoords[color].y); // Remove enemy king from blockers so slider can see behind king
+    for (auto i = 0; i < 8; i++)                                                              // Loop to find square of rook piece
     {
         for (auto j = 0; j < 8; j++)
         {
@@ -611,8 +619,7 @@ void GenerateBishopAttacks(const Engine &engine, const bool &color, const uint_f
 {
     // Same as move generation
     uint_fast64_t bothBoards = engine.board.colorBoards[!color] | engine.board.colorBoards[color];
-    UnsetBit(bothBoards,engine.board.kingCoords[color].x,engine.board.kingCoords[color].y); //Remove enemy king from blockers so slider can see behind king
-
+    UnsetBit(bothBoards, engine.board.kingCoords[color].x, engine.board.kingCoords[color].y); // Remove enemy king from blockers so slider can see behind king
 
     for (auto i = 0; i < 8; i++) // loop to find bishop piece
     {
@@ -666,15 +673,159 @@ void MoveGenerator::GetLegalMoves(Engine &engine, std::vector<Move> &legalmoves)
     GetPseudoLegalKnightMoves(engine, pseudoLegalMoves);
     GetPseudoLegalRookMoves(engine, engine.board.pieceBoards[3 + colorIndex] | engine.board.pieceBoards[4 + colorIndex], pseudoLegalMoves);
     GetPseudoLegalBishopMoves(engine, engine.board.pieceBoards[2 + colorIndex] | engine.board.pieceBoards[4 + colorIndex], pseudoLegalMoves);
+    GetPseudoLegalKingMoves(engine, pseudoLegalMoves);
     for (const auto &move : pseudoLegalMoves)
     {
         engine.MakeSimpleMove(move);
-        //if (!CheckBit(engine.board.attackBoard, engine.board.kingCoords[!color].x, engine.board.kingCoords[!color].y))
-        if((engine.board.attackBoard & engine.board.pieceBoards[5+colorIndex])==0)
+        // if (!CheckBit(engine.board.attackBoard, engine.board.kingCoords[!color].x, engine.board.kingCoords[!color].y))
+        if (!MoveGenerator::IsSquareAttacked(engine, Coord(engine.board.kingCoords[!color]), !color))
         {
             legalmoves.push_back(move);
         }
         engine.UndoLastMove();
     }
-    GetPseudoLegalKingMoves(engine, legalmoves);
+}
+
+bool MoveGenerator::IsSquareAttacked(const Engine &engine, const Coord &square, const bool &attackingColor)
+{
+    auto colorIndex = attackingColor ? 0 : 6;
+    // Bitboards containing slider pieces
+    uint_fast64_t horAndVertSliderBoard = engine.board.pieceBoards[3 + colorIndex] | engine.board.pieceBoards[4 + colorIndex];
+    uint_fast64_t diagonalSliderBoard = engine.board.pieceBoards[2 + colorIndex] | engine.board.pieceBoards[4 + colorIndex];
+    // Bitboards containing all pieces which cant check by sliding
+    uint_fast64_t horAndVertBlockerBoard = (engine.board.colorBoards[!attackingColor] & ~engine.board.pieceBoards[3 + colorIndex] & ~engine.board.pieceBoards[4 + colorIndex]) | engine.board.colorBoards[attackingColor];
+    uint_fast64_t diagonalBlockerBoard = (engine.board.colorBoards[!attackingColor] & ~engine.board.pieceBoards[2 + colorIndex] & ~engine.board.pieceBoards[4 + colorIndex]) | engine.board.colorBoards[attackingColor];
+
+    // Horizontal and vertical sliders
+    for (auto i = square.x + 1; i < 8; i++)
+    {
+        if (CheckBit(horAndVertSliderBoard, i, square.y))
+        {
+            return true;
+        }
+        if (CheckBit(horAndVertBlockerBoard, i, square.y))
+        {
+            break;
+        }
+    }
+    for (auto i = square.y + 1; i < 8; i++)
+    {
+        if (CheckBit(horAndVertSliderBoard, square.x, i))
+        {
+            return true;
+        }
+        if (CheckBit(horAndVertBlockerBoard, square.x, i))
+        {
+            break;
+        }
+    }
+    for (auto i = square.x - 1; i >= 0; i--)
+    {
+        if (CheckBit(horAndVertSliderBoard, i, square.y))
+        {
+            return true;
+        }
+        if (CheckBit(horAndVertBlockerBoard, i, square.y))
+        {
+            break;
+        }
+    }
+    for (auto i = square.y - 1; i >= 0; i--)
+    {
+        if (CheckBit(horAndVertSliderBoard, square.x, i))
+        {
+            return true;
+        }
+        if (CheckBit(horAndVertBlockerBoard, square.x, i))
+        {
+            break;
+        }
+    }
+
+    // Diagonal sliders
+    for (auto d = 1; d < std::min(8 - square.x, 8 - square.y); d++)
+    {
+        if (CheckBit(diagonalSliderBoard, square.x + d, square.y + d))
+        {
+            return true;
+        }
+        if (CheckBit(diagonalBlockerBoard, square.x + d, square.y + d))
+        {
+            break;
+        }
+    }
+    for (auto d = -1; d >= std::max(-square.x, -square.y); d--)
+    {
+        if (CheckBit(diagonalSliderBoard, square.x + d, square.y + d))
+        {
+            return true;
+        }
+        if (CheckBit(diagonalBlockerBoard, square.x + d, square.y + d))
+        {
+            break;
+        }
+    }
+    for (auto d = 1; d < std::min(8 - square.x, square.y + 1); d++)
+    {
+        if (CheckBit(diagonalSliderBoard, square.x + d, square.y - d))
+        {
+            return true;
+        }
+        if (CheckBit(diagonalBlockerBoard, square.x + d, square.y - d))
+        {
+            break;
+        }
+    }
+    for (auto d = 1; d < std::min(square.x + 1, 8 - square.y); d++)
+    {
+        if (CheckBit(diagonalSliderBoard, square.x - d, square.y + d))
+        {
+            return true;
+        }
+        if (CheckBit(diagonalBlockerBoard, square.x - d, square.y + d))
+        {
+            break;
+        }
+    }
+
+    // Knights
+    for (auto di = -2; di < 3; di += 4) // Loop over all knight increments
+    {
+        for (auto dj = -1; dj < 2; dj += 2)
+        {
+            auto ii = square.x + di;
+            auto jj = square.y + dj;
+            if (ii >= 0 && ii < 8 && jj >= 0 && jj < 8 && CheckBit(engine.board.pieceBoards[1 + colorIndex], ii, jj)) // Check for knight moves with 2x y
+            {
+                return true;
+            }
+            ii = square.x + dj;
+            jj = square.y + di;
+            if (ii >= 0 && ii < 8 && jj >= 0 && jj < 8 && CheckBit(engine.board.pieceBoards[1 + colorIndex], ii, jj)) // Check for knight moves with x 2y
+            {
+                return true;
+            }
+        }
+    }
+
+    // Pawns
+    auto colorDir = attackingColor ? -1 : 1;
+    if (square.x - 1 < 8 && square.x - 1 >= 0 && CheckBit(engine.board.pieceBoards[0 + colorIndex], square.x - 1, square.y - colorDir))
+    {
+        return true;
+    }
+    if (square.x + 1 < 8 && square.x + 1 >= 0 && CheckBit(engine.board.pieceBoards[0 + colorIndex], square.x + 1, square.y - colorDir))
+    {
+        return true;
+    }
+
+    // King
+    Coord otherKingCoord = engine.board.kingCoords[!attackingColor];
+    auto squaredDistanceToKing = (square.x - otherKingCoord.x) * (square.x - otherKingCoord.x) + (square.y - otherKingCoord.y) * (square.y - otherKingCoord.y);
+    if (squaredDistanceToKing <= 2)
+    {
+        return true;
+    }
+
+    return false;
 }
