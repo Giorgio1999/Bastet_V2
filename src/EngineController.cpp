@@ -120,25 +120,29 @@ void EngineController::TestReady()
 }
 
 void EngineController::FullPerftTest(){
-	auto dataPath = "C:/Users/giorg/Documents/Projekte/ChessEngine/Bastet_V2/assets/perftTestSuit.txt";
+	auto dataPath = "../assets/perftTestSuit.txt";
 	std::fstream dataStream(dataPath,std::ios::in);
 	std::string line;
-	// while(std::getline(dataStream,line) && !engine.stopFlag){
-	// 	std::string fen = line.substr(0,line.find(','));
-	// 	std::cout << "Position: " << fen << ":\n";
-	// 	engine.SetBoard(Fen2Position(fen));
-	// 	line = line.substr(fen.size()+1,line.size());
-	// 	auto depth =1;
-	// 	while(line.size()>0 && !engine.stopFlag){
-	// 		std::cout << "\tdepth " << depth << ": "; 
-	// 		auto result = engine.Perft(depth);
-	// 		std::string ref = line.substr(0,line.find_first_of(';'));
-	// 		std::cout << result << "(" << ref << ")";
-	// 		auto diff = result-std::stoi(ref);
-	// 		std::cout << " diff: " << diff << "\n";
-	// 		line = line.substr(ref.size()+1,line.size());
-	// 		depth++;
-	// 	}
-	// }
+	while(std::getline(dataStream,line) && !engine.stopFlag){
+		std::string fen = line.substr(0,line.find(','));
+		std::cout << "Position: " << fen << ":\n";
+		engine.SetBoard(Fen2Position(fen));
+		line = line.substr(fen.size()+1,line.size());
+		auto depth =1;
+		while(line.size()>0 && !engine.stopFlag){
+			std::cout << "\tdepth " << depth << ": "; 
+			auto start = std::chrono::high_resolution_clock::now();
+			auto result = engine.Perft(depth);
+			auto end = std::chrono::high_resolution_clock::now();
+			float duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
+			auto mnps = result / duration / 1000000. * 1000.;
+			std::string ref = line.substr(0,line.find_first_of(';'));
+			std::cout << result << "(" << ref << ")";
+			auto diff = result-std::stoi(ref);
+			std::cout << " diff: " << diff << ", speed: " << mnps << "Mnps\n";
+			line = line.substr(ref.size()+1,line.size());
+			depth++;
+		}
+	}
 	dataStream.close();
 }

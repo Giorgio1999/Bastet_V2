@@ -468,7 +468,7 @@ void GeneratePawnAttacks(const Engine &engine, const bool &color, uint_fast64_t 
     for (auto i = 1; i < 7; i++) // pawns at the edge need to be handled seperately to prevent telepawns
     {
         auto j = startRank + colorDirection; // Again only consider captures between start rank and one short of promotion
-        for (auto k = 0; k < 7; k++)         // Instead of stopping before the promotion rank, we can go up to there since promotions do not have to be considered
+        for (auto k = 0; k < 6; k++)         // Instead of stopping before the promotion rank, we can go up to there since promotions do not have to be considered
         {
             if (CheckBit(captures, i, j))
             {
@@ -481,7 +481,7 @@ void GeneratePawnAttacks(const Engine &engine, const bool &color, uint_fast64_t 
         }
     }
     auto j = startRank + colorDirection; // Treatment of the border pawns
-    for (auto k = 0; k < 7; k++)
+    for (auto k = 0; k < 6; k++)
     {
         if (CheckBit(captures, 0, j))
         {
@@ -493,7 +493,7 @@ void GeneratePawnAttacks(const Engine &engine, const bool &color, uint_fast64_t 
         j += colorDirection;
     }
     j = startRank + colorDirection;
-    for (auto k = 0; k < 7; k++)
+    for (auto k = 0; k < 6; k++)
     {
         if (CheckBit(captures, 7, j))
         {

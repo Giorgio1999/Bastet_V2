@@ -84,11 +84,12 @@ int Engine::Perft(const int &depth)
 		return legalMoves.size();
 	}
 	int numberOfLeafs = 0;
+	int newDepth = depth - 1;
 	for (const auto &current : legalMoves)
 	{
 		MakeMove(current);
 		if(!stopFlag){
-			numberOfLeafs += Perft(depth - 1);
+			numberOfLeafs += Perft(newDepth);
 		}
 		UndoLastMove();
 	}

@@ -5,14 +5,14 @@
             "name": "Run and Debug engine",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceFolder}\\Bastet_V2.exe",
+            "program": "${workspaceFolder}/Bastet_V2",
             "args": [],
-            "cwd": "${workspaceFolder}\\obj",
+            "cwd": "${workspaceFolder}/obj",
             "stopAtEntry": false,
             "environment": [],
             "externalConsole": true,
             "MIMode": "gdb",
-            "miDebuggerPath": "C:\\msys64\\ucrt64\\bin\\gdb.exe",
+            "miDebuggerPath": "/usr/bin/gdb",
             "setupCommands": [
                 {
                     "description": "Enable pretty-printing for gdb",

@@ -1,5 +1,5 @@
-CXX = C:/msys64/ucrt64/bin/clang++.exe
-CXXFLAGS = -Iheader -Wall -Wextra -O3 -g -fsanitize=address -fsanitize=undefined
+CXX = g++
+CXXFLAGS = -Iheader -Wall -Wextra -Ofast 
 TARGET = Bastet_V2
 SRCS = $(wildcard src/*.cpp)
 HEADERS = $(wildcard header/*.h)
@@ -15,5 +15,5 @@ obj/%.o: src/%.cpp $(HEADERS)
 	$(CXX) $(CXXFLAGS) -c -o $@ $<
 
 clean:
-	del /Q /F $(TARGET).exe 
-	del /Q /F obj\*.o
+	rm $(TARGET)
+	rm obj/*.o

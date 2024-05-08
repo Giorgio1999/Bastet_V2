@@ -75,9 +75,8 @@ void Listen()
 			}
 			// TO DO: parse options and dispatch engine search, once finished return here and
 			std::thread([&engineController]
-						{std::string result = "bestmove";
-						result += engineController.Search();
-						std::cout << result;
+						{std::string result =  engineController.Search();
+						std::cout << "bestmove " << result;
 						engineController.SetStopFlag(false); })
 				.detach();
 		}
@@ -102,7 +101,7 @@ void Listen()
 		if (key == "perft")
 		{
 			auto depth = std::stoi(instruction.substr(instruction.find(' ') + 1, instruction.length()));
-			std::thread([&engineController, &depth]
+			std::thread([&engineController, depth]
 						{
 				std::string result = engineController.Perft(depth);
 				std::cout << result << "\n";
@@ -121,12 +120,11 @@ void Listen()
 		}
 		if (key == "fullperft")
 		{
-			// std::thread([&engineController]
-			// 			{
-			// 	engineController.FullPerftTest();
-			// 	engineController.SetStopFlag(false); })
-			// 	.detach();
-			engineController.FullPerftTest();
+			std::thread([&engineController]
+						{
+				engineController.FullPerftTest();
+				engineController.SetStopFlag(false); })
+				.detach();
 		}
 		if (key == "undolastmove")
 		{
