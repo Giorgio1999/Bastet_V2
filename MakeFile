@@ -1,5 +1,5 @@
-CXX = C:/msys64/mingw64/bin/g++.exe
-CXXFLAGS = -Iheader -Wall -g
+CXX = C:/msys64/ucrt64/bin/clang++.exe
+CXXFLAGS = -Iheader -Wall -Wextra -O3 -g -fsanitize=address -fsanitize=undefined
 TARGET = Bastet_V2
 SRCS = $(wildcard src/*.cpp)
 HEADERS = $(wildcard header/*.h)

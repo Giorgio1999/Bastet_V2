@@ -18,7 +18,8 @@
             "compilerArgs": [
                 "-std=c++11",
                 "-Wall"
-            ]
+            ],
+            "configurationProvider": "ms-vscode.makefile-tools"
         }
     ],
     "version": 4

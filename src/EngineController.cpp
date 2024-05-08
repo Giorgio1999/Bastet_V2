@@ -120,16 +120,9 @@ void EngineController::TestReady()
 }
 
 void EngineController::FullPerftTest(){
-	std::string dataPath = "..\\test.txt";
-	std::fstream dataStream(dataPath,std::ios::out);
+	auto dataPath = "C:/Users/giorg/Documents/Projekte/ChessEngine/Bastet_V2/assets/perftTestSuit.txt";
+	std::fstream dataStream(dataPath,std::ios::in);
 	std::string line;
-	if(!dataStream.bad()){
-		dataStream << "hello";
-	}
-	if(!dataStream.is_open()){
-		std::cerr << "Fehler" << "\n";
-		return; 
-	}
 	// while(std::getline(dataStream,line) && !engine.stopFlag){
 	// 	std::string fen = line.substr(0,line.find(','));
 	// 	std::cout << "Position: " << fen << ":\n";
@@ -144,7 +137,8 @@ void EngineController::FullPerftTest(){
 	// 		auto diff = result-std::stoi(ref);
 	// 		std::cout << " diff: " << diff << "\n";
 	// 		line = line.substr(ref.size()+1,line.size());
-	// 		line = line.substr(0,line.find_first_of(';'));
+	// 		depth++;
 	// 	}
 	// }
+	dataStream.close();
 }
