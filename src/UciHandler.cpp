@@ -75,10 +75,12 @@ void Listen()
 			}
 			// TO DO: parse options and dispatch engine search, once finished return here and
 			std::thread([&engineController]
-						{std::string result =  engineController.Search();
-						std::cout << "bestmove " << result;
+						{std::string result =  "bestmove " + engineController.Search();
+						std::cout << result << std::endl;
 						engineController.SetStopFlag(false); })
 				.detach();
+			// std::string result = "bestmove " + engineController.Search();
+			// std::cout << result << "\n";
 		}
 		if (key == "stop")
 		{
