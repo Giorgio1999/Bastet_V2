@@ -120,6 +120,7 @@ void EngineController::TestReady()
 }
 
 void EngineController::FullPerftTest(){
+	auto fullStart = std::chrono::high_resolution_clock::now();
 	auto dataPath = "../assets/perftTestSuit.txt";
 	std::fstream dataStream(dataPath,std::ios::in);
 	std::string line;
@@ -144,5 +145,8 @@ void EngineController::FullPerftTest(){
 			depth++;
 		}
 	}
+	auto fullEnd = std::chrono::high_resolution_clock::now();
+	float duration = std::chrono::duration_cast<std::chrono::minutes>(fullEnd-fullStart).count();
+	std::cout << "Done! Total time: " << duration << "m\n";
 	dataStream.close();
 }

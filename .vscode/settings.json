@@ -61,6 +61,7 @@
         "thread": "cpp",
         "future": "cpp",
         "condition_variable": "cpp",
-        "mutex": "cpp"
+        "mutex": "cpp",
+        "fstream": "cpp"
     }
 }
