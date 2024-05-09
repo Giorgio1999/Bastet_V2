@@ -21,8 +21,8 @@ void Board::MakeMove(const Move &move)
 	// Clear ghosts
 	ghostBoard = ZERO;
 
-	Coord start = move.startCoord;
-	Coord target = move.targetCoord;
+	int startIndex = move.startIndex;
+	int targetIndex = move.targetIndex;
 
 	auto wasCastled = false; // Castling flag
 
@@ -34,39 +34,35 @@ void Board::MakeMove(const Move &move)
 		if (i == color)
 		{
 			// Pawn double pushes. leaves ghost
-			if (CheckBit(pieceBoards[i], start.x, start.y))
+			if (CheckBit(pieceBoards[i], startIndex))
 			{
-				if (std::abs(start.y - target.y) > 1)
+				if (std::abs(startIndex - targetIndex) == 16)
 				{
-					SetBit(ghostBoard, start.x, start.y + colorDirection);
+					SetBit(ghostBoard, startIndex + colorDirection * 8);
 				}
 			}
 			// Enpassant
-			if (CheckBit(pieceBoards[i], start.x, start.y) && !CheckBit(colorBoards[whiteToMove], target.x, target.y))
+			if (CheckBit(pieceBoards[i], startIndex) && !CheckBit(colorBoards[whiteToMove], targetIndex))
 			{
-				if (std::abs(start.x - target.x) > 0)
+				if (std::abs(startIndex - targetIndex) == 9 || std::abs(startIndex - targetIndex) == 7)
 				{
-					UnsetBit(pieceBoards[otherColor], target.x, target.y - colorDirection);
+					UnsetBit(pieceBoards[otherColor], targetIndex - colorDirection * 8);
 				}
 			}
 		}
 		// Generic moving
-		if (CheckBit(pieceBoards[i], start.x, start.y))
+		if (CheckBit(pieceBoards[i], startIndex))
 		{ // is piece found, set piece bitboard at target and unset at start
-			SetBit(pieceBoards[i], target.x, target.y);
-			UnsetBit(pieceBoards[i], start.x, start.y);
-			wasCastled = (i == 5 + color) && std::abs(start.x - target.x) > 1; // flag if move was a castle
+			SetBit(pieceBoards[i], targetIndex);
+			UnsetBit(pieceBoards[i], startIndex);
+			wasCastled = (i == 5 + color) && startIndex == (whiteToMove ? 60 : 4) && std::abs(startIndex - targetIndex) > 1; // flag if move was a castle
 			break;
 		}
 	}
 	color = whiteToMove ? 6 : 0;
-	for (auto i = color; i < 6 + color; i++)
+	for (auto i = 0; i < 6; i++)
 	{ // for all not to move pieces, find piece at target and unset
-		if (CheckBit(pieceBoards[i], target.x, target.y))
-		{
-			UnsetBit(pieceBoards[i], target.x, target.y);
-			break;
-		}
+		UnsetBit(pieceBoards[i + color], targetIndex);
 	}
 
 	color = whiteToMove ? 0 : 6;
@@ -74,48 +70,55 @@ void Board::MakeMove(const Move &move)
 	// Castling (moving the rook)
 	if (wasCastled)
 	{
-		if (target.x == 6)
+		auto castleTarget = whiteToMove ? 62 : 6;
+		if (targetIndex == castleTarget)
 		{
-			SetBit(pieceBoards[3 + color], 5, whiteToMove ? 7 : 0);
-			UnsetBit(pieceBoards[3 + color], 7, whiteToMove ? 7 : 0);
+			// SetBit(pieceBoards[3 + color], 5, whiteToMove ? 7 : 0);
+			SetBit(pieceBoards[3 + color], targetIndex - 1);
+			// UnsetBit(pieceBoards[3 + color], 7, whiteToMove ? 7 : 0);
+			UnsetBit(pieceBoards[3 + color], targetIndex + 1);
 		}
-		if (target.x == 2)
+		castleTarget = whiteToMove ? 58 : 2;
+		if (targetIndex == castleTarget)
 		{
-			SetBit(pieceBoards[3 + color], 3, whiteToMove ? 7 : 0);
-			UnsetBit(pieceBoards[3 + color], 0, whiteToMove ? 7 : 0);
+			// SetBit(pieceBoards[3 + color], 3, whiteToMove ? 7 : 0);
+			SetBit(pieceBoards[3 + color], targetIndex + 1);
+			// UnsetBit(pieceBoards[3 + color], 0, whiteToMove ? 7 : 0);
+			UnsetBit(pieceBoards[3 + color], targetIndex - 2);
 		}
 	}
 
 	// Promotions
 	if (move.convertTo != none)
 	{
-		UnsetBit(pieceBoards[color], target.x, target.y);
-		SetBit(pieceBoards[color + (int)move.convertTo - 1], target.x, target.y);
+		UnsetBit(pieceBoards[color], targetIndex);
+		SetBit(pieceBoards[color + (int)move.convertTo - 1], targetIndex);
 	}
 
 	// Update castling flags
-	if ((start.x == 7 && start.y == 7) || (target.x == 7 && target.y == 7))
+	// if ((start.x == 7 && start.y == 7) || (target.x == 7 && target.y == 7))
+	if (startIndex == 63 || targetIndex == 63) // 7,7
 	{
 		castlingRights[0] = false;
 	}
-	if ((start.x == 0 && start.y == 7) || (target.x == 0 && target.y == 7))
+	if (startIndex == 56 || targetIndex == 56) // 0,7
 	{
 		castlingRights[1] = false;
 	}
-	if ((start.x == 7 && start.y == 0) || (target.x == 7 && target.y == 0))
+	if (startIndex == 7 || targetIndex == 7) // 7,0
 	{
 		castlingRights[2] = false;
 	}
-	if ((start.x == 0 && start.y == 0) || (target.x == 0 && target.y == 0))
+	if (startIndex == 0 || targetIndex == 0) // 0,0
 	{
 		castlingRights[3] = false;
 	}
-	if (start.x == 4 && start.y == 7)
+	if (startIndex == 60) // 4,7
 	{
 		castlingRights[0] = false;
 		castlingRights[1] = false;
 	}
-	if (start.x == 4 && start.y == 0)
+	if (startIndex == 4) // 4,0
 	{
 		castlingRights[2] = false;
 		castlingRights[3] = false;
@@ -135,9 +138,13 @@ void Board::MakeMove(const Move &move)
 
 void Board::MakeSimpleMove(const Move &move)
 {
-	ghostBoard = 0;
-	Coord start = move.startCoord;
-	Coord target = move.targetCoord;
+	// Clear ghosts
+	ghostBoard = ZERO;
+
+	int startIndex = move.startIndex;
+	int targetIndex = move.targetIndex;
+
+	auto wasCastled = false; // Castling flag
 
 	auto color = whiteToMove ? 0 : 6;
 	auto otherColor = whiteToMove ? 6 : 0;
@@ -147,40 +154,32 @@ void Board::MakeSimpleMove(const Move &move)
 		if (i == color)
 		{
 			// Enpassant
-			if (CheckBit(pieceBoards[i], start.x, start.y))
+			if (CheckBit(pieceBoards[i], startIndex) && !CheckBit(colorBoards[whiteToMove], targetIndex))
 			{
-				if (std::abs(start.x - target.x) > 0 && !CheckBit(colorBoards[whiteToMove], target.x, target.y))
+				if (std::abs(startIndex - targetIndex) == 9 || std::abs(startIndex - targetIndex) == 7)
 				{
-					UnsetBit(pieceBoards[otherColor], target.x, target.y - colorDirection);
+					UnsetBit(pieceBoards[otherColor], targetIndex - colorDirection * 8);
 				}
 			}
 		}
 		// Generic moving
-		if (CheckBit(pieceBoards[i], start.x, start.y))
+		if (CheckBit(pieceBoards[i], startIndex))
 		{ // is piece found, set piece bitboard at target and unset at start
-			SetBit(pieceBoards[i], target.x, target.y);
-			UnsetBit(pieceBoards[i], start.x, start.y);
+			SetBit(pieceBoards[i], targetIndex);
+			UnsetBit(pieceBoards[i], startIndex);
+			wasCastled = (i == 5 + color) && startIndex == (whiteToMove ? 60 : 4) && std::abs(startIndex - targetIndex) > 1; // flag if move was a castle
 			break;
 		}
 	}
 	color = whiteToMove ? 6 : 0;
-	for (auto i = color; i < 6 + color; i++)
+	for (auto i = 0; i < 6; i++)
 	{ // for all not to move pieces, find piece at target and unset
-		if (CheckBit(pieceBoards[i], target.x, target.y))
-		{
-			UnsetBit(pieceBoards[i], target.x, target.y);
-			break;
-		}
+		UnsetBit(pieceBoards[i + color], targetIndex);
 	}
 
 	color = whiteToMove ? 0 : 6;
 
-	// Promotions
-	if (move.convertTo != none)
-	{
-		UnsetBit(pieceBoards[color], target.x, target.y);
-		SetBit(pieceBoards[color + (int)move.convertTo-1], target.x, target.y);
-	}
+	// TO DO: Maybe check for checks?
 
 	// Update Color Boards
 	UpdateColorBoards();
@@ -219,11 +218,14 @@ void Board::InitialiseKingCoords()
 			}
 		}
 	}
+	kingIndices[0] = BitScanForwards(pieceBoards[5])-1;
+	kingIndices[1] = BitScanForwards(pieceBoards[11])-1;
 }
 
 void Board::UpdateKingCoords(const Move &move)
 {
 	kingCoords[!whiteToMove] = kingCoords[!whiteToMove] == move.startCoord ? move.targetCoord : kingCoords[!whiteToMove];
+	kingIndices[!whiteToMove] = kingIndices[!whiteToMove] == move.startIndex ? move.targetIndex : kingIndices[!whiteToMove];
 }
 
 std::string Board::ShowBoard()

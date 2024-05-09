@@ -18,18 +18,38 @@ Move::Move()
 {
 	startCoord = Coord();
 	targetCoord = Coord();
+	startIndex = 0;
+	targetIndex = 0;
+}
+
+Move::Move(const int &start, const int &target)
+{
+	startIndex = start;
+	targetIndex = target;
+	//Legacy
+	auto i1=start%8;
+	auto j1=(start-i1)/8;
+	startCoord = Coord(i1,j1);
+	i1=target%8;
+	j1=(target-i1)/8;
+	targetCoord = Coord(i1,j1);
+
 }
 
 Move::Move(const Coord &_startCoord, const Coord &_targetCoord)
 {
 	startCoord = _startCoord;
 	targetCoord = _targetCoord;
+	startIndex = _startCoord.y*8+_startCoord.x;
+	targetIndex = _targetCoord.y*8+_targetCoord.x;
 }
 
 Move::Move(const int &i1, const int &j1, const int &i2, const int &j2)
 {
 	startCoord = Coord(i1, j1);
 	targetCoord = Coord(i2, j2);
+	startIndex = j1 * 8 + i1;
+	targetIndex = j2 * 8 + i2;
 }
 
 std::string Coord2Str(const Coord &coord)
@@ -48,8 +68,14 @@ Coord Str2Coord(const std::string &coordString)
 std::string Move2Str(const Move &move)
 {
 	std::string tmp = "";
-	tmp += Coord2Str(move.startCoord);
-	tmp += Coord2Str(move.targetCoord);
+	auto i = move.startIndex % 8;
+	auto j = (move.startIndex - i) / 8;
+	tmp += cols.at(i);
+	tmp += rows.at(j);
+	i = move.targetIndex % 8;
+	j = (move.targetIndex - i) / 8;
+	tmp += cols.at(i);
+	tmp += rows.at(j);
 	if (move.promotion)
 	{
 		tmp += PieceType2Str(move.convertTo);

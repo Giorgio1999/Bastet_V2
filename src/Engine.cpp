@@ -30,7 +30,6 @@ void Engine::SetBoard(const Board &newBoard)
 	board = newBoard;
 	board.UpdateColorBoards();
 	board.InitialiseKingCoords();
-	// GenerateAttacks(!board.whiteToMove);
 }
 
 void Engine::MakeMove(const Move &move)
