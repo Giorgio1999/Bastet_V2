@@ -20,7 +20,7 @@ Position: 8/2p5/3p4/KP5r/1R3p1k/8/4P1P1/8 w - - 0 1:
         depth 6: 11030083(11030083) diff: 0, speed: 5.8237Mnps
         depth 7: 178633661(178633661) diff: 0, speed: 6.52424Mnps
 Position: r3k2r/Pppp1ppp/1b3nbN/nP6/BBP1P3/q4N2/Pp1P2PP/R2Q1RK1 w kq - 0 1:
-        depth 1: 6(6) diff: 0, speed: infMnps
+        depth 1: 6(6) diff: 0, speed: infMnpsq
         depth 2: 264(264) diff: 0, speed: infMnps
         depth 3: 9467(9467) diff: 0, speed: infMnps
         depth 4: 422333(422333) diff: 0, speed: 9.59848Mnps
