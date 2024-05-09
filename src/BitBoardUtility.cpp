@@ -7,6 +7,10 @@
 uint_fast64_t fileMasks[8];
 uint_fast64_t rankMasks[8];
 
+int BitScanForwards(const uint_fast64_t& value){
+	return  __builtin_ffsl(value);
+}
+
 bool CheckBit(const uint_fast64_t &value, const int &index)
 {
 	uint_fast64_t bitIndex = ONE << index;

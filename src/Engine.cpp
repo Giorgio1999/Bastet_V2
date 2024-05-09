@@ -6,6 +6,7 @@
 #include "BitBoardUtility.h"
 #include <string>
 #include <vector>
+#include <iostream>
 
 // This is the engine class implementation
 Engine::Engine()
@@ -29,7 +30,6 @@ void Engine::SetBoard(const Board &newBoard)
 	board = newBoard;
 	board.UpdateColorBoards();
 	board.InitialiseKingCoords();
-	// GenerateAttacks(!board.whiteToMove);
 }
 
 void Engine::MakeMove(const Move &move)

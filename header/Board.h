@@ -15,6 +15,7 @@ public:
 	bool castlingRights[4] = {false, false, false, false};				  // Castling rights: {whiteKing,whiteQueen,blackKing,blackQueen}
 	bool enpassantable = false;											  // flag if enpassant is possible
 	Coord kingCoords[2] = {Coord(), Coord()};							  // quick reference for king coords
+	int kingIndices[2] = {0,0};
 	bool isCheck = false;
 
 	Board();

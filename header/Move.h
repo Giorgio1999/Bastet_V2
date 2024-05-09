@@ -20,12 +20,16 @@ struct Coord
 
 struct Move
 {
+	int startIndex;	//From
+	int targetIndex;	//To
+
 	Coord startCoord;			// from
 	Coord targetCoord;			// to
 	PieceType convertTo = none; // used to indicate promotions, as well as using wheter the move is a king move or not for checks
 	bool promotion = false;		// distinguish promotions from none promotions
 
 	Move();
+	Move(const int& start,const int&target);
 	Move(const int &i1, const int &j1, const int &i2, const int &j2);
 	Move(const Coord &_startCoord, const Coord &_targetCoord);
 };
