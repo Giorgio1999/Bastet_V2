@@ -7,6 +7,8 @@
 // Testing of specific position: position startpos moves a2a3 a7a6 a1a2 a6a5
 //  These are all functionalities connected to move generation
 
+uint_fast64_t knightMoves[64];
+
 void MoveGenerator::GetPseudoLegalMoves(const Engine &engine, std::vector<Move> &pseudoLegalMoves)
 {
     auto colorIndex = engine.board.whiteToMove ? 0 : 6;
@@ -257,7 +259,7 @@ void GetPseudoLegalKingMoves(const Engine &engine, std::vector<Move> &pseudoLega
     uint_fast64_t moves = ZERO;
     SetBit(moves, kingCoord.x, kingCoord.y);
     moves = moves >> 8 | moves >> 9 | moves >> 1 | moves << 7 | moves << 8 | moves << 9 | moves << 1 | moves >> 7; // all king increments
-    moves &= ~engine.board.colorBoards[!color];                                                                    // & ~engine.board.attackBoard;                                        // removes friendly blocked suqares and attacked squares
+    moves &= ~engine.board.colorBoards[!color];                                                                    // removes friendly blocked suqares and attacked squares
     for (auto i = 0; i < 8; i++)
     {
         for (auto j = 0; j < 8; j++)
@@ -270,13 +272,10 @@ void GetPseudoLegalKingMoves(const Engine &engine, std::vector<Move> &pseudoLega
     }
 
     // fucking castling
-    // if (!CheckBit(engine.board.attackBoard, kingCoord.x, kingCoord.y))
     if (!MoveGenerator::IsSquareAttacked(engine, kingCoord, !color))
     { // cant castle if check
         auto occupied = false;
-        // uint_fast64_t relevantAttacks = engine.board.attackBoard;
-        // UnsetBit(relevantAttacks, 4 - 3, firstRank); // here attacks dont matter
-        combinedColors = engine.board.colorBoards[0] | engine.board.colorBoards[1]; // | relevantAttacks;
+        combinedColors = engine.board.colorBoards[0] | engine.board.colorBoards[1];
         if (engine.board.castlingRights[castleColorIndex + 1])
         { // Queenside castling
             for (auto di = -1; di > -3; di--)
@@ -677,7 +676,6 @@ void MoveGenerator::GetLegalMoves(Engine &engine, std::vector<Move> &legalmoves)
     for (const auto &move : pseudoLegalMoves)
     {
         engine.MakeSimpleMove(move);
-        // if (!CheckBit(engine.board.attackBoard, engine.board.kingCoords[!color].x, engine.board.kingCoords[!color].y))
         if (!MoveGenerator::IsSquareAttacked(engine, Coord(engine.board.kingCoords[!color]), !color))
         {
             legalmoves.push_back(move);
@@ -696,50 +694,10 @@ bool MoveGenerator::IsSquareAttacked(const Engine &engine, const Coord &square, 
     uint_fast64_t horAndVertBlockerBoard = (engine.board.colorBoards[!attackingColor] & ~engine.board.pieceBoards[3 + colorIndex] & ~engine.board.pieceBoards[4 + colorIndex]) | engine.board.colorBoards[attackingColor];
     uint_fast64_t diagonalBlockerBoard = (engine.board.colorBoards[!attackingColor] & ~engine.board.pieceBoards[2 + colorIndex] & ~engine.board.pieceBoards[4 + colorIndex]) | engine.board.colorBoards[attackingColor];
 
-    // Horizontal and vertical sliders
-    for (auto i = square.x + 1; i < 8; i++)
-    {
-        if (CheckBit(horAndVertSliderBoard, i, square.y))
-        {
-            return true;
-        }
-        if (CheckBit(horAndVertBlockerBoard, i, square.y))
-        {
-            break;
-        }
-    }
-    for (auto i = square.y + 1; i < 8; i++)
-    {
-        if (CheckBit(horAndVertSliderBoard, square.x, i))
-        {
-            return true;
-        }
-        if (CheckBit(horAndVertBlockerBoard, square.x, i))
-        {
-            break;
-        }
-    }
-    for (auto i = square.x - 1; i >= 0; i--)
-    {
-        if (CheckBit(horAndVertSliderBoard, i, square.y))
-        {
-            return true;
-        }
-        if (CheckBit(horAndVertBlockerBoard, i, square.y))
-        {
-            break;
-        }
-    }
-    for (auto i = square.y - 1; i >= 0; i--)
-    {
-        if (CheckBit(horAndVertSliderBoard, square.x, i))
-        {
-            return true;
-        }
-        if (CheckBit(horAndVertBlockerBoard, square.x, i))
-        {
-            break;
-        }
+    // Knights
+    auto knightCheck = knightMoves[square.y*8+square.x] & engine.board.pieceBoards[1+colorIndex];
+    if(knightCheck>0){
+        return true;
     }
 
     // Diagonal sliders
@@ -787,26 +745,54 @@ bool MoveGenerator::IsSquareAttacked(const Engine &engine, const Coord &square, 
             break;
         }
     }
-
-    // Knights
-    for (auto di = -2; di < 3; di += 4) // Loop over all knight increments
+    
+    // Horizontal and vertical sliders
+    for (auto i = square.x + 1; i < 8; i++)
     {
-        for (auto dj = -1; dj < 2; dj += 2)
+        if (CheckBit(horAndVertSliderBoard, i, square.y))
         {
-            auto ii = square.x + di;
-            auto jj = square.y + dj;
-            if (ii >= 0 && ii < 8 && jj >= 0 && jj < 8 && CheckBit(engine.board.pieceBoards[1 + colorIndex], ii, jj)) // Check for knight moves with 2x y
-            {
-                return true;
-            }
-            ii = square.x + dj;
-            jj = square.y + di;
-            if (ii >= 0 && ii < 8 && jj >= 0 && jj < 8 && CheckBit(engine.board.pieceBoards[1 + colorIndex], ii, jj)) // Check for knight moves with x 2y
-            {
-                return true;
-            }
+            return true;
+        }
+        if (CheckBit(horAndVertBlockerBoard, i, square.y))
+        {
+            break;
         }
     }
+    for (auto i = square.y + 1; i < 8; i++)
+    {
+        if (CheckBit(horAndVertSliderBoard, square.x, i))
+        {
+            return true;
+        }
+        if (CheckBit(horAndVertBlockerBoard, square.x, i))
+        {
+            break;
+        }
+    }
+    for (auto i = square.x - 1; i >= 0; i--)
+    {
+        if (CheckBit(horAndVertSliderBoard, i, square.y))
+        {
+            return true;
+        }
+        if (CheckBit(horAndVertBlockerBoard, i, square.y))
+        {
+            break;
+        }
+    }
+    for (auto i = square.y - 1; i >= 0; i--)
+    {
+        if (CheckBit(horAndVertSliderBoard, square.x, i))
+        {
+            return true;
+        }
+        if (CheckBit(horAndVertBlockerBoard, square.x, i))
+        {
+            break;
+        }
+    }
+
+
 
     // Pawns
     auto colorDir = attackingColor ? -1 : 1;
@@ -828,4 +814,21 @@ bool MoveGenerator::IsSquareAttacked(const Engine &engine, const Coord &square, 
     }
 
     return false;
+}
+
+void MoveGenerator::PreComputeKnightMoves(){
+    uint_fast64_t localMoves = 0;
+    for(auto i=0;i<64;i++){
+        localMoves = ONE << i;
+        localMoves = (localMoves & ~fileMasks[7]) << 17
+                    | (localMoves & ~(fileMasks[6] | fileMasks[7])) << 10
+                    | (localMoves & ~(fileMasks[6] | fileMasks[7])) >> 6
+                    | (localMoves & ~fileMasks[7]) >> 15
+                    | (localMoves & ~fileMasks[0]) >> 17
+                    | (localMoves & ~(fileMasks[0] | fileMasks[1])) >> 10
+                    | (localMoves & ~(fileMasks[0] | fileMasks[1])) << 6
+                    | (localMoves & ~fileMasks[0]) << 15;
+        knightMoves[i] = localMoves;
+    }
+
 }

@@ -4,6 +4,9 @@
 #include <string>
 #include <iostream>
 
+uint_fast64_t fileMasks[8];
+uint_fast64_t rankMasks[8];
+
 bool CheckBit(const uint_fast64_t &value, const int &index)
 {
 	uint_fast64_t bitIndex = ONE << index;
@@ -50,4 +53,13 @@ void PrintBitBoard(const uint_fast64_t &value)
 	}
 	boardVisual += "\n";
 	std::cout << boardVisual;
+}
+
+void ComputeMasks(){
+	fileMasks[0] = 0x0101010101010101;
+	rankMasks[0] = 0xFF00000000000000;
+	for(auto i=1;i<8;i++){
+		fileMasks[i] = fileMasks[0] << i;
+		rankMasks[i] = rankMasks[0] >> 8*i;
+	}
 }

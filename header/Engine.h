@@ -16,6 +16,7 @@ public:
 	std::vector<Board> gameHistory; // History of the game, consisting of boards. For undo or perhaps draw checks?
 	Board board;					// Board representation
 	Engine();
+	void Boot();
 	void NewGame();						   // clears board for new game
 	void SetBoard(const Board &board);	   // Sets a given PieceList as position
 	void MakeMove(const Move &move);	   // Make a move

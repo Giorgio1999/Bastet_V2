@@ -14,6 +14,11 @@ Engine::Engine()
 	stopFlag = false;
 }
 
+void Engine::Boot(){
+	ComputeMasks();
+	MoveGenerator::PreComputeKnightMoves();
+}
+
 void Engine::NewGame()
 {
 	board.Clear();
@@ -31,14 +36,11 @@ void Engine::MakeMove(const Move &move)
 {
 	gameHistory.push_back(board);
 	board.MakeMove(move);
-	// GenerateAttacks(!board.whiteToMove);
-	//PrintBitBoard(board.attackBoard);
 }
 
 void Engine::MakeSimpleMove(const Move& move){
 	gameHistory.push_back(board);
 	board.MakeSimpleMove(move);
-	// GenerateAttacks(board.whiteToMove);
 }
 
 void Engine::UndoLastMove()
