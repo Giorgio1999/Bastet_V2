@@ -19,18 +19,16 @@ void Listen()
 		}
 		if (key == "uci")
 		{
+			engineController.BootEngine();
 			std::cout << "id name Bastet\n";
 			std::cout << "id author G. Lovato\n";
 			std::cout << "uciok\n";
-			engineController.BootEngine();
 		}
 		if (key == "isready")
 		{
-			while (!engineController.IsReady())
-			{
-				engineController.TestReady();
+			if(engineController.IsReady()){
+				std::cout << "readyok\n";
 			}
-			std::cout << "readyok\n";
 		}
 		if (key == "ucinewgame")
 		{

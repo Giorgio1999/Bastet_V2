@@ -12,7 +12,7 @@ class EngineController
 
 public:
 	EngineController();
-	void BootEngine();								// Boot engine
+	bool BootEngine();								// Boot engine
 	void SetStopFlag(const bool& value);
 	void NewGame();									// Clears board for a new game
 	void SetPosition();								// Sets starting position

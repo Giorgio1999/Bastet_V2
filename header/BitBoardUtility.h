@@ -4,6 +4,8 @@
 
 const uint_fast64_t ONE = (uint_fast64_t)1;
 const uint_fast64_t ZERO = (uint_fast64_t)0;
+extern uint_fast64_t fileMasks[8];
+extern uint_fast64_t rankMasks[8];
 
 bool CheckBit(const uint_fast64_t &value, const int &index); // Checks bit at index in 1d board
 
@@ -18,3 +20,5 @@ void UnsetBit(uint_fast64_t &value, const int &index); // Unsets bit at index in
 void UnsetBit(uint_fast64_t &value, const int &i, const int &j); // Unsets bit at i,j in 2d baord
 
 void PrintBitBoard(const uint_fast64_t &value); // Prints Bitboard to std::cout
+
+void ComputeMasks();

@@ -9,19 +9,26 @@
 
 EngineController::EngineController() {}
 
-void EngineController::BootEngine()
+bool EngineController::BootEngine()
 {
 	engine = Engine();
 	startpos = Fen2Position();
+	engine.Boot();
 	isReady = true;
+	return true;
 }
 
-void EngineController::SetStopFlag(const bool& value){
+void EngineController::SetStopFlag(const bool &value)
+{
 	engine.stopFlag = value;
 }
 
 void EngineController::NewGame()
 {
+	if (!isReady)
+	{
+		BootEngine();
+	}
 	engine.NewGame();
 }
 
@@ -29,13 +36,18 @@ void EngineController::SetPosition()
 {
 	if (!isReady)
 	{
-		startpos = Fen2Position();
+		BootEngine();
 	}
 	engine.SetBoard(startpos);
 }
 
 void EngineController::SetPosition(const std::string &fenString)
 {
+
+	if (!isReady)
+	{
+		BootEngine();
+	}
 	engine.SetBoard(Fen2Position(fenString));
 }
 
@@ -50,6 +62,10 @@ void EngineController::MakeMoves(std::string &moveHistory)
 
 bool EngineController::IsReady()
 {
+	if (!isReady)
+	{
+		BootEngine();
+	}
 	return isReady;
 }
 
@@ -96,10 +112,12 @@ std::string EngineController::SplitPerft(const int &depth)
 		engine.MakeMove(move);
 		returnString += Move2Str(move) += ": ";
 		auto res = 0;
-		if(depth != 1){
-			res = engine.Perft(depth-1);
+		if (depth != 1)
+		{
+			res = engine.Perft(depth - 1);
 		}
-		else{
+		else
+		{
 			res = 1;
 		}
 		returnString += std::to_string(res);
@@ -119,34 +137,40 @@ void EngineController::TestReady()
 	isReady = true;
 }
 
-void EngineController::FullPerftTest(){
+void EngineController::FullPerftTest()
+{
+	if(!isReady){
+		BootEngine();
+	}
 	auto fullStart = std::chrono::high_resolution_clock::now();
-	auto dataPath = "../assets/perftTestSuit.txt";
-	std::fstream dataStream(dataPath,std::ios::in);
+	auto dataPath = "assets/perftTestSuit.txt";
+	std::fstream dataStream(dataPath, std::ios::in);
 	std::string line;
-	while(std::getline(dataStream,line) && !engine.stopFlag){
-		std::string fen = line.substr(0,line.find(','));
+	while (std::getline(dataStream, line) && !engine.stopFlag)
+	{
+		std::string fen = line.substr(0, line.find(','));
 		std::cout << "Position: " << fen << ":" << std::endl;
 		engine.SetBoard(Fen2Position(fen));
-		line = line.substr(fen.size()+1,line.size());
-		auto depth =1;
-		while(line.size()>0 && !engine.stopFlag){
-			std::cout << "\tdepth " << depth << ": "; 
+		line = line.substr(fen.size() + 1, line.size());
+		auto depth = 1;
+		while (line.size() > 0 && !engine.stopFlag)
+		{
+			std::cout << "\tdepth " << depth << ": ";
 			auto start = std::chrono::high_resolution_clock::now();
 			auto result = engine.Perft(depth);
 			auto end = std::chrono::high_resolution_clock::now();
 			float duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
 			auto mnps = result / duration / 1000000. * 1000.;
-			std::string ref = line.substr(0,line.find_first_of(';'));
+			std::string ref = line.substr(0, line.find_first_of(';'));
 			std::cout << result << "(" << ref << ")";
-			auto diff = result-std::stoi(ref);
+			auto diff = result - std::stoi(ref);
 			std::cout << " diff: " << diff << ", speed: " << mnps << "Mnps" << std::endl;
-			line = line.substr(ref.size()+1,line.size());
+			line = line.substr(ref.size() + 1, line.size());
 			depth++;
 		}
 	}
 	auto fullEnd = std::chrono::high_resolution_clock::now();
-	float duration = std::chrono::duration_cast<std::chrono::minutes>(fullEnd-fullStart).count();
+	float duration = std::chrono::duration_cast<std::chrono::minutes>(fullEnd - fullStart).count();
 	std::cout << "Done! Total time: " << duration << "m" << std::endl;
 	dataStream.close();
 }

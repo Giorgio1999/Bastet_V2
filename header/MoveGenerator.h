@@ -3,12 +3,15 @@
 #include "Move.h"
 #include <vector>
 
+extern uint_fast64_t knightMoves[64];
+
 namespace MoveGenerator
 {
     void GetPseudoLegalMoves(const Engine &engine, std::vector<Move> &pseudoLegalMoves);
     void GetLegalMoves(Engine &engine, std::vector<Move> &legalMoves);
     void GenerateAttacks(const Engine &engine, const bool &color, uint_fast64_t &attackBoard);
     bool IsSquareAttacked(const Engine &engine, const Coord &square, const bool &attackingColor);
+    void PreComputeKnightMoves();
 }
 
 void GetPseudoLegalPawnMoves(const Engine &engine, std::vector<Move> &pseudoLegalMoves);
