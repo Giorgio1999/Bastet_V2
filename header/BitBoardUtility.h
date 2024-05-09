@@ -7,6 +7,8 @@ const uint_fast64_t ZERO = (uint_fast64_t)0;
 extern uint_fast64_t fileMasks[8];
 extern uint_fast64_t rankMasks[8];
 
+int BitScanForwards(const uint_fast64_t &value); // returns index of least significant bit
+
 bool CheckBit(const uint_fast64_t &value, const int &index); // Checks bit at index in 1d board
 
 bool CheckBit(const uint_fast64_t &value, const int &i, const int &j); // Checks bit at i,j in 2d board

@@ -6,6 +6,7 @@
 #include "BitBoardUtility.h"
 #include <string>
 #include <vector>
+#include <iostream>
 
 // This is the engine class implementation
 Engine::Engine()
