@@ -211,40 +211,57 @@ void GetPseudoLegalKnightMoves(const Engine &engine, std::vector<Move> &pseudoLe
 {
     auto color = engine.board.whiteToMove;
     auto colorIndex = color ? 0 : 6;
-    uint_fast64_t thisBoard = ~engine.board.colorBoards[!color]; // not friendly blockers
-    for (auto i = 0; i < 8; i++)                                 // loop over all squares to find knights
+    uint_fast64_t thisBoard = ~engine.board.colorBoards[!color]; //  ~friendly blockers
+    uint_fast64_t knights = engine.board.pieceBoards[1+colorIndex];
+    uint_fast64_t attacks = ZERO;
+    auto from = BitScanForwards(knights)-1;
+    while (from >= 0)
     {
-        for (auto j = 0; j < 8; j++)
+        attacks = knightMoves[from] & thisBoard;
+        auto to = BitScanForwards(attacks)-1;
+        while (to>=0)
         {
-            if (CheckBit(engine.board.pieceBoards[1 + colorIndex], i, j))
-            {
-                for (auto di = -2; di < 3; di += 4) // Loop over all knight increments
-                {
-                    for (auto dj = -1; dj < 2; dj += 2)
-                    {
-                        auto ii = i + di;
-                        auto jj = j + dj;
-                        if (ii >= 0 && ii < 8 && jj >= 0 && jj < 8) // Check for knight moves with 2x y
-                        {
-                            if (CheckBit(thisBoard, ii, jj))
-                            {
-                                pseudoLegalMoves.push_back(Move(i, j, ii, jj));
-                            }
-                        }
-                        ii = i + dj;
-                        jj = j + di;
-                        if (ii >= 0 && ii < 8 && jj >= 0 && jj < 8) // Check for knight moves with x 2y
-                        {
-                            if (CheckBit(thisBoard, ii, jj))
-                            {
-                                pseudoLegalMoves.push_back(Move(i, j, ii, jj));
-                            }
-                        }
-                    }
-                }
-            }
+            pseudoLegalMoves.push_back(Move(from,to));
+            UnsetBit(attacks,to);
+            to = BitScanForwards(attacks)-1;
         }
+        UnsetBit(knights,from);
+        from = BitScanForwards(knights)-1;
     }
+    
+    // for (auto i = 0; i < 8; i++)                                 // loop over all squares to find knights
+    // {
+    //     for (auto j = 0; j < 8; j++)
+    //     {
+    //         if (CheckBit(engine.board.pieceBoards[1 + colorIndex], i, j))
+    //         {
+    //             for (auto di = -2; di < 3; di += 4) // Loop over all knight increments
+    //             {
+    //                 for (auto dj = -1; dj < 2; dj += 2)
+    //                 {
+    //                     auto ii = i + di;
+    //                     auto jj = j + dj;
+    //                     if (ii >= 0 && ii < 8 && jj >= 0 && jj < 8) // Check for knight moves with 2x y
+    //                     {
+    //                         if (CheckBit(thisBoard, ii, jj))
+    //                         {
+    //                             pseudoLegalMoves.push_back(Move(i, j, ii, jj));
+    //                         }
+    //                     }
+    //                     ii = i + dj;
+    //                     jj = j + di;
+    //                     if (ii >= 0 && ii < 8 && jj >= 0 && jj < 8) // Check for knight moves with x 2y
+    //                     {
+    //                         if (CheckBit(thisBoard, ii, jj))
+    //                         {
+    //                             pseudoLegalMoves.push_back(Move(i, j, ii, jj));
+    //                         }
+    //                     }
+    //                 }
+    //             }
+    //         }
+    //     }
+    // }
 }
 
 void GetPseudoLegalKingMoves(const Engine &engine, std::vector<Move> &pseudoLegalMoves)
