@@ -694,50 +694,10 @@ bool MoveGenerator::IsSquareAttacked(const Engine &engine, const Coord &square, 
     uint_fast64_t horAndVertBlockerBoard = (engine.board.colorBoards[!attackingColor] & ~engine.board.pieceBoards[3 + colorIndex] & ~engine.board.pieceBoards[4 + colorIndex]) | engine.board.colorBoards[attackingColor];
     uint_fast64_t diagonalBlockerBoard = (engine.board.colorBoards[!attackingColor] & ~engine.board.pieceBoards[2 + colorIndex] & ~engine.board.pieceBoards[4 + colorIndex]) | engine.board.colorBoards[attackingColor];
 
-    // Horizontal and vertical sliders
-    for (auto i = square.x + 1; i < 8; i++)
-    {
-        if (CheckBit(horAndVertSliderBoard, i, square.y))
-        {
-            return true;
-        }
-        if (CheckBit(horAndVertBlockerBoard, i, square.y))
-        {
-            break;
-        }
-    }
-    for (auto i = square.y + 1; i < 8; i++)
-    {
-        if (CheckBit(horAndVertSliderBoard, square.x, i))
-        {
-            return true;
-        }
-        if (CheckBit(horAndVertBlockerBoard, square.x, i))
-        {
-            break;
-        }
-    }
-    for (auto i = square.x - 1; i >= 0; i--)
-    {
-        if (CheckBit(horAndVertSliderBoard, i, square.y))
-        {
-            return true;
-        }
-        if (CheckBit(horAndVertBlockerBoard, i, square.y))
-        {
-            break;
-        }
-    }
-    for (auto i = square.y - 1; i >= 0; i--)
-    {
-        if (CheckBit(horAndVertSliderBoard, square.x, i))
-        {
-            return true;
-        }
-        if (CheckBit(horAndVertBlockerBoard, square.x, i))
-        {
-            break;
-        }
+    // Knights
+    auto knightCheck = knightMoves[square.y*8+square.x] & engine.board.pieceBoards[1+colorIndex];
+    if(knightCheck>0){
+        return true;
     }
 
     // Diagonal sliders
@@ -785,30 +745,54 @@ bool MoveGenerator::IsSquareAttacked(const Engine &engine, const Coord &square, 
             break;
         }
     }
-
-    // Knights
-    auto knightCheck = knightMoves[square.y*8+square.x] & engine.board.pieceBoards[1+colorIndex];
-    if(knightCheck>0){
-        return true;
+    
+    // Horizontal and vertical sliders
+    for (auto i = square.x + 1; i < 8; i++)
+    {
+        if (CheckBit(horAndVertSliderBoard, i, square.y))
+        {
+            return true;
+        }
+        if (CheckBit(horAndVertBlockerBoard, i, square.y))
+        {
+            break;
+        }
     }
-    // for (auto di = -2; di < 3; di += 4) // Loop over all knight increments
-    // {
-    //     for (auto dj = -1; dj < 2; dj += 2)
-    //     {
-    //         auto ii = square.x + di;
-    //         auto jj = square.y + dj;
-    //         if (ii >= 0 && ii < 8 && jj >= 0 && jj < 8 && CheckBit(engine.board.pieceBoards[1 + colorIndex], ii, jj)) // Check for knight moves with 2x y
-    //         {
-    //             return true;
-    //         }
-    //         ii = square.x + dj;
-    //         jj = square.y + di;
-    //         if (ii >= 0 && ii < 8 && jj >= 0 && jj < 8 && CheckBit(engine.board.pieceBoards[1 + colorIndex], ii, jj)) // Check for knight moves with x 2y
-    //         {
-    //             return true;
-    //         }
-    //     }
-    // }
+    for (auto i = square.y + 1; i < 8; i++)
+    {
+        if (CheckBit(horAndVertSliderBoard, square.x, i))
+        {
+            return true;
+        }
+        if (CheckBit(horAndVertBlockerBoard, square.x, i))
+        {
+            break;
+        }
+    }
+    for (auto i = square.x - 1; i >= 0; i--)
+    {
+        if (CheckBit(horAndVertSliderBoard, i, square.y))
+        {
+            return true;
+        }
+        if (CheckBit(horAndVertBlockerBoard, i, square.y))
+        {
+            break;
+        }
+    }
+    for (auto i = square.y - 1; i >= 0; i--)
+    {
+        if (CheckBit(horAndVertSliderBoard, square.x, i))
+        {
+            return true;
+        }
+        if (CheckBit(horAndVertBlockerBoard, square.x, i))
+        {
+            break;
+        }
+    }
+
+
 
     // Pawns
     auto colorDir = attackingColor ? -1 : 1;
