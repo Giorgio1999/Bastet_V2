@@ -121,7 +121,7 @@ void EngineController::TestReady()
 
 void EngineController::FullPerftTest(){
 	auto fullStart = std::chrono::high_resolution_clock::now();
-	auto dataPath = "../assets/perftTestSuit.txt";
+	auto dataPath = "assets/perftTestSuit.txt";
 	std::fstream dataStream(dataPath,std::ios::in);
 	std::string line;
 	while(std::getline(dataStream,line) && !engine.stopFlag){

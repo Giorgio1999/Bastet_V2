@@ -7,7 +7,7 @@
             "request": "launch",
             "program": "${workspaceFolder}/Bastet_V2",
             "args": [],
-            "cwd": "${workspaceFolder}/obj",
+            "cwd": "${workspaceFolder}",
             "stopAtEntry": false,
             "environment": [],
             "externalConsole": true,
