@@ -4,6 +4,7 @@
 #include <vector>
 
 extern uint_fast64_t knightMoves[64];
+extern uint_fast64_t kingMoves[64];
 
 namespace MoveGenerator
 {
@@ -12,6 +13,7 @@ namespace MoveGenerator
     void GenerateAttacks(const Engine &engine, const bool &color, uint_fast64_t &attackBoard);
     bool IsSquareAttacked(const Engine &engine, const Coord &square, const bool &attackingColor);
     void PreComputeKnightMoves();
+    void PreComputeKingMoves();
 }
 
 void GetPseudoLegalPawnMoves(const Engine &engine, std::vector<Move> &pseudoLegalMoves);

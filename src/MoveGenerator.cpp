@@ -8,6 +8,7 @@
 //  These are all functionalities connected to move generation
 
 uint_fast64_t knightMoves[64];
+uint_fast64_t kingMoves[64];
 
 void MoveGenerator::GetPseudoLegalMoves(const Engine &engine, std::vector<Move> &pseudoLegalMoves)
 {
@@ -212,81 +213,58 @@ void GetPseudoLegalKnightMoves(const Engine &engine, std::vector<Move> &pseudoLe
     auto color = engine.board.whiteToMove;
     auto colorIndex = color ? 0 : 6;
     uint_fast64_t thisBoard = ~engine.board.colorBoards[!color]; //  ~friendly blockers
-    uint_fast64_t knights = engine.board.pieceBoards[1+colorIndex];
+    uint_fast64_t knights = engine.board.pieceBoards[1 + colorIndex];
     uint_fast64_t attacks = ZERO;
-    auto from = BitScanForwards(knights)-1;
+    auto from = BitScanForwards(knights) - 1;
     while (from >= 0)
     {
         attacks = knightMoves[from] & thisBoard;
-        auto to = BitScanForwards(attacks)-1;
-        while (to>=0)
+        auto to = BitScanForwards(attacks) - 1;
+        while (to >= 0)
         {
-            pseudoLegalMoves.push_back(Move(from,to));
-            UnsetBit(attacks,to);
-            to = BitScanForwards(attacks)-1;
+            pseudoLegalMoves.push_back(Move(from, to));
+            UnsetBit(attacks, to);
+            to = BitScanForwards(attacks) - 1;
         }
-        UnsetBit(knights,from);
-        from = BitScanForwards(knights)-1;
+        UnsetBit(knights, from);
+        from = BitScanForwards(knights) - 1;
     }
-    
-    // for (auto i = 0; i < 8; i++)                                 // loop over all squares to find knights
-    // {
-    //     for (auto j = 0; j < 8; j++)
-    //     {
-    //         if (CheckBit(engine.board.pieceBoards[1 + colorIndex], i, j))
-    //         {
-    //             for (auto di = -2; di < 3; di += 4) // Loop over all knight increments
-    //             {
-    //                 for (auto dj = -1; dj < 2; dj += 2)
-    //                 {
-    //                     auto ii = i + di;
-    //                     auto jj = j + dj;
-    //                     if (ii >= 0 && ii < 8 && jj >= 0 && jj < 8) // Check for knight moves with 2x y
-    //                     {
-    //                         if (CheckBit(thisBoard, ii, jj))
-    //                         {
-    //                             pseudoLegalMoves.push_back(Move(i, j, ii, jj));
-    //                         }
-    //                     }
-    //                     ii = i + dj;
-    //                     jj = j + di;
-    //                     if (ii >= 0 && ii < 8 && jj >= 0 && jj < 8) // Check for knight moves with x 2y
-    //                     {
-    //                         if (CheckBit(thisBoard, ii, jj))
-    //                         {
-    //                             pseudoLegalMoves.push_back(Move(i, j, ii, jj));
-    //                         }
-    //                     }
-    //                 }
-    //             }
-    //         }
-    //     }
-    // }
 }
 
 void GetPseudoLegalKingMoves(const Engine &engine, std::vector<Move> &pseudoLegalMoves)
 {
     auto color = engine.board.whiteToMove;
     Coord kingCoord = engine.board.kingCoords[!color];
+    int kingIndex = engine.board.kingIndices[!color];
     auto castleColorIndex = color ? 0 : 2;                                                    // to obtain colored castling rules
     uint_fast64_t combinedColors = engine.board.colorBoards[0] | engine.board.colorBoards[1]; // | engine.board.attackBoard; // Bitboard with both friendly and unfriendly blockers and attacked squares for castling
     auto firstRank = color ? 7 : 0;
 
     // normal king moves
-    uint_fast64_t moves = ZERO;
-    SetBit(moves, kingCoord.x, kingCoord.y);
-    moves = moves >> 8 | moves >> 9 | moves >> 1 | moves << 7 | moves << 8 | moves << 9 | moves << 1 | moves >> 7; // all king increments
-    moves &= ~engine.board.colorBoards[!color];                                                                    // removes friendly blocked suqares and attacked squares
-    for (auto i = 0; i < 8; i++)
+    uint_fast64_t attacks = kingMoves[kingIndex] & ~engine.board.colorBoards[!color];
+    auto to = BitScanForwards(attacks) - 1;
+    while (to >= 0)
     {
-        for (auto j = 0; j < 8; j++)
-        {
-            if (CheckBit(moves, i, j) && (std::abs(i - kingCoord.x) <= 1 && std::abs(j - kingCoord.y) <= 1))
-            { // moves are set bits of moves which lie in range of the king
-                pseudoLegalMoves.push_back(Move(kingCoord.x, kingCoord.y, i, j));
-            }
-        }
+        pseudoLegalMoves.push_back(Move(kingIndex, to));
+        UnsetBit(attacks, to);
+        to = BitScanForwards(attacks) - 1;
     }
+
+    // // normal king moves
+    // uint_fast64_t moves = ZERO;
+    // SetBit(moves, kingCoord.x, kingCoord.y);
+    // moves = moves >> 8 | moves >> 9 | moves >> 1 | moves << 7 | moves << 8 | moves << 9 | moves << 1 | moves >> 7; // all king increments
+    // moves &= ~engine.board.colorBoards[!color];                                                                    // removes friendly blocked suqares and attacked squares
+    // for (auto i = 0; i < 8; i++)
+    // {
+    //     for (auto j = 0; j < 8; j++)
+    //     {
+    //         if (CheckBit(moves, i, j) && (std::abs(i - kingCoord.x) <= 1 && std::abs(j - kingCoord.y) <= 1))
+    //         { // moves are set bits of moves which lie in range of the king
+    //             pseudoLegalMoves.push_back(Move(kingCoord.x, kingCoord.y, i, j));
+    //         }
+    //     }
+    // }
 
     // fucking castling
     if (!MoveGenerator::IsSquareAttacked(engine, kingCoord, !color))
@@ -712,8 +690,9 @@ bool MoveGenerator::IsSquareAttacked(const Engine &engine, const Coord &square, 
     uint_fast64_t diagonalBlockerBoard = (engine.board.colorBoards[!attackingColor] & ~engine.board.pieceBoards[2 + colorIndex] & ~engine.board.pieceBoards[4 + colorIndex]) | engine.board.colorBoards[attackingColor];
 
     // Knights
-    auto knightCheck = knightMoves[square.y*8+square.x] & engine.board.pieceBoards[1+colorIndex];
-    if(knightCheck>0){
+    auto knightCheck = knightMoves[square.y * 8 + square.x] & engine.board.pieceBoards[1 + colorIndex];
+    if (knightCheck > 0)
+    {
         return true;
     }
 
@@ -762,7 +741,7 @@ bool MoveGenerator::IsSquareAttacked(const Engine &engine, const Coord &square, 
             break;
         }
     }
-    
+
     // Horizontal and vertical sliders
     for (auto i = square.x + 1; i < 8; i++)
     {
@@ -809,8 +788,6 @@ bool MoveGenerator::IsSquareAttacked(const Engine &engine, const Coord &square, 
         }
     }
 
-
-
     // Pawns
     auto colorDir = attackingColor ? -1 : 1;
     if (square.x - 1 < 8 && square.x - 1 >= 0 && CheckBit(engine.board.pieceBoards[0 + colorIndex], square.x - 1, square.y - colorDir))
@@ -833,19 +810,39 @@ bool MoveGenerator::IsSquareAttacked(const Engine &engine, const Coord &square, 
     return false;
 }
 
-void MoveGenerator::PreComputeKnightMoves(){
+void MoveGenerator::PreComputeKnightMoves()
+{
     uint_fast64_t localMoves = 0;
-    for(auto i=0;i<64;i++){
+    for (auto i = 0; i < 64; i++)
+    {
         localMoves = ONE << i;
-        localMoves = (localMoves & ~fileMasks[7]) << 17
-                    | (localMoves & ~(fileMasks[6] | fileMasks[7])) << 10
-                    | (localMoves & ~(fileMasks[6] | fileMasks[7])) >> 6
-                    | (localMoves & ~fileMasks[7]) >> 15
-                    | (localMoves & ~fileMasks[0]) >> 17
-                    | (localMoves & ~(fileMasks[0] | fileMasks[1])) >> 10
-                    | (localMoves & ~(fileMasks[0] | fileMasks[1])) << 6
+        localMoves = (localMoves & ~fileMasks[7]) << 17 
+                    | (localMoves & ~(fileMasks[6] | fileMasks[7])) << 10 
+                    | (localMoves & ~(fileMasks[6] | fileMasks[7])) >> 6 
+                    | (localMoves & ~fileMasks[7]) >> 15 
+                    | (localMoves & ~fileMasks[0]) >> 17 
+                    | (localMoves & ~(fileMasks[0] | fileMasks[1])) >> 10 
+                    | (localMoves & ~(fileMasks[0] 
+                    | fileMasks[1])) << 6 
                     | (localMoves & ~fileMasks[0]) << 15;
         knightMoves[i] = localMoves;
     }
+}
 
+void MoveGenerator::PreComputeKingMoves()
+{
+    uint_fast64_t localMoves = 0;
+    for (auto i = 0; i < 64; i++)
+    {
+        localMoves = ONE << i;
+        localMoves = localMoves << 8 
+                    | (localMoves & ~fileMasks[7]) << 9 
+                    | (localMoves & ~fileMasks[7]) << 1 
+                    | (localMoves & ~fileMasks[7]) >> 7 
+                    | localMoves >> 8 
+                    | (localMoves & ~fileMasks[0]) >> 9 
+                    | (localMoves & ~fileMasks[0]) >> 1 
+                    | (localMoves & ~fileMasks[0]) << 7;
+        kingMoves[i] = localMoves;
+    }
 }

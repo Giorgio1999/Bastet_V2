@@ -18,6 +18,7 @@ Engine::Engine()
 void Engine::Boot(){
 	ComputeMasks();
 	MoveGenerator::PreComputeKnightMoves();
+	MoveGenerator::PreComputeKingMoves();
 }
 
 void Engine::NewGame()
