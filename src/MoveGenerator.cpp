@@ -5,7 +5,7 @@
 #include <vector>
 #include <cstdint>
 #include <iostream>
-// Testing of specific position: position startpos moves d5d6 h3g2 a2a3 
+// Testing of specific position: position startpos moves d5d6 h3g2 a2a3
 //  These are all functionalities connected to move generation
 
 uint_fast64_t knightMoves[64];
@@ -42,68 +42,75 @@ void GetPseudoLegalPawnMoves(const Engine &engine, std::vector<Move> &pseudoLega
         pushes = pushes << 8;
     }
     pushes &= combinedColors; // remove pawns which landed on occupied squares
-    auto to = BitScanForwards(pushes)-1;
-    while (to>=0)
+    auto to = BitScanForwards(pushes) - 1;
+    while (to >= 0)
     {
-        Move move(to-colorDirection,to);
-        if(CheckBit(rankMasks[promotionRank],to)){
-            for(auto i=2;i<6;i++){
+        Move move(to - colorDirection, to);
+        if (CheckBit(rankMasks[promotionRank], to))
+        {
+            for (auto i = 2; i < 6; i++)
+            {
                 move.convertTo = (PieceType)i;
                 move.promotion = true;
                 pseudoLegalMoves.push_back(move);
             }
         }
-        else{
+        else
+        {
             pseudoLegalMoves.push_back(move);
         }
-        UnsetBit(pushes,to);
-        to = BitScanForwards(pushes)-1;
+        UnsetBit(pushes, to);
+        to = BitScanForwards(pushes) - 1;
     }
-    
+
     // Double pawn pushes - push all pawns twice (check for blockers inbetween)
     pushes = engine.board.pieceBoards[colorIndex] & rankMasks[startRank];
     if (color)
     { // if white push up
-        pushes = ((pushes >> 8)&combinedColors)>>8;
+        pushes = ((pushes >> 8) & combinedColors) >> 8;
     }
     else
     { // if black push down
-        pushes = ((pushes << 8)&combinedColors)<<8;
+        pushes = ((pushes << 8) & combinedColors) << 8;
     }
     pushes &= combinedColors; // remove pawns which landed on occupied squares
-    to = BitScanForwards(pushes)-1;
-    while (to>=0)
+    to = BitScanForwards(pushes) - 1;
+    while (to >= 0)
     {
-        pseudoLegalMoves.push_back(Move(to-colorDirection*2,to));
-        UnsetBit(pushes,to);
-        to = BitScanForwards(pushes)-1;
+        pseudoLegalMoves.push_back(Move(to - colorDirection * 2, to));
+        UnsetBit(pushes, to);
+        to = BitScanForwards(pushes) - 1;
     }
 
     // // Pawn Captures
     uint_fast64_t pawnBoard = engine.board.pieceBoards[colorIndex];
-    auto from = BitScanForwards(pawnBoard)-1;
-    while (from>=0)
+    auto from = BitScanForwards(pawnBoard) - 1;
+    while (from >= 0)
     {
-        for(auto j=0;j<2;j++){
-            uint64_t captures = pawnAttacks[!color][j][from] & (engine.board.colorBoards[color]|engine.board.ghostBoard);
-            to = BitScanForwards(captures)-1;
-            if(to>=0)
+        for (auto j = 0; j < 2; j++)
+        {
+            uint64_t captures = pawnAttacks[!color][j][from] & (engine.board.colorBoards[color] | engine.board.ghostBoard);
+            to = BitScanForwards(captures) - 1;
+            if (to >= 0)
             {
-                Move move(from,to);
-                if(CheckBit(rankMasks[promotionRank],to)){
-                    for(auto i=2;i<6;i++){
+                Move move(from, to);
+                if (CheckBit(rankMasks[promotionRank], to))
+                {
+                    for (auto i = 2; i < 6; i++)
+                    {
                         move.convertTo = (PieceType)i;
                         move.promotion = true;
                         pseudoLegalMoves.push_back(move);
                     }
                 }
-                else{
+                else
+                {
                     pseudoLegalMoves.push_back(move);
                 }
             }
         }
-        UnsetBit(pawnBoard,from);
-        from = BitScanForwards(pawnBoard)-1;
+        UnsetBit(pawnBoard, from);
+        from = BitScanForwards(pawnBoard) - 1;
     }
 }
 
@@ -150,42 +157,49 @@ void GetPseudoLegalKingMoves(const Engine &engine, std::vector<Move> &pseudoLega
     // fucking castling
     uint_fast64_t kingSideMask = castleMasks[!color][0];
     uint_fast64_t queenSideMask = castleMasks[!color][1];
-    uint_fast64_t kingsideOccupation = kingSideMask & combinedColors;  //castling masks with blocked indices removed
+    uint_fast64_t kingsideOccupation = kingSideMask & combinedColors; // castling masks with blocked indices removed
     uint_fast64_t queenSideOccupation = queenSideMask & combinedColors;
-    auto kingSideCastleTarget = color?62:6;
-    auto queenSideCastleTarget = color?58:2;
-    if(kingsideOccupation==0 && engine.board.castlingRights[castleColorIndex]){
+    auto kingSideCastleTarget = color ? 62 : 6;
+    auto queenSideCastleTarget = color ? 58 : 2;
+    if (kingsideOccupation == 0 && engine.board.castlingRights[castleColorIndex])
+    {
         auto index = BitScanForwards(kingSideMask) - 1;
         auto canCastle = true;
         while (index >= 0)
         {
-            if(MoveGenerator::IsSquareAttacked(engine,index,!color)){
+            if (MoveGenerator::IsSquareAttacked(engine, index, !color))
+            {
                 canCastle = false;
                 break;
             }
-            UnsetBit(kingSideMask,index);
-            index = BitScanForwards(kingSideMask)-1;
+            UnsetBit(kingSideMask, index);
+            index = BitScanForwards(kingSideMask) - 1;
         }
-        if(canCastle && !MoveGenerator::IsSquareAttacked(engine,kingIndex,!color)){
-            pseudoLegalMoves.push_back(Move(kingIndex,kingSideCastleTarget));
+        if (canCastle && !MoveGenerator::IsSquareAttacked(engine, kingIndex, !color))
+        {
+            pseudoLegalMoves.push_back(Move(kingIndex, kingSideCastleTarget));
         }
     }
-    if(queenSideOccupation==0 && engine.board.castlingRights[castleColorIndex+1]){
-        auto index = BitScanForwards(queenSideMask)-1;
+    if (queenSideOccupation == 0 && engine.board.castlingRights[castleColorIndex + 1])
+    {
+        auto index = BitScanForwards(queenSideMask) - 1;
         auto canCastle = true;
-        while (index>=0)
+        while (index >= 0)
         {
-                if(index!=queenSideCastleTarget-1){
-                    if(MoveGenerator::IsSquareAttacked(engine,index,!color)){
-                        canCastle = false;
-                        break;
-                    }
+            if (index != queenSideCastleTarget - 1)
+            {
+                if (MoveGenerator::IsSquareAttacked(engine, index, !color))
+                {
+                    canCastle = false;
+                    break;
                 }
-            UnsetBit(queenSideMask,index);
-            index = BitScanForwards(queenSideMask)-1;
+            }
+            UnsetBit(queenSideMask, index);
+            index = BitScanForwards(queenSideMask) - 1;
         }
-        if(canCastle && !MoveGenerator::IsSquareAttacked(engine,kingIndex,!color)){
-            pseudoLegalMoves.push_back(Move(kingIndex,queenSideCastleTarget));
+        if (canCastle && !MoveGenerator::IsSquareAttacked(engine, kingIndex, !color))
+        {
+            pseudoLegalMoves.push_back(Move(kingIndex, queenSideCastleTarget));
         }
     }
 }
@@ -195,63 +209,69 @@ void GetPseudoLegalRookMoves(const Engine &engine, const uint_fast64_t &rookPiec
     auto color = engine.board.whiteToMove;
     uint_fast64_t thisBoard = engine.board.colorBoards[!color];
     uint_fast64_t otherBoard = engine.board.colorBoards[color];
+    uint_fast64_t rookBoard = rookPieceBoard;
 
-    for (auto i = 0; i < 8; i++) // Loop to find square of rook piece
+    auto from = BitScanForwards(rookBoard) - 1;
+    while (from >= 0)
     {
-        for (auto j = 0; j < 8; j++)
+        auto to = from + 8;
+        while (to < 64)
         {
-            if (CheckBit(rookPieceBoard, i, j))
+            if (CheckBit(thisBoard, to))
             {
-                for (auto di = 1; di < 8 - i; di++) // for each rook piece loop over all squares to the edges of the board
-                {
-                    if (CheckBit(thisBoard, i + di, j)) // stop if blocked by friendly piece
-                    {
-                        break;
-                    }
-                    pseudoLegalMoves.push_back(Move(i, j, i + di, j));
-                    if (CheckBit(otherBoard, i + di, j)) // stop if captured enemy piece
-                    {
-                        break;
-                    }
-                }
-                for (auto di = -1; di >= -i; di--)
-                {
-                    if (CheckBit(thisBoard, i + di, j))
-                    {
-                        break;
-                    }
-                    pseudoLegalMoves.push_back(Move(i, j, i + di, j));
-                    if (CheckBit(otherBoard, i + di, j))
-                    {
-                        break;
-                    }
-                }
-                for (auto dj = 1; dj < 8 - j; dj++)
-                {
-                    if (CheckBit(thisBoard, i, j + dj))
-                    {
-                        break;
-                    }
-                    pseudoLegalMoves.push_back(Move(i, j, i, j + dj));
-                    if (CheckBit(otherBoard, i, j + dj))
-                    {
-                        break;
-                    }
-                }
-                for (auto dj = -1; dj >= -j; dj--)
-                {
-                    if (CheckBit(thisBoard, i, j + dj))
-                    {
-                        break;
-                    }
-                    pseudoLegalMoves.push_back(Move(i, j, i, j + dj));
-                    if (CheckBit(otherBoard, i, j + dj))
-                    {
-                        break;
-                    }
-                }
+                break;
             }
+            pseudoLegalMoves.push_back(Move(from,to));
+            if (CheckBit(otherBoard, to))
+            {
+                break;
+            }
+            to += 8;
         }
+        to = from - 8;
+        while (to >= 0)
+        {
+            if (CheckBit(thisBoard, to))
+            {
+                break;
+            }
+            pseudoLegalMoves.push_back(Move(from,to));
+            if (CheckBit(otherBoard, to))
+            {
+                break;
+            }
+            to -= 8;
+        }
+        to = from + 1;
+        while (to < 64)
+        {
+            if (CheckBit(thisBoard, to) || CheckBit(fileMasks[0], to))
+            {
+                break;
+            }
+            pseudoLegalMoves.push_back(Move(from,to));
+            if (CheckBit(otherBoard, to))
+            {
+                break;
+            }
+            to++;
+        }
+        to = from - 1;
+        while (to >= 0)
+        {
+            if (CheckBit(thisBoard, to) || CheckBit(fileMasks[7], to))
+            {
+                break;
+            }
+            pseudoLegalMoves.push_back(Move(from,to));
+            if (CheckBit(otherBoard, to))
+            {
+                break;
+            }
+            to--;
+        }
+        UnsetBit(rookBoard,from);
+        from = BitScanForwards(rookBoard)-1;
     }
 }
 
@@ -559,7 +579,8 @@ void MoveGenerator::GetLegalMoves(Engine &engine, std::vector<Move> &legalmoves)
     }
 }
 
-bool MoveGenerator::IsSquareAttacked(const Engine &engine,const int &index,const bool&attackingColor){
+bool MoveGenerator::IsSquareAttacked(const Engine &engine, const int &index, const bool &attackingColor)
+{
     auto colorIndex = attackingColor ? 0 : 6;
     // Bitboards containing slider pieces
     uint_fast64_t horAndVertSliderBoard = engine.board.pieceBoards[3 + colorIndex] | engine.board.pieceBoards[4 + colorIndex];
@@ -578,99 +599,121 @@ bool MoveGenerator::IsSquareAttacked(const Engine &engine,const int &index,const
     // King: is the piece on index attacked by the attackingcolor king
     int attackingKingIndex = engine.board.kingIndices[!attackingColor];
     attacks = kingMoves[attackingKingIndex];
-    if(CheckBit(attacks,index)){
+    if (CheckBit(attacks, index))
+    {
         return true;
     }
 
     // Pawns: can the piece on index attack an attackingcolor pawn like a pawn
     attacks = (pawnAttacks[attackingColor][0][index] | pawnAttacks[attackingColor][1][index]) & engine.board.pieceBoards[colorIndex];
-    if(attacks>0){
+    if (attacks > 0)
+    {
         return true;
     }
 
     // Diagonal sliders: can the piece on index attack a attackingcolor diagonal slider like a diagonal slider
     auto increment = index + 9;
-    while(increment<64){
-        if(CheckBit(fileMasks[0],increment) || CheckBit(diagonalBlockerBoard,increment)){
+    while (increment < 64)
+    {
+        if (CheckBit(fileMasks[0], increment) || CheckBit(diagonalBlockerBoard, increment))
+        {
             break;
         }
-        if(CheckBit(diagonalSliderBoard,increment)){
+        if (CheckBit(diagonalSliderBoard, increment))
+        {
             return true;
         }
-        increment+=9;
+        increment += 9;
     }
     increment = index + 7;
-    while(increment<64){
-        if(CheckBit(fileMasks[7],increment) || CheckBit(diagonalBlockerBoard,increment)){
+    while (increment < 64)
+    {
+        if (CheckBit(fileMasks[7], increment) || CheckBit(diagonalBlockerBoard, increment))
+        {
             break;
         }
-        if(CheckBit(diagonalSliderBoard,increment)){
+        if (CheckBit(diagonalSliderBoard, increment))
+        {
             return true;
         }
-        increment+=7;
+        increment += 7;
     }
     increment = index - 9;
-    while(increment>=0){
-        if(CheckBit(fileMasks[7],increment) || CheckBit(diagonalBlockerBoard,increment)){
+    while (increment >= 0)
+    {
+        if (CheckBit(fileMasks[7], increment) || CheckBit(diagonalBlockerBoard, increment))
+        {
             break;
         }
-        if(CheckBit(diagonalSliderBoard,increment)){
+        if (CheckBit(diagonalSliderBoard, increment))
+        {
             return true;
         }
-        increment-=9;
+        increment -= 9;
     }
     increment = index - 7;
-    while(increment>=0){
-        if(CheckBit(fileMasks[0],increment) || CheckBit(diagonalBlockerBoard,increment)){
+    while (increment >= 0)
+    {
+        if (CheckBit(fileMasks[0], increment) || CheckBit(diagonalBlockerBoard, increment))
+        {
             break;
         }
-        if(CheckBit(diagonalSliderBoard,increment)){
+        if (CheckBit(diagonalSliderBoard, increment))
+        {
             return true;
         }
-        increment-=7;
+        increment -= 7;
     }
 
     // Horizontal and vertical sliders: can the piece on index attack a attacking color hor and vert slider like a hor and vert slider
-    increment = index+8;
-    while (increment<64)
+    increment = index + 8;
+    while (increment < 64)
     {
-        if(CheckBit(horAndVertBlockerBoard,increment)){
+        if (CheckBit(horAndVertBlockerBoard, increment))
+        {
             break;
         }
-        if(CheckBit(horAndVertSliderBoard,increment)){
+        if (CheckBit(horAndVertSliderBoard, increment))
+        {
             return true;
         }
-        increment+=8;
+        increment += 8;
     }
-    increment = index-8;
-    while (increment>=0)
+    increment = index - 8;
+    while (increment >= 0)
     {
-        if(CheckBit(horAndVertBlockerBoard,increment)){
+        if (CheckBit(horAndVertBlockerBoard, increment))
+        {
             break;
         }
-        if(CheckBit(horAndVertSliderBoard,increment)){
+        if (CheckBit(horAndVertSliderBoard, increment))
+        {
             return true;
         }
-        increment-=8;
+        increment -= 8;
     }
-    increment = index+1;
-    while (increment<64)
+    increment = index + 1;
+    while (increment < 64)
     {
-        if(CheckBit(horAndVertBlockerBoard,increment) || CheckBit(fileMasks[0],increment)){
+        if (CheckBit(horAndVertBlockerBoard, increment) || CheckBit(fileMasks[0], increment))
+        {
             break;
         }
-        if(CheckBit(horAndVertSliderBoard,increment)){
+        if (CheckBit(horAndVertSliderBoard, increment))
+        {
             return true;
         }
         increment++;
     }
-    increment = index-1;
-    while (increment>=0)
+    increment = index - 1;
+    while (increment >= 0)
     {
-        if(CheckBit(horAndVertBlockerBoard,increment) || CheckBit(fileMasks[7],increment)){
+        if (CheckBit(horAndVertBlockerBoard, increment) || CheckBit(fileMasks[7], increment))
+        {
             break;
         }
-        if(CheckBit(horAndVertSliderBoard,increment)){
+        if (CheckBit(horAndVertSliderBoard, increment))
+        {
             return true;
         }
         increment--;
@@ -681,7 +724,7 @@ bool MoveGenerator::IsSquareAttacked(const Engine &engine,const int &index,const
 
 bool MoveGenerator::IsSquareAttacked(const Engine &engine, const Coord &square, const bool &attackingColor)
 {
-    return IsSquareAttacked(engine,square.y*8+square.x,attackingColor);
+    return IsSquareAttacked(engine, square.y * 8 + square.x, attackingColor);
 }
 
 void MoveGenerator::PreComputeKnightMoves()
@@ -690,15 +733,7 @@ void MoveGenerator::PreComputeKnightMoves()
     for (auto i = 0; i < 64; i++)
     {
         localMoves = ONE << i;
-        localMoves = (localMoves & ~fileMasks[7]) << 17 
-                    | (localMoves & ~(fileMasks[6] | fileMasks[7])) << 10 
-                    | (localMoves & ~(fileMasks[6] | fileMasks[7])) >> 6 
-                    | (localMoves & ~fileMasks[7]) >> 15 
-                    | (localMoves & ~fileMasks[0]) >> 17 
-                    | (localMoves & ~(fileMasks[0] | fileMasks[1])) >> 10 
-                    | (localMoves & ~(fileMasks[0] 
-                    | fileMasks[1])) << 6 
-                    | (localMoves & ~fileMasks[0]) << 15;
+        localMoves = (localMoves & ~fileMasks[7]) << 17 | (localMoves & ~(fileMasks[6] | fileMasks[7])) << 10 | (localMoves & ~(fileMasks[6] | fileMasks[7])) >> 6 | (localMoves & ~fileMasks[7]) >> 15 | (localMoves & ~fileMasks[0]) >> 17 | (localMoves & ~(fileMasks[0] | fileMasks[1])) >> 10 | (localMoves & ~(fileMasks[0] | fileMasks[1])) << 6 | (localMoves & ~fileMasks[0]) << 15;
         knightMoves[i] = localMoves;
     }
 }
@@ -709,29 +744,24 @@ void MoveGenerator::PreComputeKingMoves()
     for (auto i = 0; i < 64; i++)
     {
         localMoves = ONE << i;
-        localMoves = localMoves << 8 
-                    | (localMoves & ~fileMasks[7]) << 9 
-                    | (localMoves & ~fileMasks[7]) << 1 
-                    | (localMoves & ~fileMasks[7]) >> 7 
-                    | localMoves >> 8 
-                    | (localMoves & ~fileMasks[0]) >> 9 
-                    | (localMoves & ~fileMasks[0]) >> 1 
-                    | (localMoves & ~fileMasks[0]) << 7;
+        localMoves = localMoves << 8 | (localMoves & ~fileMasks[7]) << 9 | (localMoves & ~fileMasks[7]) << 1 | (localMoves & ~fileMasks[7]) >> 7 | localMoves >> 8 | (localMoves & ~fileMasks[0]) >> 9 | (localMoves & ~fileMasks[0]) >> 1 | (localMoves & ~fileMasks[0]) << 7;
         kingMoves[i] = localMoves;
     }
 }
 
-void MoveGenerator::PreComputePawnAttacks(){
+void MoveGenerator::PreComputePawnAttacks()
+{
     uint_fast64_t localMoves = 0;
-    for(auto i=0;i<64;i++){
+    for (auto i = 0; i < 64; i++)
+    {
         localMoves = ONE << i;
-        //white left
+        // white left
         pawnAttacks[0][0][i] = (localMoves & ~fileMasks[0]) >> 9;
-        //white right
+        // white right
         pawnAttacks[0][1][i] = (localMoves & ~fileMasks[7]) >> 7;
-        //black left
+        // black left
         pawnAttacks[1][0][i] = (localMoves & ~fileMasks[0]) << 7;
-        //black right
+        // black right
         pawnAttacks[1][1][i] = (localMoves & ~fileMasks[7]) << 9;
     }
 }
