@@ -1,6 +1,5 @@
 #pragma once
 #include "Board.h"
-#include "Piece.h"
 #include "Move.h"
 #include <string>
 #include <vector>

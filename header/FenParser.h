@@ -1,5 +1,4 @@
 #pragma once
-#include "Piece.h"
 #include "Board.h"
 #include <string>
 

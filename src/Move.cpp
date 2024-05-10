@@ -77,16 +77,16 @@ Move Str2Move(const std::string &moveString)
 		switch (moveString[moveString.length() - 1])
 		{
 		case 'q':
-			move.convertTo = queen;
+			move.convertTo = 4;
 			break;
 		case 'n':
-			move.convertTo = knight;
+			move.convertTo = 1;
 			break;
 		case 'b':
-			move.convertTo = bishop;
+			move.convertTo = 2;
 			break;
 		case 'r':
-			move.convertTo = rook;
+			move.convertTo = 3;
 			break;
 		}
 	}

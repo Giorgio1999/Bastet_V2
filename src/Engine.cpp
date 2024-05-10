@@ -1,6 +1,5 @@
 #include "Engine.h"
 #include "Board.h"
-#include "Piece.h"
 #include "Move.h"
 #include "MoveGenerator.h"
 #include "BitBoardUtility.h"

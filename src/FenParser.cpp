@@ -1,5 +1,4 @@
 #include "FenParser.h"
-#include "Piece.h"
 #include "Move.h"
 #include "Board.h"
 #include "BitBoardUtility.h"

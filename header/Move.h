@@ -1,5 +1,4 @@
 #pragma once
-#include "Piece.h"
 #include <string>
 #include <list>
 #include <vector>
@@ -8,6 +7,7 @@
 
 const std::string rows = "87654321"; // Hardcoded translations of the rows or y
 const std::string cols = "abcdefgh"; // Hardcoded translations of the cols or x
+const std::string types = "-pnbrqk";	// Hardcoded translations from int to piecetypes
 
 struct Coord
 {
