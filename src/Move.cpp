@@ -1,4 +1,5 @@
 #include "Move.h"
+#include "BitBoardUtility.h"
 #include <string>
 #include <cmath>
 #include <vector>

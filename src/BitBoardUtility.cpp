@@ -3,51 +3,50 @@
 #include <cstdint>
 #include <string>
 #include <iostream>
+#include <bit>
 
-uint_fast64_t fileMasks[8];
-uint_fast64_t rankMasks[8];
+bitboard fileMasks[8];
+bitboard rankMasks[8];
 
-int BitScanForwards(const uint_fast64_t& value){
+int BitScanForwards(const bitboard& value){
+	// return std::countr_zero(value);
 	return  __builtin_ffsl(value);
 }
 
-bool CheckBit(const uint_fast64_t &value, const int &index)
+bool CheckBit(const bitboard &value, const int &index)
 {
-	if(index>63){
-		return false;
-	}
-	uint_fast64_t bitIndex = ONE << index;
+	bitboard bitIndex = ONE << index;
 	return (value & bitIndex) == bitIndex;
 }
 
-bool CheckBit(const uint_fast64_t &value, const int &i, const int &j)
+bool CheckBit(const bitboard &value, const int &i, const int &j)
 {
 	return CheckBit(value, j * 8 + i);
 }
 
-void SetBit(uint_fast64_t &value, const int &index)
+void SetBit(bitboard &value, const int &index)
 {
-	uint_fast64_t bitIndex = ONE << index;
+	bitboard bitIndex = ONE << index;
 	value |= bitIndex;
 }
 
-void SetBit(uint_fast64_t &value, const int &i, const int &j)
+void SetBit(bitboard &value, const int &i, const int &j)
 {
 	SetBit(value, j * 8 + i);
 }
 
-void UnsetBit(uint_fast64_t &value, const int &index)
+void UnsetBit(bitboard &value, const int &index)
 {
-	uint_fast64_t bitIndex = ONE << index;
+	bitboard bitIndex = ONE << index;
 	value &= ~bitIndex;
 }
 
-void UnsetBit(uint_fast64_t &value, const int &i, const int &j)
+void UnsetBit(bitboard &value, const int &i, const int &j)
 {
 	UnsetBit(value, j * 8 + i);
 }
 
-void PrintBitBoard(const uint_fast64_t &value)
+void PrintBitBoard(const bitboard &value)
 {
 	std::string boardVisual = "";
 	for (auto i = 0; i < 8; i++)

@@ -1,4 +1,5 @@
 #pragma once
+#include "BitBoardUtility.h"
 #include <string>
 #include <list>
 #include <vector>

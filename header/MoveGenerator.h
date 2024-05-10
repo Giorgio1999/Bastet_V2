@@ -1,13 +1,14 @@
 #pragma once
+#include "BitBoardUtility.h"
 #include "Engine.h"
 #include "Move.h"
 #include <vector>
 
-extern uint_fast64_t knightMoves[64];
-extern uint_fast64_t kingMoves[64];
-extern uint_fast64_t pawnAttacks[2][2][64]; //color,direction,index     
+extern bitboard knightMoves[64];
+extern bitboard kingMoves[64];
+extern bitboard pawnAttacks[2][2][64]; //color,direction,index     
                                             //white kingside    whitequeenside      black kingside      black queenside
-const uint_fast64_t castleMasks[2][2] = {{0x6000000000000000,0x0E00000000000000},{0x0000000000000060,0x000000000000000E}};
+const bitboard castleMasks[2][2] = {{0x6000000000000000,0x0E00000000000000},{0x0000000000000060,0x000000000000000E}};
 
 
 namespace MoveGenerator
@@ -24,5 +25,5 @@ namespace MoveGenerator
 void GetPseudoLegalPawnMoves(const Engine &engine, std::vector<Move> &pseudoLegalMoves);
 void GetPseudoLegalKnightMoves(const Engine &engine, std::vector<Move> &pseudoLegalMoves);
 void GetPseudoLegalKingMoves(const Engine &engine, std::vector<Move> &pseudoLegalMoves);
-void GetPseudoLegalRookMoves(const Engine &engine, const uint_fast64_t &rookPieceBoard, std::vector<Move> &pseudoLegalMoves);
-void GetPseudoLegalBishopMoves(const Engine &engine, const uint_fast64_t &bishopPieceBoard, std::vector<Move> &pseudoLegalMoves);
+void GetPseudoLegalRookMoves(const Engine &engine, const bitboard &rookPieceBoard, std::vector<Move> &pseudoLegalMoves);
+void GetPseudoLegalBishopMoves(const Engine &engine, const bitboard &bishopPieceBoard, std::vector<Move> &pseudoLegalMoves);

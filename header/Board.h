@@ -1,4 +1,5 @@
 #pragma once
+#include "BitBoardUtility.h"
 #include "Move.h"
 #include <string>
 #include <cstdint>
@@ -6,11 +7,11 @@
 class Board
 {
 public:
-	uint_fast64_t pieceBoards[12] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}; // Bitboards for all the pieces 0,...5: white, 6,...11: black
+	bitboard pieceBoards[12] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}; // Bitboards for all the pieces 0,...5: white, 6,...11: black
 																		  //  0/6: pawn, 1/7: knight, 2/8: bishop, 3/9: rook, 4/10: queen, 5/11 king
-	uint_fast64_t ghostBoard = 0;										  // Board containing enpassant ghosts
-	uint_fast64_t colorBoards[2] = {0, 0};								  // Board containing all pieces of one color: 0 white, 1 black
-	uint_fast64_t attackBoard = 0;										  // Bitboard containing all attacks of the player not to move
+	bitboard ghostBoard = 0;										  // Board containing enpassant ghosts
+	bitboard colorBoards[2] = {0, 0};								  // Board containing all pieces of one color: 0 white, 1 black
+	bitboard attackBoard = 0;										  // Bitboard containing all attacks of the player not to move
 	bool whiteToMove = true;											  // Color to move
 	bool castlingRights[4] = {false, false, false, false};				  // Castling rights: {whiteKing,whiteQueen,blackKing,blackQueen}
 	bool enpassantable = false;											  // flag if enpassant is possible

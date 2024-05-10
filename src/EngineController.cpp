@@ -1,6 +1,7 @@
 #include "EngineController.h"
 #include "Engine.h"
 #include "FenParser.h"
+#include "BitBoardUtility.h"
 #include <string>
 #include <list>
 #include <chrono>

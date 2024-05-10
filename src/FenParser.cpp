@@ -20,7 +20,7 @@ Board Fen2Position(const std::string &fen)
 		char current = position[i];
 		if (current != '/')
 		{
-			uint_fast64_t tmp = (uint_fast64_t)1 << increment;
+			bitboard tmp = ONE << increment;
 			switch (current)
 			{
 			case 'P':

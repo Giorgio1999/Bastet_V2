@@ -1,4 +1,5 @@
 #pragma once
+#include "BitBoardUtility.h"
 #include "Board.h"
 #include "Move.h"
 #include <string>
