@@ -682,6 +682,19 @@ bool MoveGenerator::IsSquareAttacked(const Engine &engine,const int &index,const
         return true;
     }
 
+    // King: is the piece on index attacked by the attackingcolor king
+    int attackingKingIndex = engine.board.kingIndices[!attackingColor];
+    attacks = kingMoves[attackingKingIndex];
+    if(CheckBit(attacks,index)){
+        return true;
+    }
+
+    // Pawns: can the piece on index attack an attackingcolor pawn like a pawn
+    attacks = (pawnAttacks[attackingColor][0][index] | pawnAttacks[attackingColor][1][index]) & engine.board.pieceBoards[colorIndex];
+    if(attacks>0){
+        return true;
+    }
+    
     // Diagonal sliders: can the piece on index attack a attackingcolor diagonal slider like a diagonal slider
     auto increment = index + 9;
     while(increment<64){
@@ -770,18 +783,6 @@ bool MoveGenerator::IsSquareAttacked(const Engine &engine,const int &index,const
         increment--;
     }
 
-    // King: is the piece on index attacked by the attackingcolor king
-    int attackingKingIndex = engine.board.kingIndices[!attackingColor];
-    attacks = kingMoves[attackingKingIndex];
-    if(CheckBit(attacks,index)){
-        return true;
-    }
-
-    // Pawns: can the piece on index attack an attackingcolor pawn like a pawn
-    attacks = (pawnAttacks[attackingColor][0][index] | pawnAttacks[attackingColor][1][index]) & engine.board.pieceBoards[colorIndex];
-    if(attacks>0){
-        return true;
-    }
     return false;
 }
 
