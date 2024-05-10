@@ -64,7 +64,7 @@ std::string Move2Str(const Move &move)
 	tmp += rows.at(j);
 	if (move.promotion)
 	{
-		tmp += PieceType2Str(move.convertTo);
+		tmp += types.at(move.convertTo);
 	}
 	return tmp;
 }

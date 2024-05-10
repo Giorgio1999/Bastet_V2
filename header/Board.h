@@ -14,17 +14,16 @@ public:
 	bool whiteToMove = true;											  // Color to move
 	bool castlingRights[4] = {false, false, false, false};				  // Castling rights: {whiteKing,whiteQueen,blackKing,blackQueen}
 	bool enpassantable = false;											  // flag if enpassant is possible
-	Coord kingCoords[2] = {Coord(), Coord()};							  // quick reference for king coords
-	int kingIndices[2] = {0,0};
+	int kingIndices[2] = {0, 0};										  // quick reference to kingIndices
 	bool isCheck = false;
 
 	Board();
 	void Clear();
-	void MakeMove(const Move &move);		 // makes move and updates board
-	void MakeSimpleMove(const Move&move);	//makes simple move which is expected to not be king move
-	void UpdateColorBoards();				 // Updates the color boards
-	void InitialiseKingCoords();			 // finds the initial king coords
-	void UpdateKingCoords(const Move &move); // Updates the king coords after a move
+	void MakeMove(const Move &move);		  // makes move and updates board
+	void MakeSimpleMove(const Move &move);	  // makes simple move which is expected to not be king move
+	void UpdateColorBoards();				  // Updates the color boards
+	void InitialiseKingIndices();			  // finds the initial king coords
+	void UpdateKingIndices(const Move &move); // Updates the king coords after a move
 
 	std::string ShowBoard();
 };

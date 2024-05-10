@@ -89,10 +89,10 @@ void Board::MakeMove(const Move &move)
 	}
 
 	// Promotions
-	if (move.convertTo != none)
+	if (move.promotion)
 	{
 		UnsetBit(pieceBoards[color], targetIndex);
-		SetBit(pieceBoards[color + (int)move.convertTo - 1], targetIndex);
+		SetBit(pieceBoards[color + move.convertTo], targetIndex);
 	}
 
 	// Update castling flags
@@ -130,7 +130,7 @@ void Board::MakeMove(const Move &move)
 	UpdateColorBoards();
 
 	// Update King coords
-	UpdateKingCoords(move);
+	UpdateKingIndices(move);
 
 	// Update turn flag
 	whiteToMove = !whiteToMove;
@@ -182,7 +182,7 @@ void Board::MakeSimpleMove(const Move &move)
 	UpdateColorBoards();
 
 	// Update King coords
-	UpdateKingCoords(move);
+	UpdateKingIndices(move);
 
 	// Update turn flag
 	whiteToMove = !whiteToMove;
@@ -199,29 +199,14 @@ void Board::UpdateColorBoards()
 	}
 }
 
-void Board::InitialiseKingCoords()
+void Board::InitialiseKingIndices()
 {
-	for (auto i = 0; i < 8; i++)
-	{
-		for (auto j = 0; j < 8; j++)
-		{
-			if (CheckBit(pieceBoards[5], i, j))
-			{
-				kingCoords[0] = Coord(i, j);
-			}
-			if (CheckBit(pieceBoards[11], i, j))
-			{
-				kingCoords[1] = Coord(i, j);
-			}
-		}
-	}
 	kingIndices[0] = BitScanForwards(pieceBoards[5])-1;
 	kingIndices[1] = BitScanForwards(pieceBoards[11])-1;
 }
 
-void Board::UpdateKingCoords(const Move &move)
+void Board::UpdateKingIndices(const Move &move)
 {
-	kingCoords[!whiteToMove] = kingCoords[!whiteToMove] == move.startCoord ? move.targetCoord : kingCoords[!whiteToMove];
 	kingIndices[!whiteToMove] = kingIndices[!whiteToMove] == move.startIndex ? move.targetIndex : kingIndices[!whiteToMove];
 }
 

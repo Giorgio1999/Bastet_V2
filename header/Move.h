@@ -23,7 +23,8 @@ struct Move
 	int startIndex;	//From
 	int targetIndex;	//To
 
-	PieceType convertTo = none; // used to indicate promotions, as well as using wheter the move is a king move or not for checks
+	// PieceType convertTo = none; // used to indicate promotions, as well as using wheter the move is a king move or not for checks
+	int convertTo = 0;	// used to indicate Promotions: 0=none,1=knight,2=bishop,3=rook,4=queen
 	bool promotion = false;		// distinguish promotions from none promotions
 
 	Move();

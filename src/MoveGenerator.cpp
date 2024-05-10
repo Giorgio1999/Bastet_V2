@@ -48,9 +48,9 @@ void GetPseudoLegalPawnMoves(const Engine &engine, std::vector<Move> &pseudoLega
         Move move(to - colorDirection, to);
         if (CheckBit(rankMasks[promotionRank], to))
         {
-            for (auto i = 2; i < 6; i++)
+            for (auto i = 1; i < 5; i++)
             {
-                move.convertTo = (PieceType)i;
+                move.convertTo = i;
                 move.promotion = true;
                 pseudoLegalMoves.push_back(move);
             }
@@ -96,9 +96,9 @@ void GetPseudoLegalPawnMoves(const Engine &engine, std::vector<Move> &pseudoLega
                 Move move(from, to);
                 if (CheckBit(rankMasks[promotionRank], to))
                 {
-                    for (auto i = 2; i < 6; i++)
+                    for (auto i = 1; i < 5; i++)
                     {
-                        move.convertTo = (PieceType)i;
+                        move.convertTo = i;
                         move.promotion = true;
                         pseudoLegalMoves.push_back(move);
                     }
