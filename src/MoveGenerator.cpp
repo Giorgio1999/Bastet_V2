@@ -221,7 +221,7 @@ void GetPseudoLegalRookMoves(const Engine &engine, const uint_fast64_t &rookPiec
             {
                 break;
             }
-            pseudoLegalMoves.push_back(Move(from,to));
+            pseudoLegalMoves.push_back(Move(from, to));
             if (CheckBit(otherBoard, to))
             {
                 break;
@@ -235,7 +235,7 @@ void GetPseudoLegalRookMoves(const Engine &engine, const uint_fast64_t &rookPiec
             {
                 break;
             }
-            pseudoLegalMoves.push_back(Move(from,to));
+            pseudoLegalMoves.push_back(Move(from, to));
             if (CheckBit(otherBoard, to))
             {
                 break;
@@ -249,7 +249,7 @@ void GetPseudoLegalRookMoves(const Engine &engine, const uint_fast64_t &rookPiec
             {
                 break;
             }
-            pseudoLegalMoves.push_back(Move(from,to));
+            pseudoLegalMoves.push_back(Move(from, to));
             if (CheckBit(otherBoard, to))
             {
                 break;
@@ -263,15 +263,15 @@ void GetPseudoLegalRookMoves(const Engine &engine, const uint_fast64_t &rookPiec
             {
                 break;
             }
-            pseudoLegalMoves.push_back(Move(from,to));
+            pseudoLegalMoves.push_back(Move(from, to));
             if (CheckBit(otherBoard, to))
             {
                 break;
             }
             to--;
         }
-        UnsetBit(rookBoard,from);
-        from = BitScanForwards(rookBoard)-1;
+        UnsetBit(rookBoard, from);
+        from = BitScanForwards(rookBoard) - 1;
     }
 }
 
@@ -280,63 +280,69 @@ void GetPseudoLegalBishopMoves(const Engine &engine, const uint_fast64_t &bishop
     auto color = engine.board.whiteToMove;
     uint_fast64_t thisBoard = engine.board.colorBoards[!color];
     uint_fast64_t otherBoard = engine.board.colorBoards[color];
+    uint_fast64_t bishopBoard = bishopPieceBoard;
 
-    for (auto i = 0; i < 8; i++) // loop to find bishop piece
+    auto from = BitScanForwards(bishopBoard) - 1;
+    while (from >= 0)
     {
-        for (auto j = 0; j < 8; j++)
+        auto to = from + 9;
+        while (to < 64)
         {
-            if (CheckBit(bishopPieceBoard, i, j))
+            if (CheckBit(fileMasks[0], to) || CheckBit(thisBoard, to))
             {
-                for (auto d = 1; d < std::min(8 - i, 8 - j); d++) // loop over all directions till the end of the board
-                {
-                    if (CheckBit(thisBoard, i + d, j + d)) // stop if blocked by friendly piece
-                    {
-                        break;
-                    }
-                    pseudoLegalMoves.push_back(Move(i, j, i + d, j + d));
-                    if (CheckBit(otherBoard, i + d, j + d)) // stop if captured enemy piece
-                    {
-                        break;
-                    }
-                }
-                for (auto d = -1; d >= std::max(-i, -j); d--)
-                {
-                    if (CheckBit(thisBoard, i + d, j + d))
-                    {
-                        break;
-                    }
-                    pseudoLegalMoves.push_back(Move(i, j, i + d, j + d));
-                    if (CheckBit(otherBoard, i + d, j + d))
-                    {
-                        break;
-                    }
-                }
-                for (auto d = 1; d < std::min(8 - i, j + 1); d++)
-                {
-                    if (CheckBit(thisBoard, i + d, j - d))
-                    {
-                        break;
-                    }
-                    pseudoLegalMoves.push_back(Move(i, j, i + d, j - d));
-                    if (CheckBit(otherBoard, i + d, j - d))
-                    {
-                        break;
-                    }
-                }
-                for (auto d = 1; d < std::min(i + 1, 8 - j); d++)
-                {
-                    if (CheckBit(thisBoard, i - d, j + d))
-                    {
-                        break;
-                    }
-                    pseudoLegalMoves.push_back(Move(i, j, i - d, j + d));
-                    if (CheckBit(otherBoard, i - d, j + d))
-                    {
-                        break;
-                    }
-                }
+                break;
             }
+            pseudoLegalMoves.push_back(Move(from,to));
+            if (CheckBit(otherBoard, to))
+            {
+                break;
+            }
+            to += 9;
         }
+        to = from + 7;
+        while (to < 64)
+        {
+            if (CheckBit(fileMasks[7], to) || CheckBit(thisBoard, to))
+            {
+                break;
+            }
+            pseudoLegalMoves.push_back(Move(from,to));
+            if (CheckBit(otherBoard, to))
+            {
+                break;
+            }
+            to += 7;
+        }
+        to = from - 9;
+        while (to >= 0)
+        {
+            if (CheckBit(fileMasks[7], to) || CheckBit(thisBoard, to))
+            {
+                break;
+            }
+            pseudoLegalMoves.push_back(Move(from,to));
+            if (CheckBit(otherBoard, to))
+            {
+                break;
+            }
+            to -= 9;
+        }
+        to = from - 7;
+        while (to >= 0)
+        {
+            if (CheckBit(fileMasks[0], to) || CheckBit(thisBoard, to))
+            {
+                break;
+            }
+            pseudoLegalMoves.push_back(Move(from,to));
+            if (CheckBit(otherBoard, to))
+            {
+                break;
+            }
+            to -= 7;
+        }
+        UnsetBit(bishopBoard,from);
+        from = BitScanForwards(bishopBoard)-1;
     }
 }
 
