@@ -16,8 +16,6 @@ Coord::Coord(const int &_x, const int &_y)
 
 Move::Move()
 {
-	startCoord = Coord();
-	targetCoord = Coord();
 	startIndex = 0;
 	targetIndex = 0;
 }
@@ -26,14 +24,6 @@ Move::Move(const int &start, const int &target)
 {
 	startIndex = start;
 	targetIndex = target;
-	//Legacy
-	auto i1=start%8;
-	auto j1=(start-i1)/8;
-	startCoord = Coord(i1,j1);
-	i1=target%8;
-	j1=(target-i1)/8;
-	targetCoord = Coord(i1,j1);
-
 }
 
 Move::Move(const Coord &_startCoord, const Coord &_targetCoord)
