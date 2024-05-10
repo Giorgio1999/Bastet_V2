@@ -5,6 +5,10 @@
 
 extern uint_fast64_t knightMoves[64];
 extern uint_fast64_t kingMoves[64];
+extern uint_fast64_t pawnAttacks[2][2][64]; //color,direction,index     
+                                            //white kingside    whitequeenside      black kingside      black queenside
+const uint_fast64_t castleMasks[2][2] = {{0x6000000000000000,0x0E00000000000000},{0x0000000000000060,0x000000000000000E}};
+
 
 namespace MoveGenerator
 {
@@ -12,8 +16,10 @@ namespace MoveGenerator
     void GetLegalMoves(Engine &engine, std::vector<Move> &legalMoves);
     void GenerateAttacks(const Engine &engine, const bool &color, uint_fast64_t &attackBoard);
     bool IsSquareAttacked(const Engine &engine, const Coord &square, const bool &attackingColor);
+    bool IsSquareAttacked(const Engine&engine,const int& index,const bool& attackingColor);
     void PreComputeKnightMoves();
     void PreComputeKingMoves();
+    void PreComputePawnAttacks();
 }
 
 void GetPseudoLegalPawnMoves(const Engine &engine, std::vector<Move> &pseudoLegalMoves);

@@ -4,11 +4,13 @@
 #include "MoveGenerator.h"
 #include <vector>
 #include <cstdint>
+#include <iostream>
 // Testing of specific position: position startpos moves a2a3 a7a6 a1a2 a6a5
 //  These are all functionalities connected to move generation
 
 uint_fast64_t knightMoves[64];
 uint_fast64_t kingMoves[64];
+uint_fast64_t pawnAttacks[2][2][64];
 
 void MoveGenerator::GetPseudoLegalMoves(const Engine &engine, std::vector<Move> &pseudoLegalMoves)
 {
@@ -249,22 +251,6 @@ void GetPseudoLegalKingMoves(const Engine &engine, std::vector<Move> &pseudoLega
         UnsetBit(attacks, to);
         to = BitScanForwards(attacks) - 1;
     }
-
-    // // normal king moves
-    // uint_fast64_t moves = ZERO;
-    // SetBit(moves, kingCoord.x, kingCoord.y);
-    // moves = moves >> 8 | moves >> 9 | moves >> 1 | moves << 7 | moves << 8 | moves << 9 | moves << 1 | moves >> 7; // all king increments
-    // moves &= ~engine.board.colorBoards[!color];                                                                    // removes friendly blocked suqares and attacked squares
-    // for (auto i = 0; i < 8; i++)
-    // {
-    //     for (auto j = 0; j < 8; j++)
-    //     {
-    //         if (CheckBit(moves, i, j) && (std::abs(i - kingCoord.x) <= 1 && std::abs(j - kingCoord.y) <= 1))
-    //         { // moves are set bits of moves which lie in range of the king
-    //             pseudoLegalMoves.push_back(Move(kingCoord.x, kingCoord.y, i, j));
-    //         }
-    //     }
-    // }
 
     // fucking castling
     if (!MoveGenerator::IsSquareAttacked(engine, kingCoord, !color))
@@ -670,8 +656,9 @@ void MoveGenerator::GetLegalMoves(Engine &engine, std::vector<Move> &legalmoves)
     GetPseudoLegalKingMoves(engine, pseudoLegalMoves);
     for (const auto &move : pseudoLegalMoves)
     {
+        // std::cout << "Checking out: " << Move2Str(move) << "\n";
         engine.MakeSimpleMove(move);
-        if (!MoveGenerator::IsSquareAttacked(engine, Coord(engine.board.kingCoords[!color]), !color))
+        if (!MoveGenerator::IsSquareAttacked(engine, engine.board.kingIndices[!color], !color))
         {
             legalmoves.push_back(move);
         }
@@ -679,8 +666,7 @@ void MoveGenerator::GetLegalMoves(Engine &engine, std::vector<Move> &legalmoves)
     }
 }
 
-bool MoveGenerator::IsSquareAttacked(const Engine &engine, const Coord &square, const bool &attackingColor)
-{
+bool MoveGenerator::IsSquareAttacked(const Engine &engine,const int &index,const bool&attackingColor){
     auto colorIndex = attackingColor ? 0 : 6;
     // Bitboards containing slider pieces
     uint_fast64_t horAndVertSliderBoard = engine.board.pieceBoards[3 + colorIndex] | engine.board.pieceBoards[4 + colorIndex];
@@ -689,125 +675,119 @@ bool MoveGenerator::IsSquareAttacked(const Engine &engine, const Coord &square, 
     uint_fast64_t horAndVertBlockerBoard = (engine.board.colorBoards[!attackingColor] & ~engine.board.pieceBoards[3 + colorIndex] & ~engine.board.pieceBoards[4 + colorIndex]) | engine.board.colorBoards[attackingColor];
     uint_fast64_t diagonalBlockerBoard = (engine.board.colorBoards[!attackingColor] & ~engine.board.pieceBoards[2 + colorIndex] & ~engine.board.pieceBoards[4 + colorIndex]) | engine.board.colorBoards[attackingColor];
 
-    // Knights
-    auto knightCheck = knightMoves[square.y * 8 + square.x] & engine.board.pieceBoards[1 + colorIndex];
-    if (knightCheck > 0)
+    // Knights: can the piece on index attack a attackingcolor knight like a knight
+    uint_fast64_t attacks = knightMoves[index] & engine.board.pieceBoards[1 + colorIndex];
+    if (attacks > 0)
     {
         return true;
     }
 
-    // Diagonal sliders
-    for (auto d = 1; d < std::min(8 - square.x, 8 - square.y); d++)
-    {
-        if (CheckBit(diagonalSliderBoard, square.x + d, square.y + d))
-        {
-            return true;
-        }
-        if (CheckBit(diagonalBlockerBoard, square.x + d, square.y + d))
-        {
+    // Diagonal sliders: can the piece on index attack a attackingcolor diagonal slider like a diagonal slider
+    auto increment = index + 9;
+    while(increment<64){
+        if(CheckBit(fileMasks[0],increment) || CheckBit(diagonalBlockerBoard,increment)){
             break;
         }
+        if(CheckBit(diagonalSliderBoard,increment)){
+            return true;
+        }
+        increment+=9;
     }
-    for (auto d = -1; d >= std::max(-square.x, -square.y); d--)
-    {
-        if (CheckBit(diagonalSliderBoard, square.x + d, square.y + d))
-        {
-            return true;
-        }
-        if (CheckBit(diagonalBlockerBoard, square.x + d, square.y + d))
-        {
+    increment = index + 7;
+    while(increment<64){
+        if(CheckBit(fileMasks[7],increment) || CheckBit(diagonalBlockerBoard,increment)){
             break;
         }
+        if(CheckBit(diagonalSliderBoard,increment)){
+            return true;
+        }
+        increment+=7;
     }
-    for (auto d = 1; d < std::min(8 - square.x, square.y + 1); d++)
-    {
-        if (CheckBit(diagonalSliderBoard, square.x + d, square.y - d))
-        {
-            return true;
-        }
-        if (CheckBit(diagonalBlockerBoard, square.x + d, square.y - d))
-        {
+    increment = index - 9;
+    while(increment>=0){
+        if(CheckBit(fileMasks[7],increment) || CheckBit(diagonalBlockerBoard,increment)){
             break;
         }
+        if(CheckBit(diagonalSliderBoard,increment)){
+            return true;
+        }
+        increment-=9;
     }
-    for (auto d = 1; d < std::min(square.x + 1, 8 - square.y); d++)
-    {
-        if (CheckBit(diagonalSliderBoard, square.x - d, square.y + d))
-        {
-            return true;
-        }
-        if (CheckBit(diagonalBlockerBoard, square.x - d, square.y + d))
-        {
+    increment = index - 7;
+    while(increment>=0){
+        if(CheckBit(fileMasks[0],increment) || CheckBit(diagonalBlockerBoard,increment)){
             break;
         }
+        if(CheckBit(diagonalSliderBoard,increment)){
+            return true;
+        }
+        increment-=7;
     }
 
-    // Horizontal and vertical sliders
-    for (auto i = square.x + 1; i < 8; i++)
+    // Horizontal and vertical sliders: can the piece on index attack a attacking color hor and vert slider like a hor and vert slider
+    increment = index+8;
+    while (increment<64)
     {
-        if (CheckBit(horAndVertSliderBoard, i, square.y))
-        {
-            return true;
-        }
-        if (CheckBit(horAndVertBlockerBoard, i, square.y))
-        {
+        if(CheckBit(horAndVertBlockerBoard,increment)){
             break;
         }
+        if(CheckBit(horAndVertSliderBoard,increment)){
+            return true;
+        }
+        increment+=8;
     }
-    for (auto i = square.y + 1; i < 8; i++)
+    increment = index-8;
+    while (increment>=0)
     {
-        if (CheckBit(horAndVertSliderBoard, square.x, i))
-        {
-            return true;
-        }
-        if (CheckBit(horAndVertBlockerBoard, square.x, i))
-        {
+        if(CheckBit(horAndVertBlockerBoard,increment)){
             break;
         }
+        if(CheckBit(horAndVertSliderBoard,increment)){
+            return true;
+        }
+        increment-=8;
     }
-    for (auto i = square.x - 1; i >= 0; i--)
+    increment = index+1;
+    while (increment<64)
     {
-        if (CheckBit(horAndVertSliderBoard, i, square.y))
-        {
-            return true;
-        }
-        if (CheckBit(horAndVertBlockerBoard, i, square.y))
-        {
+        if(CheckBit(horAndVertBlockerBoard,increment) || CheckBit(fileMasks[0],increment)){
             break;
         }
+        if(CheckBit(horAndVertSliderBoard,increment)){
+            return true;
+        }
+        increment++;
     }
-    for (auto i = square.y - 1; i >= 0; i--)
+    increment = index-1;
+    while (increment>=0)
     {
-        if (CheckBit(horAndVertSliderBoard, square.x, i))
-        {
-            return true;
-        }
-        if (CheckBit(horAndVertBlockerBoard, square.x, i))
-        {
+        if(CheckBit(horAndVertBlockerBoard,increment) || CheckBit(fileMasks[7],increment)){
             break;
         }
+        if(CheckBit(horAndVertSliderBoard,increment)){
+            return true;
+        }
+        increment--;
     }
 
-    // Pawns
-    auto colorDir = attackingColor ? -1 : 1;
-    if (square.x - 1 < 8 && square.x - 1 >= 0 && CheckBit(engine.board.pieceBoards[0 + colorIndex], square.x - 1, square.y - colorDir))
-    {
-        return true;
-    }
-    if (square.x + 1 < 8 && square.x + 1 >= 0 && CheckBit(engine.board.pieceBoards[0 + colorIndex], square.x + 1, square.y - colorDir))
-    {
+    // King: is the piece on index attacked by the attackingcolor king
+    int attackingKingIndex = engine.board.kingIndices[!attackingColor];
+    attacks = kingMoves[attackingKingIndex];
+    if(CheckBit(attacks,index)){
         return true;
     }
 
-    // King
-    Coord otherKingCoord = engine.board.kingCoords[!attackingColor];
-    auto squaredDistanceToKing = (square.x - otherKingCoord.x) * (square.x - otherKingCoord.x) + (square.y - otherKingCoord.y) * (square.y - otherKingCoord.y);
-    if (squaredDistanceToKing <= 2)
-    {
+    // Pawns: can the piece on index attack an attackingcolor pawn like a pawn
+    attacks = (pawnAttacks[attackingColor][0][index] | pawnAttacks[attackingColor][1][index]) & engine.board.pieceBoards[colorIndex];
+    if(attacks>0){
         return true;
     }
-
     return false;
+}
+
+bool MoveGenerator::IsSquareAttacked(const Engine &engine, const Coord &square, const bool &attackingColor)
+{
+    return IsSquareAttacked(engine,square.y*8+square.x,attackingColor);
 }
 
 void MoveGenerator::PreComputeKnightMoves()
@@ -844,5 +824,20 @@ void MoveGenerator::PreComputeKingMoves()
                     | (localMoves & ~fileMasks[0]) >> 1 
                     | (localMoves & ~fileMasks[0]) << 7;
         kingMoves[i] = localMoves;
+    }
+}
+
+void MoveGenerator::PreComputePawnAttacks(){
+    uint_fast64_t localMoves = 0;
+    for(auto i=0;i<64;i++){
+        localMoves = ONE << i;
+        //white left
+        pawnAttacks[0][0][i] = (localMoves & ~fileMasks[0]) >> 9;
+        //white right
+        pawnAttacks[0][1][i] = (localMoves & ~fileMasks[7]) >> 7;
+        //black left
+        pawnAttacks[1][0][i] = (localMoves & ~fileMasks[0]) << 7;
+        //black right
+        pawnAttacks[1][1][i] = (localMoves & ~fileMasks[7]) << 9;
     }
 }

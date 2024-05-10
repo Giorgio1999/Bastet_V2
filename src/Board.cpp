@@ -144,8 +144,6 @@ void Board::MakeSimpleMove(const Move &move)
 	int startIndex = move.startIndex;
 	int targetIndex = move.targetIndex;
 
-	auto wasCastled = false; // Castling flag
-
 	auto color = whiteToMove ? 0 : 6;
 	auto otherColor = whiteToMove ? 6 : 0;
 	auto colorDirection = whiteToMove ? -1 : 1;
@@ -167,7 +165,6 @@ void Board::MakeSimpleMove(const Move &move)
 		{ // is piece found, set piece bitboard at target and unset at start
 			SetBit(pieceBoards[i], targetIndex);
 			UnsetBit(pieceBoards[i], startIndex);
-			wasCastled = (i == 5 + color) && startIndex == (whiteToMove ? 60 : 4) && std::abs(startIndex - targetIndex) > 1; // flag if move was a castle
 			break;
 		}
 	}

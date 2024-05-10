@@ -13,6 +13,9 @@ int BitScanForwards(const uint_fast64_t& value){
 
 bool CheckBit(const uint_fast64_t &value, const int &index)
 {
+	if(index>63){
+		return false;
+	}
 	uint_fast64_t bitIndex = ONE << index;
 	return (value & bitIndex) == bitIndex;
 }

@@ -16,7 +16,7 @@ Board Fen2Position(const std::string &fen)
 	Board board;
 	std::string position = fen.substr(0, fen.find_first_of(' '));
 	auto increment = 0;
-	for (auto i = 0; i < position.length(); i++)
+	for (uint i = 0; i < position.length(); i++)
 	{
 		char current = position[i];
 		if (current != '/')
@@ -113,7 +113,7 @@ Board Fen2Position(const std::string &fen)
 
 	std::string castling = rights.substr(2, rights.length() - 1);
 	castling = castling.substr(0, castling.find_first_of(' '));
-	for (int i = 0; i < castling.length(); i++)
+	for (uint i = 0; i < castling.length(); i++)
 	{
 		switch (castling[i])
 		{
