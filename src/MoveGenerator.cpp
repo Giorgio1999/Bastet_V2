@@ -253,7 +253,7 @@ void GetPseudoLegalKingMoves(const Engine &engine, std::vector<Move> &pseudoLega
     }
 
     // fucking castling
-    if (!MoveGenerator::IsSquareAttacked(engine, kingCoord, !color))
+    if (!MoveGenerator::IsSquareAttacked(engine, kingIndex, !color))
     { // cant castle if check
         auto occupied = false;
         combinedColors = engine.board.colorBoards[0] | engine.board.colorBoards[1];
@@ -694,7 +694,7 @@ bool MoveGenerator::IsSquareAttacked(const Engine &engine,const int &index,const
     if(attacks>0){
         return true;
     }
-    
+
     // Diagonal sliders: can the piece on index attack a attackingcolor diagonal slider like a diagonal slider
     auto increment = index + 9;
     while(increment<64){
