@@ -28,16 +28,12 @@ Move::Move(const int &start, const int &target)
 
 Move::Move(const Coord &_startCoord, const Coord &_targetCoord)
 {
-	startCoord = _startCoord;
-	targetCoord = _targetCoord;
 	startIndex = _startCoord.y*8+_startCoord.x;
 	targetIndex = _targetCoord.y*8+_targetCoord.x;
 }
 
 Move::Move(const int &i1, const int &j1, const int &i2, const int &j2)
 {
-	startCoord = Coord(i1, j1);
-	targetCoord = Coord(i2, j2);
 	startIndex = j1 * 8 + i1;
 	targetIndex = j2 * 8 + i2;
 }
@@ -117,16 +113,6 @@ std::vector<Move> Str2Moves(std::string &movesString)
 int Coord2Index(const Coord &coord)
 {
 	return coord.y * 8 + coord.x;
-}
-
-bool operator!=(const Move &lhs, const Move &rhs)
-{
-	return lhs.startCoord == rhs.startCoord && lhs.targetCoord == rhs.targetCoord;
-}
-
-bool operator==(const Move &lhs, const Move &rhs)
-{
-	return lhs.startCoord == rhs.startCoord && lhs.targetCoord == rhs.targetCoord;
 }
 
 bool operator==(const Coord &lhs, const Coord &rhs)

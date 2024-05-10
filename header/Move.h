@@ -23,8 +23,6 @@ struct Move
 	int startIndex;	//From
 	int targetIndex;	//To
 
-	Coord startCoord;			// from
-	Coord targetCoord;			// to
 	PieceType convertTo = none; // used to indicate promotions, as well as using wheter the move is a king move or not for checks
 	bool promotion = false;		// distinguish promotions from none promotions
 
@@ -40,8 +38,6 @@ std::string Move2Str(const Move &move);
 Move Str2Move(const std::string &moveString);
 std::vector<Move> Str2Moves(std::string &movesString);
 int Coord2Index(const Coord &coord);			   // convert between coord and 1d Board index
-bool operator!=(const Move &lhs, const Move &rhs); // To compare moves
-bool operator==(const Move &lhs, const Move &rhs);
 bool operator==(const Coord &lhs, const Coord &rhs); // To compare coords
 bool operator!=(const Coord &lhs, const Coord &rhs); // negation
 int operator-(const Coord &lhs, const Coord &rhs);	 // To find double pushes
