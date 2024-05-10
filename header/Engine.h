@@ -27,8 +27,6 @@ public:
 	void GetPseudoLegalMoves(std::vector<Move> &pseudoLegalMoves); // Gets pseudolegal moves. Implementation in MoveGenerator.cpp
 	void GetLegalMoves(std::vector<Move> &legalMoves);			   // Gets legalMoves
 
-	void GenerateAttacks(const bool &color);
-
 	Move GetBestMove(); // Returns best move after search
 
 	int Perft(const int &depth);

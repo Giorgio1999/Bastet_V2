@@ -61,12 +61,6 @@ void Engine::GetPseudoLegalMoves(std::vector<Move> &pseudoLegalMoves)
 	MoveGenerator::GetPseudoLegalMoves(*this, pseudoLegalMoves);
 }
 
-void Engine::GenerateAttacks(const bool &color)
-{
-	board.attackBoard = 0;
-	MoveGenerator::GenerateAttacks(*this, color, board.attackBoard);
-}
-
 Move Engine::GetBestMove()
 {
 	std::vector<Move> legalmoves;
