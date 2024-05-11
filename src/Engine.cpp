@@ -16,9 +16,7 @@ Engine::Engine()
 
 void Engine::Boot(){
 	ComputeMasks();
-	MoveGenerator::PreComputeKnightMoves();
-	MoveGenerator::PreComputeKingMoves();
-	MoveGenerator::PreComputePawnAttacks();
+	MoveGenerator::PreComputeMoves();
 }
 
 void Engine::NewGame()

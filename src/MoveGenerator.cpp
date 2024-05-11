@@ -11,6 +11,7 @@
 bitboard knightMoves[64];
 bitboard kingMoves[64];
 bitboard pawnAttacks[2][2][64];
+bitboard fillUpAttacks[8][64];
 
 void MoveGenerator::GetPseudoLegalMoves(const Engine &engine, std::vector<Move> &pseudoLegalMoves)
 {
@@ -43,7 +44,7 @@ void GetPseudoLegalPawnMoves(const Engine &engine, std::vector<Move> &pseudoLega
     }
     pushes &= combinedColors; // remove pawns which landed on occupied squares
     auto to = 0;
-    while (pushes>0)
+    while (pushes > 0)
     {
         to = PopLsb(pushes);
         Move move(to - colorDirection, to);
@@ -82,7 +83,7 @@ void GetPseudoLegalPawnMoves(const Engine &engine, std::vector<Move> &pseudoLega
     // // Pawn Captures
     bitboard pawnBoard = engine.board.pieceBoards[colorIndex];
     auto from = 0;
-    while (pawnBoard>0)
+    while (pawnBoard > 0)
     {
         from = PopLsb(pawnBoard);
         for (auto j = 0; j < 2; j++)
@@ -135,7 +136,7 @@ void GetPseudoLegalKingMoves(const Engine &engine, std::vector<Move> &pseudoLega
 {
     auto color = engine.board.whiteToMove;
     int kingIndex = engine.board.kingIndices[!color];
-    auto castleColorIndex = color ? 0 : 2;                                                    // to obtain colored castling rules
+    auto castleColorIndex = color ? 0 : 2;                                               // to obtain colored castling rules
     bitboard combinedColors = engine.board.colorBoards[0] | engine.board.colorBoards[1]; // | engine.board.attackBoard; // Bitboard with both friendly and unfriendly blockers and attacked squares for castling
 
     // normal king moves
@@ -286,7 +287,7 @@ void GetPseudoLegalBishopMoves(const Engine &engine, const bitboard &bishopPiece
             {
                 break;
             }
-            pseudoLegalMoves.push_back(Move(from,to));
+            pseudoLegalMoves.push_back(Move(from, to));
             if (CheckBit(otherBoard, to))
             {
                 break;
@@ -300,7 +301,7 @@ void GetPseudoLegalBishopMoves(const Engine &engine, const bitboard &bishopPiece
             {
                 break;
             }
-            pseudoLegalMoves.push_back(Move(from,to));
+            pseudoLegalMoves.push_back(Move(from, to));
             if (CheckBit(otherBoard, to))
             {
                 break;
@@ -314,7 +315,7 @@ void GetPseudoLegalBishopMoves(const Engine &engine, const bitboard &bishopPiece
             {
                 break;
             }
-            pseudoLegalMoves.push_back(Move(from,to));
+            pseudoLegalMoves.push_back(Move(from, to));
             if (CheckBit(otherBoard, to))
             {
                 break;
@@ -328,7 +329,7 @@ void GetPseudoLegalBishopMoves(const Engine &engine, const bitboard &bishopPiece
             {
                 break;
             }
-            pseudoLegalMoves.push_back(Move(from,to));
+            pseudoLegalMoves.push_back(Move(from, to));
             if (CheckBit(otherBoard, to))
             {
                 break;
@@ -508,7 +509,15 @@ bool MoveGenerator::IsSquareAttacked(const Engine &engine, const Coord &square, 
     return IsSquareAttacked(engine, square.y * 8 + square.x, attackingColor);
 }
 
-void MoveGenerator::PreComputeKnightMoves()
+void MoveGenerator::PreComputeMoves()
+{
+    PreComputeKingMoves();
+    PreComputeKnightMoves();
+    PreComputePawnAttacks();
+    PreComputeFillUpAttacks();
+}
+
+void PreComputeKnightMoves()
 {
     bitboard localMoves = 0;
     for (auto i = 0; i < 64; i++)
@@ -519,7 +528,7 @@ void MoveGenerator::PreComputeKnightMoves()
     }
 }
 
-void MoveGenerator::PreComputeKingMoves()
+void PreComputeKingMoves()
 {
     bitboard localMoves = 0;
     for (auto i = 0; i < 64; i++)
@@ -530,7 +539,7 @@ void MoveGenerator::PreComputeKingMoves()
     }
 }
 
-void MoveGenerator::PreComputePawnAttacks()
+void PreComputePawnAttacks()
 {
     bitboard localMoves = 0;
     for (auto i = 0; i < 64; i++)
@@ -544,5 +553,31 @@ void MoveGenerator::PreComputePawnAttacks()
         pawnAttacks[1][0][i] = (localMoves & ~fileMasks[0]) << 7;
         // black right
         pawnAttacks[1][1][i] = (localMoves & ~fileMasks[7]) << 9;
+    }
+}
+
+void PreComputeFillUpAttacks()
+{
+    bitboard localmoves = 0;
+    for (auto file = 0; file < 8; file++)   // loop over all 8 files
+    {
+        for (bitboard occ = 0; occ < 64; occ++) // loop over all 64 blocker configurations (blockers on the border do not count)
+        {
+            bitboard left = 1 << (file + 1);    // left rank direction
+            bitboard right = 1 << (file - 1);   // right rank direction
+            bitboard decompressedOcc = occ << 1;    // get 8 bit occupation
+            for (auto shift = 0; shift < 7 - file; shift++) // loop till the end of the rank
+            {
+                left |= (left & ~decompressedOcc) << 1; // kind of flood fill; tries to push bits onto squares but if blocker is on square, no bits can pass the blocker
+            }
+            for (auto shift = 0; shift < file; shift++)
+            {
+                right |= (right & ~decompressedOcc) >> 1;
+            }
+            left |= right;  // combine left and right
+            localmoves = left; 
+            localmoves |= localmoves << 8 | localmoves << 16 | localmoves << 24 | localmoves << 32 | localmoves << 40 | localmoves << 48 | localmoves << 56;    // create 8 copies
+            fillUpAttacks[file][occ] = localmoves; 
+        }
     }
 }
