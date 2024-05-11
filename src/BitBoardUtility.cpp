@@ -27,6 +27,12 @@ bool CheckBit(const bitboard &value, const int &index)
 	return (value & bitIndex) == bitIndex;
 }
 
+bool CheckBit(const line &value, const int &index)
+{
+	line bitIndex = 1 << index;
+	return (value & bitIndex) == bitIndex;
+}
+
 bool CheckBit(const bitboard &value, const int &i, const int &j)
 {
 	return CheckBit(value, j * 8 + i);
@@ -35,6 +41,12 @@ bool CheckBit(const bitboard &value, const int &i, const int &j)
 void SetBit(bitboard &value, const int &index)
 {
 	bitboard bitIndex = ONE << index;
+	value |= bitIndex;
+}
+
+void SetBit(line &value, const int &index)
+{
+	line bitIndex = 1 << index;
 	value |= bitIndex;
 }
 
@@ -67,6 +79,16 @@ void PrintBitBoard(const bitboard &value)
 	}
 	boardVisual += "\n";
 	std::cout << boardVisual;
+}
+
+void PrintLine(const line &value)
+{
+	std::string lineVisual = "";
+	for (auto i = 0; i < 8; i++)
+	{
+		lineVisual += std::to_string(CheckBit(value, i));
+	}
+	std::cout << lineVisual << std::endl;
 }
 
 void ComputeMasks()

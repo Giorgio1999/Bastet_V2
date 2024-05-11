@@ -4,6 +4,7 @@
 #include <bit>
 
 using bitboard = uint64_t;
+using line = uint8_t;
 
 const bitboard ONE = (bitboard)1;
 const bitboard ZERO = (bitboard)0;
@@ -12,13 +13,17 @@ extern bitboard rankMasks[8];
 
 int BitScanForwards(const bitboard &value); // returns index of least significant bit
 
-int PopLsb(bitboard& value);    // returns index of least significant bit and removes it
+int PopLsb(bitboard &value); // returns index of least significant bit and removes it
 
 bool CheckBit(const bitboard &value, const int &index); // Checks bit at index in 1d board
+
+bool CheckBit(const line &value, const int &index); // Checks bit in file
 
 bool CheckBit(const bitboard &value, const int &i, const int &j); // Checks bit at i,j in 2d board
 
 void SetBit(bitboard &value, const int &index); // Sets bit at index in 1d board
+
+void SetBit(line &value, const int &index); // Sets bit in line
 
 void SetBit(bitboard &value, const int &i, const int &j); // Sets bit at i,j in 2d board
 
@@ -27,5 +32,7 @@ void UnsetBit(bitboard &value, const int &index); // Unsets bit at index in 1d b
 void UnsetBit(bitboard &value, const int &i, const int &j); // Unsets bit at i,j in 2d baord
 
 void PrintBitBoard(const bitboard &value); // Prints Bitboard to std::cout
+
+void PrintLine(const line &value); // Prints line to std::cout
 
 void ComputeMasks();
