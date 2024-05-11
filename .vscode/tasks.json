@@ -30,6 +30,16 @@
                 "isDefault": true
             },
             "detail": "run"
+        },
+        {
+            "type": "shell",
+            "label": "build debug project",
+            "command": "make Bastet_Debug",
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "detail": "make"
         }
     ]
 }

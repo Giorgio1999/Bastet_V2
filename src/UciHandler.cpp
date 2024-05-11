@@ -100,9 +100,13 @@ void Listen()
 		}
 		if (key == "perft")
 		{
-			auto depth = std::stoi(instruction.substr(instruction.find(' ') + 1, instruction.find(' ')));
-			std::string fen = instruction.substr(instruction.substr(instruction.find(' ') + 1, instruction.find(' ')).length()+1,instruction.length());
-			engineController.SetPosition(fen);
+			std::string args = instruction.substr(instruction.find(' ') + 1, instruction.length());
+			auto depth = std::stoi(args.substr(0, args.find_first_of(' ')));
+			std::cout << args.find_first_of(' ');
+			if(args.find_first_of(' ')<args.length()-1){
+				std::string fen = args.substr(args.find_first_of(' ')+1,args.length());
+				engineController.SetPosition(fen);
+			}
 			std::thread([&engineController, depth]
 						{
 				std::string result = engineController.Perft(depth);

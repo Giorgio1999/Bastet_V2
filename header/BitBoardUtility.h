@@ -3,7 +3,7 @@
 #include <cstdint>
 #include <bit>
 
-using bitboard = uint64_t;
+using bitboard = uint_fast64_t;
 
 const bitboard ONE = (bitboard)1;
 const bitboard ZERO = (bitboard)0;

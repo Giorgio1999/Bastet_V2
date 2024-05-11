@@ -183,18 +183,15 @@ void EngineController::Bench(){
 	}
 	auto fixedDepth = 5;
 	auto fullStart = std::chrono::high_resolution_clock::now();
-	auto dataPath = "assets/perftTestSuit.txt";
-	std::fstream dataStream(dataPath, std::ios::in);
-	std::string line;
 	auto nodesVisited = 0;
-	while (std::getline(dataStream, line) && !engine.stopFlag)
+	for (auto i=0;i<6;i++)
 	{
-		std::string fen = line.substr(0, line.find(','));
+		std::string fen = benchMarkingData[i];
 		engine.SetBoard(Fen2Position(fen));
 		nodesVisited += engine.Perft(fixedDepth);
 	}
 	auto fullEnd = std::chrono::high_resolution_clock::now();
 	float duration = std::chrono::duration_cast<std::chrono::seconds>(fullEnd - fullStart).count();
-	std::cout << std::to_string(nodesVisited) << " nodes " << std::to_string(nodesVisited/duration) << " nps" << std::endl;
-	dataStream.close();
+	std::cout << std::to_string(nodesVisited) << " nodes " << std::to_string((int)(nodesVisited/duration)) << " nps" << std::endl;
+	// std::cout << std::to_string(nodesVisited/duration) << " nps" << std::endl;
 }

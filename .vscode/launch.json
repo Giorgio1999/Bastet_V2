@@ -5,7 +5,7 @@
             "name": "Run and Debug engine",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/Bastet_V2",
+            "program": "${workspaceFolder}/Bastet_Debug",
             "args": [],
             "cwd": "${workspaceFolder}",
             "stopAtEntry": false,
@@ -25,7 +25,7 @@
                     "ignoreFailures": true
                 }
             ],
-            "preLaunchTask": "build project"
+            "preLaunchTask": "build debug project"
         }
 
     ]

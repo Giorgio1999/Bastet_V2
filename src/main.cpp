@@ -10,7 +10,7 @@ void Bench();
 int main(int argc, char *argv[]) {
 	if(argc == 2){
 		std::string command = argv[1];
-		if(command == "bench"){
+		if(command == "-bench" || command == "bench"){
 			Bench();
 		}
 	}
