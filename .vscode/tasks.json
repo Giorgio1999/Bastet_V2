@@ -3,6 +3,16 @@
     "tasks": [
         {
             "type": "shell",
+            "label": "build and run",
+            "command": "make && ./Bastet",
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "detail": "make"
+        },
+        {
+            "type": "shell",
             "label": "build project",
             "command": "make",
             "group": {
