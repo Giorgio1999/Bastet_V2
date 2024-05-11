@@ -94,12 +94,13 @@ std::string EngineController::Search()
 
 std::string EngineController::Perft(const int &depth)
 {
-	auto start = std::chrono::high_resolution_clock::now();
+	// auto start = std::chrono::high_resolution_clock::now();
 	int numberOfLeafs = engine.Perft(depth);
-	auto end = std::chrono::high_resolution_clock::now();
-	float duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
-	auto mnps = numberOfLeafs / duration / 1000000. * 1000.;
-	std::string returnString = "Positions found: " + std::to_string(numberOfLeafs) + ", Speed = " + std::to_string(mnps) + "Mn/s";
+	// auto end = std::chrono::high_resolution_clock::now();
+	// float duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
+	// auto mnps = numberOfLeafs / duration / 1000000. * 1000.;
+	// std::string returnString = "Positions found: " + std::to_string(numberOfLeafs) + ", Speed = " + std::to_string(mnps) + "Mn/s";
+	std::string returnString = std::to_string(numberOfLeafs);
 	return returnString;
 }
 
@@ -173,5 +174,27 @@ void EngineController::FullPerftTest()
 	auto fullEnd = std::chrono::high_resolution_clock::now();
 	float duration = std::chrono::duration_cast<std::chrono::minutes>(fullEnd - fullStart).count();
 	std::cout << "Done! Total time: " << duration << "m" << std::endl;
+	dataStream.close();
+}
+
+void EngineController::Bench(){
+	if(!isReady){
+		BootEngine();
+	}
+	auto fixedDepth = 5;
+	auto fullStart = std::chrono::high_resolution_clock::now();
+	auto dataPath = "assets/perftTestSuit.txt";
+	std::fstream dataStream(dataPath, std::ios::in);
+	std::string line;
+	auto nodesVisited = 0;
+	while (std::getline(dataStream, line) && !engine.stopFlag)
+	{
+		std::string fen = line.substr(0, line.find(','));
+		engine.SetBoard(Fen2Position(fen));
+		nodesVisited += engine.Perft(fixedDepth);
+	}
+	auto fullEnd = std::chrono::high_resolution_clock::now();
+	float duration = std::chrono::duration_cast<std::chrono::seconds>(fullEnd - fullStart).count();
+	std::cout << std::to_string(nodesVisited) << " nodes " << std::to_string(nodesVisited/duration) << " nps" << std::endl;
 	dataStream.close();
 }

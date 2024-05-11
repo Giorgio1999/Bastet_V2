@@ -28,4 +28,5 @@ public:
 	void UndoLastMove();							// Debug to test functionality
 	void TestReady();								// Test wheter engine is ready
 	void FullPerftTest();					//Runs a full perft test suite
+	void Bench();
 };
