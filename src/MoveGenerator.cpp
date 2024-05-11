@@ -8,9 +8,9 @@
 // Testing of specific position: position startpos moves d5d6 h3g2 a2a3
 //  These are all functionalities connected to move generation
 
-uint_fast64_t knightMoves[64];
-uint_fast64_t kingMoves[64];
-uint_fast64_t pawnAttacks[2][2][64];
+bitboard knightMoves[64];
+bitboard kingMoves[64];
+bitboard pawnAttacks[2][2][64];
 
 void MoveGenerator::GetPseudoLegalMoves(const Engine &engine, std::vector<Move> &pseudoLegalMoves)
 {
@@ -29,10 +29,10 @@ void GetPseudoLegalPawnMoves(const Engine &engine, std::vector<Move> &pseudoLega
     auto colorDirection = color ? -8 : 8;
     auto startRank = color ? 1 : 6;
     auto promotionRank = color ? 7 : 0;
-    uint_fast64_t combinedColors = ~engine.board.colorBoards[color] & ~engine.board.colorBoards[!color];
+    bitboard combinedColors = ~engine.board.colorBoards[color] & ~engine.board.colorBoards[!color];
 
     // Single Pawn pushes
-    uint_fast64_t pushes = engine.board.pieceBoards[colorIndex]; // Get pawn bitboard of mover color
+    bitboard pushes = engine.board.pieceBoards[colorIndex]; // Get pawn bitboard of mover color
     if (color)
     { // if white, push up
         pushes = pushes >> 8;
@@ -42,9 +42,10 @@ void GetPseudoLegalPawnMoves(const Engine &engine, std::vector<Move> &pseudoLega
         pushes = pushes << 8;
     }
     pushes &= combinedColors; // remove pawns which landed on occupied squares
-    auto to = BitScanForwards(pushes) - 1;
-    while (to >= 0)
+    auto to = 0;
+    while (pushes>0)
     {
+        to = PopLsb(pushes);
         Move move(to - colorDirection, to);
         if (CheckBit(rankMasks[promotionRank], to))
         {
@@ -59,8 +60,6 @@ void GetPseudoLegalPawnMoves(const Engine &engine, std::vector<Move> &pseudoLega
         {
             pseudoLegalMoves.push_back(move);
         }
-        UnsetBit(pushes, to);
-        to = BitScanForwards(pushes) - 1;
     }
 
     // Double pawn pushes - push all pawns twice (check for blockers inbetween)
@@ -74,25 +73,24 @@ void GetPseudoLegalPawnMoves(const Engine &engine, std::vector<Move> &pseudoLega
         pushes = ((pushes << 8) & combinedColors) << 8;
     }
     pushes &= combinedColors; // remove pawns which landed on occupied squares
-    to = BitScanForwards(pushes) - 1;
-    while (to >= 0)
+    while (pushes > 0)
     {
+        to = PopLsb(pushes);
         pseudoLegalMoves.push_back(Move(to - colorDirection * 2, to));
-        UnsetBit(pushes, to);
-        to = BitScanForwards(pushes) - 1;
     }
 
     // // Pawn Captures
-    uint_fast64_t pawnBoard = engine.board.pieceBoards[colorIndex];
-    auto from = BitScanForwards(pawnBoard) - 1;
-    while (from >= 0)
+    bitboard pawnBoard = engine.board.pieceBoards[colorIndex];
+    auto from = 0;
+    while (pawnBoard>0)
     {
+        from = PopLsb(pawnBoard);
         for (auto j = 0; j < 2; j++)
         {
-            uint64_t captures = pawnAttacks[!color][j][from] & (engine.board.colorBoards[color] | engine.board.ghostBoard);
-            to = BitScanForwards(captures) - 1;
-            if (to >= 0)
+            bitboard captures = pawnAttacks[!color][j][from] & (engine.board.colorBoards[color] | engine.board.ghostBoard);
+            if (captures > 0)
             {
+                to = PopLsb(captures);
                 Move move(from, to);
                 if (CheckBit(rankMasks[promotionRank], to))
                 {
@@ -109,8 +107,6 @@ void GetPseudoLegalPawnMoves(const Engine &engine, std::vector<Move> &pseudoLega
                 }
             }
         }
-        UnsetBit(pawnBoard, from);
-        from = BitScanForwards(pawnBoard) - 1;
     }
 }
 
@@ -118,22 +114,20 @@ void GetPseudoLegalKnightMoves(const Engine &engine, std::vector<Move> &pseudoLe
 {
     auto color = engine.board.whiteToMove;
     auto colorIndex = color ? 0 : 6;
-    uint_fast64_t thisBoard = ~engine.board.colorBoards[!color]; //  ~friendly blockers
-    uint_fast64_t knights = engine.board.pieceBoards[1 + colorIndex];
-    uint_fast64_t attacks = ZERO;
-    auto from = BitScanForwards(knights) - 1;
-    while (from >= 0)
+    bitboard thisBoard = ~engine.board.colorBoards[!color]; //  ~friendly blockers
+    bitboard knights = engine.board.pieceBoards[1 + colorIndex];
+    bitboard attacks = ZERO;
+    auto from = 0;
+    auto to = 0;
+    while (knights > 0)
     {
+        from = PopLsb(knights);
         attacks = knightMoves[from] & thisBoard;
-        auto to = BitScanForwards(attacks) - 1;
-        while (to >= 0)
+        while (attacks > 0)
         {
+            to = PopLsb(attacks);
             pseudoLegalMoves.push_back(Move(from, to));
-            UnsetBit(attacks, to);
-            to = BitScanForwards(attacks) - 1;
         }
-        UnsetBit(knights, from);
-        from = BitScanForwards(knights) - 1;
     }
 }
 
@@ -142,38 +136,37 @@ void GetPseudoLegalKingMoves(const Engine &engine, std::vector<Move> &pseudoLega
     auto color = engine.board.whiteToMove;
     int kingIndex = engine.board.kingIndices[!color];
     auto castleColorIndex = color ? 0 : 2;                                                    // to obtain colored castling rules
-    uint_fast64_t combinedColors = engine.board.colorBoards[0] | engine.board.colorBoards[1]; // | engine.board.attackBoard; // Bitboard with both friendly and unfriendly blockers and attacked squares for castling
+    bitboard combinedColors = engine.board.colorBoards[0] | engine.board.colorBoards[1]; // | engine.board.attackBoard; // Bitboard with both friendly and unfriendly blockers and attacked squares for castling
 
     // normal king moves
-    uint_fast64_t attacks = kingMoves[kingIndex] & ~engine.board.colorBoards[!color];
-    auto to = BitScanForwards(attacks) - 1;
-    while (to >= 0)
+    bitboard attacks = kingMoves[kingIndex] & ~engine.board.colorBoards[!color];
+    auto to = 0;
+    while (attacks > 0)
     {
+        to = PopLsb(attacks);
         pseudoLegalMoves.push_back(Move(kingIndex, to));
-        UnsetBit(attacks, to);
-        to = BitScanForwards(attacks) - 1;
     }
 
     // fucking castling
-    uint_fast64_t kingSideMask = castleMasks[!color][0];
-    uint_fast64_t queenSideMask = castleMasks[!color][1];
-    uint_fast64_t kingsideOccupation = kingSideMask & combinedColors; // castling masks with blocked indices removed
-    uint_fast64_t queenSideOccupation = queenSideMask & combinedColors;
+    bitboard kingSideMask = castleMasks[!color][0];
+    bitboard queenSideMask = castleMasks[!color][1];
+    bitboard kingsideOccupation = kingSideMask & combinedColors; // castling masks with blocked indices removed
+    bitboard queenSideOccupation = queenSideMask & combinedColors;
     auto kingSideCastleTarget = color ? 62 : 6;
     auto queenSideCastleTarget = color ? 58 : 2;
+    auto index = 0;
     if (kingsideOccupation == 0 && engine.board.castlingRights[castleColorIndex])
     {
-        auto index = BitScanForwards(kingSideMask) - 1;
         auto canCastle = true;
-        while (index >= 0)
+        index = 0;
+        while (kingSideMask > 0)
         {
+            index = PopLsb(kingSideMask);
             if (MoveGenerator::IsSquareAttacked(engine, index, !color))
             {
                 canCastle = false;
                 break;
             }
-            UnsetBit(kingSideMask, index);
-            index = BitScanForwards(kingSideMask) - 1;
         }
         if (canCastle && !MoveGenerator::IsSquareAttacked(engine, kingIndex, !color))
         {
@@ -182,10 +175,11 @@ void GetPseudoLegalKingMoves(const Engine &engine, std::vector<Move> &pseudoLega
     }
     if (queenSideOccupation == 0 && engine.board.castlingRights[castleColorIndex + 1])
     {
-        auto index = BitScanForwards(queenSideMask) - 1;
+        index = 0;
         auto canCastle = true;
-        while (index >= 0)
+        while (queenSideMask > 0)
         {
+            index = PopLsb(queenSideMask);
             if (index != queenSideCastleTarget - 1)
             {
                 if (MoveGenerator::IsSquareAttacked(engine, index, !color))
@@ -194,8 +188,6 @@ void GetPseudoLegalKingMoves(const Engine &engine, std::vector<Move> &pseudoLega
                     break;
                 }
             }
-            UnsetBit(queenSideMask, index);
-            index = BitScanForwards(queenSideMask) - 1;
         }
         if (canCastle && !MoveGenerator::IsSquareAttacked(engine, kingIndex, !color))
         {
@@ -204,17 +196,19 @@ void GetPseudoLegalKingMoves(const Engine &engine, std::vector<Move> &pseudoLega
     }
 }
 
-void GetPseudoLegalRookMoves(const Engine &engine, const uint_fast64_t &rookPieceBoard, std::vector<Move> &pseudoLegalMoves)
+void GetPseudoLegalRookMoves(const Engine &engine, const bitboard &rookPieceBoard, std::vector<Move> &pseudoLegalMoves)
 {
     auto color = engine.board.whiteToMove;
-    uint_fast64_t thisBoard = engine.board.colorBoards[!color];
-    uint_fast64_t otherBoard = engine.board.colorBoards[color];
-    uint_fast64_t rookBoard = rookPieceBoard;
+    bitboard thisBoard = engine.board.colorBoards[!color];
+    bitboard otherBoard = engine.board.colorBoards[color];
+    bitboard rookBoard = rookPieceBoard;
 
-    auto from = BitScanForwards(rookBoard) - 1;
-    while (from >= 0)
+    auto from = 0;
+    auto to = 0;
+    while (rookBoard > 0)
     {
-        auto to = from + 8;
+        from = PopLsb(rookBoard);
+        to = from + 8;
         while (to < 64)
         {
             if (CheckBit(thisBoard, to))
@@ -270,22 +264,22 @@ void GetPseudoLegalRookMoves(const Engine &engine, const uint_fast64_t &rookPiec
             }
             to--;
         }
-        UnsetBit(rookBoard, from);
-        from = BitScanForwards(rookBoard) - 1;
     }
 }
 
-void GetPseudoLegalBishopMoves(const Engine &engine, const uint_fast64_t &bishopPieceBoard, std::vector<Move> &pseudoLegalMoves)
+void GetPseudoLegalBishopMoves(const Engine &engine, const bitboard &bishopPieceBoard, std::vector<Move> &pseudoLegalMoves)
 {
     auto color = engine.board.whiteToMove;
-    uint_fast64_t thisBoard = engine.board.colorBoards[!color];
-    uint_fast64_t otherBoard = engine.board.colorBoards[color];
-    uint_fast64_t bishopBoard = bishopPieceBoard;
+    bitboard thisBoard = engine.board.colorBoards[!color];
+    bitboard otherBoard = engine.board.colorBoards[color];
+    bitboard bishopBoard = bishopPieceBoard;
 
-    auto from = BitScanForwards(bishopBoard) - 1;
-    while (from >= 0)
+    auto from = 0;
+    auto to = 0;
+    while (bishopBoard > 0)
     {
-        auto to = from + 9;
+        from = PopLsb(bishopBoard);
+        to = from + 9;
         while (to < 64)
         {
             if (CheckBit(fileMasks[0], to) || CheckBit(thisBoard, to))
@@ -341,8 +335,6 @@ void GetPseudoLegalBishopMoves(const Engine &engine, const uint_fast64_t &bishop
             }
             to -= 7;
         }
-        UnsetBit(bishopBoard,from);
-        from = BitScanForwards(bishopBoard)-1;
     }
 }
 
@@ -372,14 +364,14 @@ bool MoveGenerator::IsSquareAttacked(const Engine &engine, const int &index, con
 {
     auto colorIndex = attackingColor ? 0 : 6;
     // Bitboards containing slider pieces
-    uint_fast64_t horAndVertSliderBoard = engine.board.pieceBoards[3 + colorIndex] | engine.board.pieceBoards[4 + colorIndex];
-    uint_fast64_t diagonalSliderBoard = engine.board.pieceBoards[2 + colorIndex] | engine.board.pieceBoards[4 + colorIndex];
+    bitboard horAndVertSliderBoard = engine.board.pieceBoards[3 + colorIndex] | engine.board.pieceBoards[4 + colorIndex];
+    bitboard diagonalSliderBoard = engine.board.pieceBoards[2 + colorIndex] | engine.board.pieceBoards[4 + colorIndex];
     // Bitboards containing all pieces which cant check by sliding
-    uint_fast64_t horAndVertBlockerBoard = (engine.board.colorBoards[!attackingColor] & ~engine.board.pieceBoards[3 + colorIndex] & ~engine.board.pieceBoards[4 + colorIndex]) | engine.board.colorBoards[attackingColor];
-    uint_fast64_t diagonalBlockerBoard = (engine.board.colorBoards[!attackingColor] & ~engine.board.pieceBoards[2 + colorIndex] & ~engine.board.pieceBoards[4 + colorIndex]) | engine.board.colorBoards[attackingColor];
+    bitboard horAndVertBlockerBoard = (engine.board.colorBoards[!attackingColor] & ~engine.board.pieceBoards[3 + colorIndex] & ~engine.board.pieceBoards[4 + colorIndex]) | engine.board.colorBoards[attackingColor];
+    bitboard diagonalBlockerBoard = (engine.board.colorBoards[!attackingColor] & ~engine.board.pieceBoards[2 + colorIndex] & ~engine.board.pieceBoards[4 + colorIndex]) | engine.board.colorBoards[attackingColor];
 
     // Knights: can the piece on index attack a attackingcolor knight like a knight
-    uint_fast64_t attacks = knightMoves[index] & engine.board.pieceBoards[1 + colorIndex];
+    bitboard attacks = knightMoves[index] & engine.board.pieceBoards[1 + colorIndex];
     if (attacks > 0)
     {
         return true;
@@ -518,7 +510,7 @@ bool MoveGenerator::IsSquareAttacked(const Engine &engine, const Coord &square, 
 
 void MoveGenerator::PreComputeKnightMoves()
 {
-    uint_fast64_t localMoves = 0;
+    bitboard localMoves = 0;
     for (auto i = 0; i < 64; i++)
     {
         localMoves = ONE << i;
@@ -529,7 +521,7 @@ void MoveGenerator::PreComputeKnightMoves()
 
 void MoveGenerator::PreComputeKingMoves()
 {
-    uint_fast64_t localMoves = 0;
+    bitboard localMoves = 0;
     for (auto i = 0; i < 64; i++)
     {
         localMoves = ONE << i;
@@ -540,7 +532,7 @@ void MoveGenerator::PreComputeKingMoves()
 
 void MoveGenerator::PreComputePawnAttacks()
 {
-    uint_fast64_t localMoves = 0;
+    bitboard localMoves = 0;
     for (auto i = 0; i < 64; i++)
     {
         localMoves = ONE << i;

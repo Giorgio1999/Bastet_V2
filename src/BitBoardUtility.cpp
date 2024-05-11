@@ -8,9 +8,17 @@
 bitboard fileMasks[8];
 bitboard rankMasks[8];
 
-int BitScanForwards(const bitboard& value){
+int BitScanForwards(const bitboard &value)
+{
 	// return std::countr_zero(value);
-	return  __builtin_ffsl(value);
+	return __builtin_ffsl(value);
+}
+
+int PopLsb(bitboard &value)
+{
+	auto index = BitScanForwards(value) - 1;
+	UnsetBit(value, index);
+	return index;
 }
 
 bool CheckBit(const bitboard &value, const int &index)
@@ -61,11 +69,13 @@ void PrintBitBoard(const bitboard &value)
 	std::cout << boardVisual;
 }
 
-void ComputeMasks(){
+void ComputeMasks()
+{
 	fileMasks[0] = 0x0101010101010101;
 	rankMasks[0] = 0xFF00000000000000;
-	for(auto i=1;i<8;i++){
+	for (auto i = 1; i < 8; i++)
+	{
 		fileMasks[i] = fileMasks[0] << i;
-		rankMasks[i] = rankMasks[0] >> 8*i;
+		rankMasks[i] = rankMasks[0] >> 8 * i;
 	}
 }

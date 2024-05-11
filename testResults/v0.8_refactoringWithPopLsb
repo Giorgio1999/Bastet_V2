@@ -1,0 +1,41 @@
+Position: rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1:
+        depth 1: 20(20) diff: 0, speed: infMnps
+        depth 2: 400(400) diff: 0, speed: infMnps
+        depth 3: 8902(8902) diff: 0, speed: infMnps
+        depth 4: 197281(197281) diff: 0, speed: 17.9346Mnps
+        depth 5: 4865609(4865609) diff: 0, speed: 17.1324Mnps
+        depth 6: 119060324(119060324) diff: 0, speed: 17.0525Mnps
+Position: r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - 0 1:
+        depth 1: 48(48) diff: 0, speed: infMnps
+        depth 2: 2039(2039) diff: 0, speed: infMnps
+        depth 3: 97862(97862) diff: 0, speed: 13.9803Mnps
+        depth 4: 4085603(4085603) diff: 0, speed: 14.488Mnps
+        depth 5: 193690690(193690690) diff: 0, speed: 15.4335Mnps
+Position: 8/2p5/3p4/KP5r/1R3p1k/8/4P1P1/8 w - - 0 1:
+        depth 1: 14(14) diff: 0, speed: infMnps
+        depth 2: 191(191) diff: 0, speed: infMnps
+        depth 3: 2812(2812) diff: 0, speed: infMnps
+        depth 4: 43238(43238) diff: 0, speed: 10.8095Mnps
+        depth 5: 674624(674624) diff: 0, speed: 9.63749Mnps
+        depth 6: 11030083(11030083) diff: 0, speed: 8.8595Mnps
+        depth 7: 178633661(178633661) diff: 0, speed: 9.54954Mnps
+Position: r3k2r/Pppp1ppp/1b3nbN/nP6/BBP1P3/q4N2/Pp1P2PP/R2Q1RK1 w kq - 0 1:
+        depth 1: 6(6) diff: 0, speed: infMnps
+        depth 2: 264(264) diff: 0, speed: infMnps
+        depth 3: 9467(9467) diff: 0, speed: infMnps
+        depth 4: 422333(422333) diff: 0, speed: 13.6236Mnps
+        depth 5: 15833292(15833292) diff: 0, speed: 15.4773Mnps
+        depth 6: 706045033(706045033) diff: 0, speed: 13.5681Mnps
+Position: rnbq1k1r/pp1Pbppp/2p5/8/2B5/8/PPP1NnPP/RNBQK2R w KQ - 1 8:
+        depth 1: 44(44) diff: 0, speed: infMnps
+        depth 2: 1486(1486) diff: 0, speed: infMnps
+        depth 3: 62379(62379) diff: 0, speed: 15.5947Mnps
+        depth 4: 2103487(2103487) diff: 0, speed: 15.133Mnps
+        depth 5: 89941194(89941194) diff: 0, speed: 13.0501Mnps
+Position: r4rk1/1pp1qppp/p1np1n2/2b1p1B1/2B1P1b1/P1NP1N2/1PP1QPPP/R4RK1 w - - 0 10:
+        depth 1: 46(46) diff: 0, speed: infMnps
+        depth 2: 2079(2079) diff: 0, speed: infMnps
+        depth 3: 89890(89890) diff: 0, speed: 22.4725Mnps
+        depth 4: 3894594(3894594) diff: 0, speed: 18.1144Mnps
+        depth 5: 164075551(164075551) diff: 0, speed: 19.063Mnps
+Done! Total time: 1m

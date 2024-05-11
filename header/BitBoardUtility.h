@@ -12,6 +12,8 @@ extern bitboard rankMasks[8];
 
 int BitScanForwards(const bitboard &value); // returns index of least significant bit
 
+int PopLsb(bitboard& value);    // returns index of least significant bit and removes it
+
 bool CheckBit(const bitboard &value, const int &index); // Checks bit at index in 1d board
 
 bool CheckBit(const bitboard &value, const int &i, const int &j); // Checks bit at i,j in 2d board
