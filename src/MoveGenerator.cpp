@@ -345,58 +345,63 @@ bool MoveGenerator::IsSquareAttacked(const Engine &engine, const int &index, con
     }
 
     // Diagonal sliders: can the piece on index attack a attackingcolor diagonal slider like a diagonal slider
+    attacks = (GetDiagonalAttacks(index,diagonalBlockerBoard)|GetAntiDiagonalAttacks(index,diagonalBlockerBoard)) & diagonalSliderBoard;
+    if(attacks > 0){
+        return true;
+    }
+
     auto increment = index + 9;
-    while (increment < 64)
-    {
-        if (CheckBit(fileMasks[0], increment) || CheckBit(diagonalBlockerBoard, increment))
-        {
-            break;
-        }
-        if (CheckBit(diagonalSliderBoard, increment))
-        {
-            return true;
-        }
-        increment += 9;
-    }
-    increment = index + 7;
-    while (increment < 64)
-    {
-        if (CheckBit(fileMasks[7], increment) || CheckBit(diagonalBlockerBoard, increment))
-        {
-            break;
-        }
-        if (CheckBit(diagonalSliderBoard, increment))
-        {
-            return true;
-        }
-        increment += 7;
-    }
-    increment = index - 9;
-    while (increment >= 0)
-    {
-        if (CheckBit(fileMasks[7], increment) || CheckBit(diagonalBlockerBoard, increment))
-        {
-            break;
-        }
-        if (CheckBit(diagonalSliderBoard, increment))
-        {
-            return true;
-        }
-        increment -= 9;
-    }
-    increment = index - 7;
-    while (increment >= 0)
-    {
-        if (CheckBit(fileMasks[0], increment) || CheckBit(diagonalBlockerBoard, increment))
-        {
-            break;
-        }
-        if (CheckBit(diagonalSliderBoard, increment))
-        {
-            return true;
-        }
-        increment -= 7;
-    }
+    // while (increment < 64)
+    // {
+    //     if (CheckBit(fileMasks[0], increment) || CheckBit(diagonalBlockerBoard, increment))
+    //     {
+    //         break;
+    //     }
+    //     if (CheckBit(diagonalSliderBoard, increment))
+    //     {
+    //         return true;
+    //     }
+    //     increment += 9;
+    // }
+    // increment = index + 7;
+    // while (increment < 64)
+    // {
+    //     if (CheckBit(fileMasks[7], increment) || CheckBit(diagonalBlockerBoard, increment))
+    //     {
+    //         break;
+    //     }
+    //     if (CheckBit(diagonalSliderBoard, increment))
+    //     {
+    //         return true;
+    //     }
+    //     increment += 7;
+    // }
+    // increment = index - 9;
+    // while (increment >= 0)
+    // {
+    //     if (CheckBit(fileMasks[7], increment) || CheckBit(diagonalBlockerBoard, increment))
+    //     {
+    //         break;
+    //     }
+    //     if (CheckBit(diagonalSliderBoard, increment))
+    //     {
+    //         return true;
+    //     }
+    //     increment -= 9;
+    // }
+    // increment = index - 7;
+    // while (increment >= 0)
+    // {
+    //     if (CheckBit(fileMasks[0], increment) || CheckBit(diagonalBlockerBoard, increment))
+    //     {
+    //         break;
+    //     }
+    //     if (CheckBit(diagonalSliderBoard, increment))
+    //     {
+    //         return true;
+    //     }
+    //     increment -= 7;
+    // }
 
     // Horizontal and vertical sliders: can the piece on index attack a attacking color hor and vert slider like a hor and vert slider
     increment = index + 8;
