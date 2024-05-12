@@ -130,5 +130,4 @@ void ComputeMasks()
 			rankAttackMasks[index+shift] = rankAttackMasks[index];
 		}
 	}
-	PrintBitBoard(rankAttackMasks[25]);
 }
