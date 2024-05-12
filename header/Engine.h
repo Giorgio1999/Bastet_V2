@@ -6,7 +6,6 @@
 #include <vector>
 #include <atomic>
 
-
 // This will include the core functionality
 
 class Engine
@@ -20,6 +19,7 @@ public:
 	void NewGame();						   // clears board for new game
 	void SetBoard(const Board &board);	   // Sets a given PieceList as position
 	void MakeMove(const Move &move);	   // Make a move
+	void CopyMake(const Move &move);	   // Copy board then make move on it
 	void MakeSimpleMove(const Move &move); // Makes a simple move (expected move is non king move)
 	void UndoLastMove();				   // Reverts to previous position
 	std::string ShowBoard();			   // Debug tool to display current board in console
