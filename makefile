@@ -14,7 +14,7 @@ $(TARGET): $(OBJS)
 	$(CXX) $(CXXFLAGS) -o build/$@ $^
 
 $(DEBUGTARGET): $(DEBUGOBJS)
-	$(CXX) $(DEBUGCXXFLAGS) -o $@ $^
+	$(CXX) $(DEBUGCXXFLAGS) -o build/$@ $^
 
 obj/%.o: src/%.cpp $(HEADERS)
 	$(CXX) $(CXXFLAGS) -c -o $@ $<
@@ -23,5 +23,5 @@ obj/%_Debug.o: src/%.cpp $(HEADERS)
 	$(CXX) $(DEBUGCXXFLAGS) -c -o $@ $<
 
 clean:
-	rm $(TARGET)*
+	rm build/*
 	rm obj/*.o
