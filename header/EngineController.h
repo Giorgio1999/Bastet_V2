@@ -33,4 +33,5 @@ public:
 	void TestReady();								// Test wheter engine is ready
 	void FullPerftTest();					//Runs a full perft test suite
 	void Bench();
+	void Validate();	//Validates move generation on test suit
 };

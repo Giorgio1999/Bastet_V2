@@ -145,7 +145,7 @@ void EngineController::FullPerftTest()
 		BootEngine();
 	}
 	auto fullStart = std::chrono::high_resolution_clock::now();
-	auto dataPath = "assets/perftTestSuit.txt";
+	auto dataPath = "/home/giorgio/Bastet_V2/assets/perftTestSuit.txt";
 	std::fstream dataStream(dataPath, std::ios::in);
 	std::string line;
 	while (std::getline(dataStream, line) && !engine.stopFlag)
@@ -181,7 +181,7 @@ void EngineController::Bench(){
 	if(!isReady){
 		BootEngine();
 	}
-	auto fixedDepth = 5;
+	auto fixedDepth = 4;
 	auto fullStart = std::chrono::high_resolution_clock::now();
 	auto nodesVisited = 0;
 	for (auto i=0;i<6;i++)
@@ -193,4 +193,35 @@ void EngineController::Bench(){
 	auto fullEnd = std::chrono::high_resolution_clock::now();
 	float duration = std::chrono::duration_cast<std::chrono::seconds>(fullEnd - fullStart).count();
 	std::cout << std::to_string(nodesVisited) << " nodes " << std::to_string((int)(nodesVisited/duration)) << " nps" << std::endl;
+}
+
+void EngineController::Validate(){
+	if(!isReady){
+		BootEngine();
+	}
+	auto dataPath = "/home/giorgio/Bastet_V2/assets/perftTestSuit.txt";
+	std::fstream dataStream(dataPath, std::ios::in);
+	std::string line;
+	auto valid = true;
+	while (std::getline(dataStream, line) && valid)
+	{
+		std::string fen = line.substr(0, line.find(','));
+		engine.SetBoard(Fen2Position(fen));
+		line = line.substr(fen.size() + 1, line.size());
+		auto depth = 1;
+		while (line.size() > 0 && !engine.stopFlag)
+		{
+			auto result = engine.Perft(depth);
+			std::string ref = line.substr(0, line.find_first_of(';'));
+			auto diff = result - std::stoi(ref);
+			line = line.substr(ref.size() + 1, line.size());
+			if(diff!=0){
+				valid = false;
+				break;
+			}
+			depth++;
+		}
+	}
+	std::cout << (valid?"Is valid":"Is not valid") << std::endl;
+	dataStream.close();
 }

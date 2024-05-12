@@ -12,6 +12,7 @@ bitboard knightMoves[64];
 bitboard kingMoves[64];
 bitboard pawnAttacks[2][2][64];
 bitboard fillUpAttacks[8][64];
+bitboard aFileAttacks[8][64];
 
 void MoveGenerator::GetPseudoLegalMoves(const Engine &engine, std::vector<Move> &pseudoLegalMoves)
 {
@@ -202,68 +203,27 @@ void GetPseudoLegalRookMoves(const Engine &engine, const bitboard &rookPieceBoar
     auto color = engine.board.whiteToMove;
     bitboard thisBoard = engine.board.colorBoards[!color];
     bitboard otherBoard = engine.board.colorBoards[color];
+    bitboard combinedBoard = thisBoard | otherBoard;
     bitboard rookBoard = rookPieceBoard;
 
     auto from = 0;
     auto to = 0;
+    bitboard attacks = 0;
     while (rookBoard > 0)
     {
         from = PopLsb(rookBoard);
-        to = from + 8;
-        while (to < 64)
+        attacks = GetFileAttacks(from, combinedBoard) & ~thisBoard;
+        while (attacks > 0)
         {
-            if (CheckBit(thisBoard, to))
-            {
-                break;
-            }
+            to = PopLsb(attacks);
             pseudoLegalMoves.push_back(Move(from, to));
-            if (CheckBit(otherBoard, to))
-            {
-                break;
-            }
-            to += 8;
         }
-        to = from - 8;
-        while (to >= 0)
+
+        attacks = (GetRankAttacks(from, combinedBoard) | GetRankAttacks(from, combinedBoard)) & ~thisBoard;
+        while (attacks > 0)
         {
-            if (CheckBit(thisBoard, to))
-            {
-                break;
-            }
+            to = PopLsb(attacks);
             pseudoLegalMoves.push_back(Move(from, to));
-            if (CheckBit(otherBoard, to))
-            {
-                break;
-            }
-            to -= 8;
-        }
-        to = from + 1;
-        while (to < 64)
-        {
-            if (CheckBit(thisBoard, to) || CheckBit(fileMasks[0], to))
-            {
-                break;
-            }
-            pseudoLegalMoves.push_back(Move(from, to));
-            if (CheckBit(otherBoard, to))
-            {
-                break;
-            }
-            to++;
-        }
-        to = from - 1;
-        while (to >= 0)
-        {
-            if (CheckBit(thisBoard, to) || CheckBit(fileMasks[7], to))
-            {
-                break;
-            }
-            pseudoLegalMoves.push_back(Move(from, to));
-            if (CheckBit(otherBoard, to))
-            {
-                break;
-            }
-            to--;
         }
     }
 }
@@ -281,68 +241,11 @@ void GetPseudoLegalBishopMoves(const Engine &engine, const bitboard &bishopPiece
     while (bishopBoard > 0)
     {
         from = PopLsb(bishopBoard);
-        // bitboard attacks = (GetDiagonalAttacks(from,combinedBoard) | GetAntiDiagonalAttacks(from,combinedBoard)) & ~thisBoard;
-        // while (attacks > 0)
-        // {
-        //     to = PopLsb(attacks);
-        //     pseudoLegalMoves.push_back(Move(from,to));
-        // }
-        
-        to = from + 9;
-        while (to < 64)
+        bitboard attacks = (GetDiagonalAttacks(from, combinedBoard) | GetAntiDiagonalAttacks(from, combinedBoard)) & ~thisBoard;
+        while (attacks > 0)
         {
-            if (CheckBit(fileMasks[0], to) || CheckBit(thisBoard, to))
-            {
-                break;
-            }
+            to = PopLsb(attacks);
             pseudoLegalMoves.push_back(Move(from, to));
-            if (CheckBit(otherBoard, to))
-            {
-                break;
-            }
-            to += 9;
-        }
-        to = from + 7;
-        while (to < 64)
-        {
-            if (CheckBit(fileMasks[7], to) || CheckBit(thisBoard, to))
-            {
-                break;
-            }
-            pseudoLegalMoves.push_back(Move(from, to));
-            if (CheckBit(otherBoard, to))
-            {
-                break;
-            }
-            to += 7;
-        }
-        to = from - 9;
-        while (to >= 0)
-        {
-            if (CheckBit(fileMasks[7], to) || CheckBit(thisBoard, to))
-            {
-                break;
-            }
-            pseudoLegalMoves.push_back(Move(from, to));
-            if (CheckBit(otherBoard, to))
-            {
-                break;
-            }
-            to -= 9;
-        }
-        to = from - 7;
-        while (to >= 0)
-        {
-            if (CheckBit(fileMasks[0], to) || CheckBit(thisBoard, to))
-            {
-                break;
-            }
-            pseudoLegalMoves.push_back(Move(from, to));
-            if (CheckBit(otherBoard, to))
-            {
-                break;
-            }
-            to -= 7;
         }
     }
 }
@@ -359,7 +262,6 @@ void MoveGenerator::GetLegalMoves(Engine &engine, std::vector<Move> &legalmoves)
     GetPseudoLegalKingMoves(engine, pseudoLegalMoves);
     for (const auto &move : pseudoLegalMoves)
     {
-        // std::cout << "Checking out: " << Move2Str(move) << "\n";
         engine.MakeSimpleMove(move);
         if (!MoveGenerator::IsSquareAttacked(engine, engine.board.kingIndices[!color], !color))
         {
@@ -402,111 +304,23 @@ bool MoveGenerator::IsSquareAttacked(const Engine &engine, const int &index, con
     }
 
     // Diagonal sliders: can the piece on index attack a attackingcolor diagonal slider like a diagonal slider
-    auto increment = index + 9;
-    while (increment < 64)
+    attacks = (GetDiagonalAttacks(index, diagonalBlockerBoard) | GetAntiDiagonalAttacks(index, diagonalBlockerBoard)) & diagonalSliderBoard;
+    if (attacks > 0)
     {
-        if (CheckBit(fileMasks[0], increment) || CheckBit(diagonalBlockerBoard, increment))
-        {
-            break;
-        }
-        if (CheckBit(diagonalSliderBoard, increment))
-        {
-            return true;
-        }
-        increment += 9;
-    }
-    increment = index + 7;
-    while (increment < 64)
-    {
-        if (CheckBit(fileMasks[7], increment) || CheckBit(diagonalBlockerBoard, increment))
-        {
-            break;
-        }
-        if (CheckBit(diagonalSliderBoard, increment))
-        {
-            return true;
-        }
-        increment += 7;
-    }
-    increment = index - 9;
-    while (increment >= 0)
-    {
-        if (CheckBit(fileMasks[7], increment) || CheckBit(diagonalBlockerBoard, increment))
-        {
-            break;
-        }
-        if (CheckBit(diagonalSliderBoard, increment))
-        {
-            return true;
-        }
-        increment -= 9;
-    }
-    increment = index - 7;
-    while (increment >= 0)
-    {
-        if (CheckBit(fileMasks[0], increment) || CheckBit(diagonalBlockerBoard, increment))
-        {
-            break;
-        }
-        if (CheckBit(diagonalSliderBoard, increment))
-        {
-            return true;
-        }
-        increment -= 7;
+        return true;
     }
 
     // Horizontal and vertical sliders: can the piece on index attack a attacking color hor and vert slider like a hor and vert slider
-    increment = index + 8;
-    while (increment < 64)
+    attacks = GetFileAttacks(index, horAndVertBlockerBoard) & horAndVertSliderBoard;
+    if(attacks>0)
     {
-        if (CheckBit(horAndVertBlockerBoard, increment))
-        {
-            break;
-        }
-        if (CheckBit(horAndVertSliderBoard, increment))
-        {
-            return true;
-        }
-        increment += 8;
+        return true;
     }
-    increment = index - 8;
-    while (increment >= 0)
+
+    attacks = GetRankAttacks(index, horAndVertBlockerBoard) & horAndVertSliderBoard;
+    if (attacks > 0)
     {
-        if (CheckBit(horAndVertBlockerBoard, increment))
-        {
-            break;
-        }
-        if (CheckBit(horAndVertSliderBoard, increment))
-        {
-            return true;
-        }
-        increment -= 8;
-    }
-    increment = index + 1;
-    while (increment < 64)
-    {
-        if (CheckBit(horAndVertBlockerBoard, increment) || CheckBit(fileMasks[0], increment))
-        {
-            break;
-        }
-        if (CheckBit(horAndVertSliderBoard, increment))
-        {
-            return true;
-        }
-        increment++;
-    }
-    increment = index - 1;
-    while (increment >= 0)
-    {
-        if (CheckBit(horAndVertBlockerBoard, increment) || CheckBit(fileMasks[7], increment))
-        {
-            break;
-        }
-        if (CheckBit(horAndVertSliderBoard, increment))
-        {
-            return true;
-        }
-        increment--;
+        return true;
     }
 
     return false;
@@ -517,28 +331,30 @@ bool MoveGenerator::IsSquareAttacked(const Engine &engine, const Coord &square, 
     return IsSquareAttacked(engine, square.y * 8 + square.x, attackingColor);
 }
 
-bitboard GetDiagonalAttacks(const int& index,const bitboard& occ){
-    // PrintBitBoard(occ);
-    // PrintBitBoard(diagonalAttackMasks[index]);
-    // PrintBitBoard(fileMasks[1]);
-    // PrintBitBoard(occ & diagonalAttackMasks[index]);
+bitboard GetDiagonalAttacks(const int &index, const bitboard &occ)
+{
     bitboard compressedOcc = ((occ & diagonalAttackMasks[index]) * fileMasks[1]) >> 58;
-    // PrintBitBoard(compressedOcc);
-    // PrintBitBoard(fillUpAttacks[index&7][compressedOcc]);
-    // PrintBitBoard(fillUpAttacks[index&7][compressedOcc] & diagonalAttackMasks[index]);
-    return fillUpAttacks[index&7][compressedOcc] & diagonalAttackMasks[index];
+    return fillUpAttacks[index & 7][compressedOcc] & diagonalAttackMasks[index];
 }
 
-bitboard GetAntiDiagonalAttacks(const int& index, const bitboard& occ){
-    // PrintBitBoard(occ);
-    // PrintBitBoard(antiDiagonalAttackMasks[index]);
-    // PrintBitBoard(fileMasks[1]);
-    // PrintBitBoard(occ & antiDiagonalAttackMasks[index]);
-    bitboard compressedOcc = ((occ & antiDiagonalAttackMasks[index])*fileMasks[1])>>58;
-    // PrintBitBoard(compressedOcc);
-    // PrintBitBoard(fillUpAttacks[index&7][compressedOcc]);
-    // PrintBitBoard(fillUpAttacks[index&7][compressedOcc] & antiDiagonalAttackMasks[index]);
-    return fillUpAttacks[index&7][compressedOcc] & antiDiagonalAttackMasks[index];
+bitboard GetAntiDiagonalAttacks(const int &index, const bitboard &occ)
+{
+    bitboard compressedOcc = ((occ & antiDiagonalAttackMasks[index]) * fileMasks[1]) >> 58;
+    return fillUpAttacks[index & 7][compressedOcc] & antiDiagonalAttackMasks[index];
+}
+
+bitboard GetRankAttacks(const int &index, const bitboard &occ)
+{
+    bitboard compressedOcc = ((occ & rankAttackMasks[index]) * fileMasks[1]) >> 58;
+    return fillUpAttacks[index & 7][compressedOcc] & rankAttackMasks[index];
+}
+
+bitboard GetFileAttacks(const int &index, const bitboard &occ)
+{
+    const bitboard antiDiac7h2 = 0x0204081020408000;
+    bitboard compressedOcc = fileMasks[0] & (occ >> (index & 7));
+    compressedOcc = (antiDiac7h2 * compressedOcc) >> 58;
+    return aFileAttacks[index >> 3][compressedOcc] << (index & 7);
 }
 
 void MoveGenerator::PreComputeMoves()
@@ -547,6 +363,7 @@ void MoveGenerator::PreComputeMoves()
     PreComputeKnightMoves();
     PreComputePawnAttacks();
     PreComputeFillUpAttacks();
+    PreComputeAFileAttacks();
 }
 
 void PreComputeKnightMoves()
@@ -591,31 +408,68 @@ void PreComputePawnAttacks()
 void PreComputeFillUpAttacks()
 {
     bitboard localmoves = 0;
-    for (auto file = 0; file < 8; file++)   // loop over all 8 files
+    for (auto file = 0; file < 8; file++) // loop over all 8 files
     {
         for (bitboard occ = 0; occ < 64; occ++) // loop over all 64 blocker configurations (blockers on the border do not count)
         {
             bitboard left = 0;
             bitboard right = 0;
-            bitboard decompressedOcc = occ << 1;    // get 8 bit occupation
-            if(file <7){
-                left = 1 << (file + 1);    // left rank direction
+            bitboard decompressedOcc = occ << 1; // get 8 bit occupation
+            if (file < 7)
+            {
+                left = 1 << (file + 1);                         // left rank direction
                 for (auto shift = 0; shift < 6 - file; shift++) // loop till the end of the rank
                 {
                     left |= (left & ~decompressedOcc) << 1; // kind of flood fill; tries to push bits onto squares but if blocker is on square, no bits can pass the blocker
                 }
             }
-            if(file >0){
-                right = 1 << (file - 1);   // right rank direction
+            if (file > 0)
+            {
+                right = 1 << (file - 1); // right rank direction
                 for (auto shift = 0; shift < file; shift++)
                 {
                     right |= (right & ~decompressedOcc) >> 1;
                 }
             }
-            left |= right;  // combine left and right
-            localmoves = left; 
-            localmoves |= localmoves << 8 | localmoves << 16 | localmoves << 24 | localmoves << 32 | localmoves << 40 | localmoves << 48 | localmoves << 56;    // create 8 copies
-            fillUpAttacks[file][occ] = localmoves; 
+            left |= right; // combine left and right
+            localmoves = left;
+            localmoves |= localmoves << 8 | localmoves << 16 | localmoves << 24 | localmoves << 32 | localmoves << 40 | localmoves << 48 | localmoves << 56; // create 8 copies
+            fillUpAttacks[file][occ] = localmoves;
+        }
+    }
+}
+
+void PreComputeAFileAttacks()
+{
+    for (auto rank = 0; rank < 8; rank++)
+    {
+        for (bitboard occ = 0; occ < 64; occ++)
+        {
+            bitboard up = 0;
+            bitboard down = 0;
+            bitboard decompressedOcc = 0;
+            for (auto i = 1; i < 8; i++)
+            {
+                decompressedOcc |= (occ & fileMasks[i - 1]) << (i * 8 - (i - 1));
+            }
+            if (rank < 7)
+            {
+                up = ONE << (rank + 1) * 8;
+                for (auto shift = 0; shift < 6 - rank; shift++)
+                {
+                    up |= (up & ~decompressedOcc) << 8;
+                }
+            }
+            if (rank > 0)
+            {
+                down = ONE << (rank - 1) * 8;
+                for (auto shift = 0; shift < rank; shift++)
+                {
+                    down |= (down & ~decompressedOcc) >> 8;
+                }
+            }
+            up |= down;
+            aFileAttacks[rank][occ] = up;
         }
     }
 }
