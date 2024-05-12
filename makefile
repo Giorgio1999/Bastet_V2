@@ -10,9 +10,6 @@ DEBUGOBJS = $(patsubst src/%.cpp,obj/%_Debug.o,$(SRCS))
 
 all: $(TARGET)
 
-$(DEBUGTARGT): $(DEBUGOBJS)
-	$(CXX) $(DEBUGCXXFLAGS) -o $@ $^ 
-
 $(TARGET): $(OBJS)
 	$(CXX) $(CXXFLAGS) -o build/$@ $^
 
