@@ -413,27 +413,18 @@ bool MoveGenerator::IsSquareAttacked(const Engine &engine, const Coord &square, 
 }
 
 bitboard GetDiagonalAttacks(const int& index,const bitboard& occ){
-    // PrintBitBoard(occ);
-    // PrintBitBoard(diagonalAttackMasks[index]);
-    // PrintBitBoard(fileMasks[1]);
-    // PrintBitBoard(occ & diagonalAttackMasks[index]);
     bitboard compressedOcc = ((occ & diagonalAttackMasks[index]) * fileMasks[1]) >> 58;
-    // PrintBitBoard(compressedOcc);
-    // PrintBitBoard(fillUpAttacks[index&7][compressedOcc]);
-    // PrintBitBoard(fillUpAttacks[index&7][compressedOcc] & diagonalAttackMasks[index]);
     return fillUpAttacks[index&7][compressedOcc] & diagonalAttackMasks[index];
 }
 
 bitboard GetAntiDiagonalAttacks(const int& index, const bitboard& occ){
-    // PrintBitBoard(occ);
-    // PrintBitBoard(antiDiagonalAttackMasks[index]);
-    // PrintBitBoard(fileMasks[1]);
-    // PrintBitBoard(occ & antiDiagonalAttackMasks[index]);
     bitboard compressedOcc = ((occ & antiDiagonalAttackMasks[index])*fileMasks[1])>>58;
-    // PrintBitBoard(compressedOcc);
-    // PrintBitBoard(fillUpAttacks[index&7][compressedOcc]);
-    // PrintBitBoard(fillUpAttacks[index&7][compressedOcc] & antiDiagonalAttackMasks[index]);
     return fillUpAttacks[index&7][compressedOcc] & antiDiagonalAttackMasks[index];
+}
+
+bitboard GetRankAttacks(const int& index, const bitboard& occ){
+    bitboard compressedOcc = ((occ & rankAttackMasks[index])*fileMasks[1]) >> 58;
+    return fillUpAttacks[index&7][compressedOcc] & rankAttackMasks[index];
 }
 
 void MoveGenerator::PreComputeMoves()
