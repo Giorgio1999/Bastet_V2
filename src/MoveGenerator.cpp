@@ -358,32 +358,38 @@ bool MoveGenerator::IsSquareAttacked(const Engine &engine, const int &index, con
         }
         increment -= 8;
     }
-    increment = index + 1;
-    while (increment < 64)
-    {
-        if (CheckBit(horAndVertBlockerBoard, increment) || CheckBit(fileMasks[0], increment))
-        {
-            break;
-        }
-        if (CheckBit(horAndVertSliderBoard, increment))
-        {
-            return true;
-        }
-        increment++;
+
+    attacks = (GetRankAttacks(index,horAndVertBlockerBoard)|GetRankAttacks(index,horAndVertBlockerBoard)) & horAndVertSliderBoard;
+    if(attacks>0){
+        return true;
     }
-    increment = index - 1;
-    while (increment >= 0)
-    {
-        if (CheckBit(horAndVertBlockerBoard, increment) || CheckBit(fileMasks[7], increment))
-        {
-            break;
-        }
-        if (CheckBit(horAndVertSliderBoard, increment))
-        {
-            return true;
-        }
-        increment--;
-    }
+
+    // increment = index + 1;
+    // while (increment < 64)
+    // {
+    //     if (CheckBit(horAndVertBlockerBoard, increment) || CheckBit(fileMasks[0], increment))
+    //     {
+    //         break;
+    //     }
+    //     if (CheckBit(horAndVertSliderBoard, increment))
+    //     {
+    //         return true;
+    //     }
+    //     increment++;
+    // }
+    // increment = index - 1;
+    // while (increment >= 0)
+    // {
+    //     if (CheckBit(horAndVertBlockerBoard, increment) || CheckBit(fileMasks[7], increment))
+    //     {
+    //         break;
+    //     }
+    //     if (CheckBit(horAndVertSliderBoard, increment))
+    //     {
+    //         return true;
+    //     }
+    //     increment--;
+    // }
 
     return false;
 }
