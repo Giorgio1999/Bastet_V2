@@ -113,13 +113,19 @@ void ComputeMasks()
 		}
 	}
 
-	for(auto index = 7;index<50;index+=7){
+	for(auto index = 7;index<57;index+=7){
 		antiDiagonalAttackMasks[index] = 0x0102040810204080;
+		// std::cout << index << std::endl;
+		// PrintBitBoard(antiDiagonalAttackMasks[index]);
 		for(auto i=	1;i<8-(index&7);i++){
 			antiDiagonalAttackMasks[index+i] = (antiDiagonalAttackMasks[index+i-1] & ~fileMasks[7]) << 1;
+			// std::cout << index+i << std::endl;
+			// PrintBitBoard(antiDiagonalAttackMasks[index+i]);
 		}
 		for(auto i=-1;i>=-(index&7);i--){
-			antiDiagonalAttackMasks[index+i] = (antiDiagonalAttackMasks[index+i+1] & ~fileMasks[0]) >> 1; 
+			antiDiagonalAttackMasks[index+i] = (antiDiagonalAttackMasks[index+i+1] & ~fileMasks[0]) >> 1;
+			// std::cout << index+i << std::endl;
+			// PrintBitBoard(antiDiagonalAttackMasks[index+i]); 
 		}
 	}
 	// for(auto index =0;index<64;index++){

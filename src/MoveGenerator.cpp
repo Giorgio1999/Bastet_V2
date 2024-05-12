@@ -518,12 +518,26 @@ bool MoveGenerator::IsSquareAttacked(const Engine &engine, const Coord &square, 
 }
 
 bitboard GetDiagonalAttacks(const int& index,const bitboard& occ){
+    // PrintBitBoard(occ);
+    // PrintBitBoard(diagonalAttackMasks[index]);
+    // PrintBitBoard(fileMasks[1]);
+    // PrintBitBoard(occ & diagonalAttackMasks[index]);
     bitboard compressedOcc = ((occ & diagonalAttackMasks[index]) * fileMasks[1]) >> 58;
+    // PrintBitBoard(compressedOcc);
+    // PrintBitBoard(fillUpAttacks[index&7][compressedOcc]);
+    // PrintBitBoard(fillUpAttacks[index&7][compressedOcc] & diagonalAttackMasks[index]);
     return fillUpAttacks[index&7][compressedOcc] & diagonalAttackMasks[index];
 }
 
 bitboard GetAntiDiagonalAttacks(const int& index, const bitboard& occ){
+    // PrintBitBoard(occ);
+    // PrintBitBoard(antiDiagonalAttackMasks[index]);
+    // PrintBitBoard(fileMasks[1]);
+    // PrintBitBoard(occ & antiDiagonalAttackMasks[index]);
     bitboard compressedOcc = ((occ & antiDiagonalAttackMasks[index])*fileMasks[1])>>58;
+    // PrintBitBoard(compressedOcc);
+    // PrintBitBoard(fillUpAttacks[index&7][compressedOcc]);
+    // PrintBitBoard(fillUpAttacks[index&7][compressedOcc] & antiDiagonalAttackMasks[index]);
     return fillUpAttacks[index&7][compressedOcc] & antiDiagonalAttackMasks[index];
 }
 
@@ -581,16 +595,22 @@ void PreComputeFillUpAttacks()
     {
         for (bitboard occ = 0; occ < 64; occ++) // loop over all 64 blocker configurations (blockers on the border do not count)
         {
-            bitboard left = 1 << (file + 1);    // left rank direction
-            bitboard right = 1 << (file - 1);   // right rank direction
+            bitboard left = 0;
+            bitboard right = 0;
             bitboard decompressedOcc = occ << 1;    // get 8 bit occupation
-            for (auto shift = 0; shift < 7 - file; shift++) // loop till the end of the rank
-            {
-                left |= (left & ~decompressedOcc) << 1; // kind of flood fill; tries to push bits onto squares but if blocker is on square, no bits can pass the blocker
+            if(file <7){
+                left = 1 << (file + 1);    // left rank direction
+                for (auto shift = 0; shift < 6 - file; shift++) // loop till the end of the rank
+                {
+                    left |= (left & ~decompressedOcc) << 1; // kind of flood fill; tries to push bits onto squares but if blocker is on square, no bits can pass the blocker
+                }
             }
-            for (auto shift = 0; shift < file; shift++)
-            {
-                right |= (right & ~decompressedOcc) >> 1;
+            if(file >0){
+                right = 1 << (file - 1);   // right rank direction
+                for (auto shift = 0; shift < file; shift++)
+                {
+                    right |= (right & ~decompressedOcc) >> 1;
+                }
             }
             left |= right;  // combine left and right
             localmoves = left; 

@@ -65,7 +65,7 @@ std::string Move2Str(const Move &move)
 	tmp += rows.at(j);
 	if (move.promotion)
 	{
-		tmp += types.at(move.convertTo);
+		tmp += types.at(move.convertTo+1);
 	}
 	return tmp;
 }
