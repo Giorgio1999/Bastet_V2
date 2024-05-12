@@ -202,10 +202,12 @@ void GetPseudoLegalRookMoves(const Engine &engine, const bitboard &rookPieceBoar
     auto color = engine.board.whiteToMove;
     bitboard thisBoard = engine.board.colorBoards[!color];
     bitboard otherBoard = engine.board.colorBoards[color];
+    bitboard combinedBoard = thisBoard | otherBoard;
     bitboard rookBoard = rookPieceBoard;
 
     auto from = 0;
     auto to = 0;
+    bitboard attacks = 0;
     while (rookBoard > 0)
     {
         from = PopLsb(rookBoard);
@@ -237,33 +239,12 @@ void GetPseudoLegalRookMoves(const Engine &engine, const bitboard &rookPieceBoar
             }
             to -= 8;
         }
-        to = from + 1;
-        while (to < 64)
+
+        attacks = (GetRankAttacks(from,combinedBoard)|GetRankAttacks(from,combinedBoard)) & ~thisBoard;
+        while (attacks>0)
         {
-            if (CheckBit(thisBoard, to) || CheckBit(fileMasks[0], to))
-            {
-                break;
-            }
-            pseudoLegalMoves.push_back(Move(from, to));
-            if (CheckBit(otherBoard, to))
-            {
-                break;
-            }
-            to++;
-        }
-        to = from - 1;
-        while (to >= 0)
-        {
-            if (CheckBit(thisBoard, to) || CheckBit(fileMasks[7], to))
-            {
-                break;
-            }
-            pseudoLegalMoves.push_back(Move(from, to));
-            if (CheckBit(otherBoard, to))
-            {
-                break;
-            }
-            to--;
+            to = PopLsb(attacks);
+            pseudoLegalMoves.push_back(Move(from,to));
         }
     }
 }
