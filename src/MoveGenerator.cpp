@@ -274,68 +274,76 @@ void GetPseudoLegalBishopMoves(const Engine &engine, const bitboard &bishopPiece
     bitboard thisBoard = engine.board.colorBoards[!color];
     bitboard otherBoard = engine.board.colorBoards[color];
     bitboard bishopBoard = bishopPieceBoard;
+    bitboard combinedBoard = thisBoard | otherBoard;
 
     auto from = 0;
     auto to = 0;
     while (bishopBoard > 0)
     {
         from = PopLsb(bishopBoard);
-        to = from + 9;
-        while (to < 64)
+        bitboard attacks = (GetDiagonalAttacks(from,combinedBoard) | GetAntiDiagonalAttacks(from,combinedBoard)) & ~thisBoard;
+        while (attacks > 0)
         {
-            if (CheckBit(fileMasks[0], to) || CheckBit(thisBoard, to))
-            {
-                break;
-            }
-            pseudoLegalMoves.push_back(Move(from, to));
-            if (CheckBit(otherBoard, to))
-            {
-                break;
-            }
-            to += 9;
+            to = PopLsb(attacks);
+            pseudoLegalMoves.push_back(Move(from,to));
         }
-        to = from + 7;
-        while (to < 64)
-        {
-            if (CheckBit(fileMasks[7], to) || CheckBit(thisBoard, to))
-            {
-                break;
-            }
-            pseudoLegalMoves.push_back(Move(from, to));
-            if (CheckBit(otherBoard, to))
-            {
-                break;
-            }
-            to += 7;
-        }
-        to = from - 9;
-        while (to >= 0)
-        {
-            if (CheckBit(fileMasks[7], to) || CheckBit(thisBoard, to))
-            {
-                break;
-            }
-            pseudoLegalMoves.push_back(Move(from, to));
-            if (CheckBit(otherBoard, to))
-            {
-                break;
-            }
-            to -= 9;
-        }
-        to = from - 7;
-        while (to >= 0)
-        {
-            if (CheckBit(fileMasks[0], to) || CheckBit(thisBoard, to))
-            {
-                break;
-            }
-            pseudoLegalMoves.push_back(Move(from, to));
-            if (CheckBit(otherBoard, to))
-            {
-                break;
-            }
-            to -= 7;
-        }
+        
+        // to = from + 9;
+        // while (to < 64)
+        // {
+        //     if (CheckBit(fileMasks[0], to) || CheckBit(thisBoard, to))
+        //     {
+        //         break;
+        //     }
+        //     pseudoLegalMoves.push_back(Move(from, to));
+        //     if (CheckBit(otherBoard, to))
+        //     {
+        //         break;
+        //     }
+        //     to += 9;
+        // }
+        // to = from + 7;
+        // while (to < 64)
+        // {
+        //     if (CheckBit(fileMasks[7], to) || CheckBit(thisBoard, to))
+        //     {
+        //         break;
+        //     }
+        //     pseudoLegalMoves.push_back(Move(from, to));
+        //     if (CheckBit(otherBoard, to))
+        //     {
+        //         break;
+        //     }
+        //     to += 7;
+        // }
+        // to = from - 9;
+        // while (to >= 0)
+        // {
+        //     if (CheckBit(fileMasks[7], to) || CheckBit(thisBoard, to))
+        //     {
+        //         break;
+        //     }
+        //     pseudoLegalMoves.push_back(Move(from, to));
+        //     if (CheckBit(otherBoard, to))
+        //     {
+        //         break;
+        //     }
+        //     to -= 9;
+        // }
+        // to = from - 7;
+        // while (to >= 0)
+        // {
+        //     if (CheckBit(fileMasks[0], to) || CheckBit(thisBoard, to))
+        //     {
+        //         break;
+        //     }
+        //     pseudoLegalMoves.push_back(Move(from, to));
+        //     if (CheckBit(otherBoard, to))
+        //     {
+        //         break;
+        //     }
+        //     to -= 7;
+        // }
     }
 }
 
@@ -509,6 +517,30 @@ bool MoveGenerator::IsSquareAttacked(const Engine &engine, const Coord &square, 
     return IsSquareAttacked(engine, square.y * 8 + square.x, attackingColor);
 }
 
+bitboard GetDiagonalAttacks(const int& index,const bitboard& occ){
+    // PrintBitBoard(occ);
+    // PrintBitBoard(diagonalAttackMasks[index]);
+    // PrintBitBoard(fileMasks[1]);
+    // PrintBitBoard(occ & diagonalAttackMasks[index]);
+    bitboard compressedOcc = ((occ & diagonalAttackMasks[index]) * fileMasks[1]) >> 58;
+    // PrintBitBoard(compressedOcc);
+    // PrintBitBoard(fillUpAttacks[index&7][compressedOcc]);
+    // PrintBitBoard(fillUpAttacks[index&7][compressedOcc] & diagonalAttackMasks[index]);
+    return fillUpAttacks[index&7][compressedOcc] & diagonalAttackMasks[index];
+}
+
+bitboard GetAntiDiagonalAttacks(const int& index, const bitboard& occ){
+    // PrintBitBoard(occ);
+    // PrintBitBoard(antiDiagonalAttackMasks[index]);
+    // PrintBitBoard(fileMasks[1]);
+    // PrintBitBoard(occ & antiDiagonalAttackMasks[index]);
+    bitboard compressedOcc = ((occ & antiDiagonalAttackMasks[index])*fileMasks[1])>>58;
+    // PrintBitBoard(compressedOcc);
+    // PrintBitBoard(fillUpAttacks[index&7][compressedOcc]);
+    // PrintBitBoard(fillUpAttacks[index&7][compressedOcc] & antiDiagonalAttackMasks[index]);
+    return fillUpAttacks[index&7][compressedOcc] & antiDiagonalAttackMasks[index];
+}
+
 void MoveGenerator::PreComputeMoves()
 {
     PreComputeKingMoves();
@@ -563,16 +595,22 @@ void PreComputeFillUpAttacks()
     {
         for (bitboard occ = 0; occ < 64; occ++) // loop over all 64 blocker configurations (blockers on the border do not count)
         {
-            bitboard left = 1 << (file + 1);    // left rank direction
-            bitboard right = 1 << (file - 1);   // right rank direction
+            bitboard left = 0;
+            bitboard right = 0;
             bitboard decompressedOcc = occ << 1;    // get 8 bit occupation
-            for (auto shift = 0; shift < 7 - file; shift++) // loop till the end of the rank
-            {
-                left |= (left & ~decompressedOcc) << 1; // kind of flood fill; tries to push bits onto squares but if blocker is on square, no bits can pass the blocker
+            if(file <7){
+                left = 1 << (file + 1);    // left rank direction
+                for (auto shift = 0; shift < 6 - file; shift++) // loop till the end of the rank
+                {
+                    left |= (left & ~decompressedOcc) << 1; // kind of flood fill; tries to push bits onto squares but if blocker is on square, no bits can pass the blocker
+                }
             }
-            for (auto shift = 0; shift < file; shift++)
-            {
-                right |= (right & ~decompressedOcc) >> 1;
+            if(file >0){
+                right = 1 << (file - 1);   // right rank direction
+                for (auto shift = 0; shift < file; shift++)
+                {
+                    right |= (right & ~decompressedOcc) >> 1;
+                }
             }
             left |= right;  // combine left and right
             localmoves = left; 

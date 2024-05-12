@@ -193,5 +193,4 @@ void EngineController::Bench(){
 	auto fullEnd = std::chrono::high_resolution_clock::now();
 	float duration = std::chrono::duration_cast<std::chrono::seconds>(fullEnd - fullStart).count();
 	std::cout << std::to_string(nodesVisited) << " nodes " << std::to_string((int)(nodesVisited/duration)) << " nps" << std::endl;
-	// std::cout << std::to_string(nodesVisited/duration) << " nps" << std::endl;
 }

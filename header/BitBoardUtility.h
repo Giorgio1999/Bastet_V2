@@ -10,6 +10,8 @@ const bitboard ONE = (bitboard)1;
 const bitboard ZERO = (bitboard)0;
 extern bitboard fileMasks[8];
 extern bitboard rankMasks[8];
+extern bitboard diagonalAttackMasks[64];
+extern bitboard antiDiagonalAttackMasks[64];
 
 int BitScanForwards(const bitboard &value); // returns index of least significant bit
 
