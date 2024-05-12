@@ -281,69 +281,69 @@ void GetPseudoLegalBishopMoves(const Engine &engine, const bitboard &bishopPiece
     while (bishopBoard > 0)
     {
         from = PopLsb(bishopBoard);
-        // bitboard attacks = (GetDiagonalAttacks(from,combinedBoard) | GetAntiDiagonalAttacks(from,combinedBoard)) & ~thisBoard;
-        // while (attacks > 0)
-        // {
-        //     to = PopLsb(attacks);
-        //     pseudoLegalMoves.push_back(Move(from,to));
-        // }
+        bitboard attacks = (GetDiagonalAttacks(from,combinedBoard) | GetAntiDiagonalAttacks(from,combinedBoard)) & ~thisBoard;
+        while (attacks > 0)
+        {
+            to = PopLsb(attacks);
+            pseudoLegalMoves.push_back(Move(from,to));
+        }
         
-        to = from + 9;
-        while (to < 64)
-        {
-            if (CheckBit(fileMasks[0], to) || CheckBit(thisBoard, to))
-            {
-                break;
-            }
-            pseudoLegalMoves.push_back(Move(from, to));
-            if (CheckBit(otherBoard, to))
-            {
-                break;
-            }
-            to += 9;
-        }
-        to = from + 7;
-        while (to < 64)
-        {
-            if (CheckBit(fileMasks[7], to) || CheckBit(thisBoard, to))
-            {
-                break;
-            }
-            pseudoLegalMoves.push_back(Move(from, to));
-            if (CheckBit(otherBoard, to))
-            {
-                break;
-            }
-            to += 7;
-        }
-        to = from - 9;
-        while (to >= 0)
-        {
-            if (CheckBit(fileMasks[7], to) || CheckBit(thisBoard, to))
-            {
-                break;
-            }
-            pseudoLegalMoves.push_back(Move(from, to));
-            if (CheckBit(otherBoard, to))
-            {
-                break;
-            }
-            to -= 9;
-        }
-        to = from - 7;
-        while (to >= 0)
-        {
-            if (CheckBit(fileMasks[0], to) || CheckBit(thisBoard, to))
-            {
-                break;
-            }
-            pseudoLegalMoves.push_back(Move(from, to));
-            if (CheckBit(otherBoard, to))
-            {
-                break;
-            }
-            to -= 7;
-        }
+    //     to = from + 9;
+    //     while (to < 64)
+    //     {
+    //         if (CheckBit(fileMasks[0], to) || CheckBit(thisBoard, to))
+    //         {
+    //             break;
+    //         }
+    //         pseudoLegalMoves.push_back(Move(from, to));
+    //         if (CheckBit(otherBoard, to))
+    //         {
+    //             break;
+    //         }
+    //         to += 9;
+    //     }
+    //     to = from + 7;
+    //     while (to < 64)
+    //     {
+    //         if (CheckBit(fileMasks[7], to) || CheckBit(thisBoard, to))
+    //         {
+    //             break;
+    //         }
+    //         pseudoLegalMoves.push_back(Move(from, to));
+    //         if (CheckBit(otherBoard, to))
+    //         {
+    //             break;
+    //         }
+    //         to += 7;
+    //     }
+    //     to = from - 9;
+    //     while (to >= 0)
+    //     {
+    //         if (CheckBit(fileMasks[7], to) || CheckBit(thisBoard, to))
+    //         {
+    //             break;
+    //         }
+    //         pseudoLegalMoves.push_back(Move(from, to));
+    //         if (CheckBit(otherBoard, to))
+    //         {
+    //             break;
+    //         }
+    //         to -= 9;
+    //     }
+    //     to = from - 7;
+    //     while (to >= 0)
+    //     {
+    //         if (CheckBit(fileMasks[0], to) || CheckBit(thisBoard, to))
+    //         {
+    //             break;
+    //         }
+    //         pseudoLegalMoves.push_back(Move(from, to));
+    //         if (CheckBit(otherBoard, to))
+    //         {
+    //             break;
+    //         }
+    //         to -= 7;
+    //     }
     }
 }
 

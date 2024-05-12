@@ -1,1 +1,2 @@
-v0.9a vs v0.8: 0.281 % +/- 5.411 
+#version1,version2,mu/%,3sigma/%,bench/nps
+v0.9a,v0.8,0.281,5.411,16175206 
