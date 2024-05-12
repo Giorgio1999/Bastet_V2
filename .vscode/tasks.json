@@ -3,13 +3,13 @@
     "tasks": [
         {
             "type": "shell",
-            "label": "build project",
-            "command": "make",
+            "label": "build debug project",
+            "command": "make Bastet_Debug",
             "group": {
                 "kind": "build",
                 "isDefault": true
             },
-            "detail": "make"
+            "detail": "make Bastet_Debug"
         },
         {
             "type": "shell",

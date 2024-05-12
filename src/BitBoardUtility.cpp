@@ -7,6 +7,8 @@
 
 bitboard fileMasks[8];
 bitboard rankMasks[8];
+bitboard diagonalAttackMasks[64];
+bitboard antiDiagonalAttackMasks[64];
 
 int BitScanForwards(const bitboard &value)
 {
@@ -100,4 +102,27 @@ void ComputeMasks()
 		fileMasks[i] = fileMasks[0] << i;
 		rankMasks[i] = rankMasks[0] >> 8 * i;
 	}
+
+	for(auto index = 0;index<64;index+=9){
+		diagonalAttackMasks[index] = 0x8040201008040201;
+		for(auto i = 1; i < 8 - (index&7);i++){
+			diagonalAttackMasks[index+i] = (diagonalAttackMasks[index+i-1] & ~fileMasks[7]) << 1;
+		}
+		for(auto i=-1;i>=-(index&7);i--){
+			diagonalAttackMasks[index+i] = (diagonalAttackMasks[index+i+1] & ~fileMasks[0]) >> 1;
+		}
+	}
+
+	for(auto index = 7;index<50;index+=7){
+		antiDiagonalAttackMasks[index] = 0x0102040810204080;
+		for(auto i=	1;i<8-(index&7);i++){
+			antiDiagonalAttackMasks[index+i] = (antiDiagonalAttackMasks[index+i-1] & ~fileMasks[7]) << 1;
+		}
+		for(auto i=-1;i>=-(index&7);i--){
+			antiDiagonalAttackMasks[index+i] = (antiDiagonalAttackMasks[index+i+1] & ~fileMasks[0]) >> 1; 
+		}
+	}
+	// for(auto index =0;index<64;index++){
+	// 	PrintBitBoard(antiDiagonalAttackMasks[index]);
+	// }
 }

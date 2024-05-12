@@ -274,68 +274,76 @@ void GetPseudoLegalBishopMoves(const Engine &engine, const bitboard &bishopPiece
     bitboard thisBoard = engine.board.colorBoards[!color];
     bitboard otherBoard = engine.board.colorBoards[color];
     bitboard bishopBoard = bishopPieceBoard;
+    bitboard combinedBoard = thisBoard | otherBoard;
 
     auto from = 0;
     auto to = 0;
     while (bishopBoard > 0)
     {
         from = PopLsb(bishopBoard);
-        to = from + 9;
-        while (to < 64)
+        bitboard attacks = (GetDiagonalAttacks(from,combinedBoard) | GetAntiDiagonalAttacks(from,combinedBoard)) & ~thisBoard;
+        while (attacks > 0)
         {
-            if (CheckBit(fileMasks[0], to) || CheckBit(thisBoard, to))
-            {
-                break;
-            }
-            pseudoLegalMoves.push_back(Move(from, to));
-            if (CheckBit(otherBoard, to))
-            {
-                break;
-            }
-            to += 9;
+            to = PopLsb(attacks);
+            pseudoLegalMoves.push_back(Move(from,to));
         }
-        to = from + 7;
-        while (to < 64)
-        {
-            if (CheckBit(fileMasks[7], to) || CheckBit(thisBoard, to))
-            {
-                break;
-            }
-            pseudoLegalMoves.push_back(Move(from, to));
-            if (CheckBit(otherBoard, to))
-            {
-                break;
-            }
-            to += 7;
-        }
-        to = from - 9;
-        while (to >= 0)
-        {
-            if (CheckBit(fileMasks[7], to) || CheckBit(thisBoard, to))
-            {
-                break;
-            }
-            pseudoLegalMoves.push_back(Move(from, to));
-            if (CheckBit(otherBoard, to))
-            {
-                break;
-            }
-            to -= 9;
-        }
-        to = from - 7;
-        while (to >= 0)
-        {
-            if (CheckBit(fileMasks[0], to) || CheckBit(thisBoard, to))
-            {
-                break;
-            }
-            pseudoLegalMoves.push_back(Move(from, to));
-            if (CheckBit(otherBoard, to))
-            {
-                break;
-            }
-            to -= 7;
-        }
+        
+        // to = from + 9;
+        // while (to < 64)
+        // {
+        //     if (CheckBit(fileMasks[0], to) || CheckBit(thisBoard, to))
+        //     {
+        //         break;
+        //     }
+        //     pseudoLegalMoves.push_back(Move(from, to));
+        //     if (CheckBit(otherBoard, to))
+        //     {
+        //         break;
+        //     }
+        //     to += 9;
+        // }
+        // to = from + 7;
+        // while (to < 64)
+        // {
+        //     if (CheckBit(fileMasks[7], to) || CheckBit(thisBoard, to))
+        //     {
+        //         break;
+        //     }
+        //     pseudoLegalMoves.push_back(Move(from, to));
+        //     if (CheckBit(otherBoard, to))
+        //     {
+        //         break;
+        //     }
+        //     to += 7;
+        // }
+        // to = from - 9;
+        // while (to >= 0)
+        // {
+        //     if (CheckBit(fileMasks[7], to) || CheckBit(thisBoard, to))
+        //     {
+        //         break;
+        //     }
+        //     pseudoLegalMoves.push_back(Move(from, to));
+        //     if (CheckBit(otherBoard, to))
+        //     {
+        //         break;
+        //     }
+        //     to -= 9;
+        // }
+        // to = from - 7;
+        // while (to >= 0)
+        // {
+        //     if (CheckBit(fileMasks[0], to) || CheckBit(thisBoard, to))
+        //     {
+        //         break;
+        //     }
+        //     pseudoLegalMoves.push_back(Move(from, to));
+        //     if (CheckBit(otherBoard, to))
+        //     {
+        //         break;
+        //     }
+        //     to -= 7;
+        // }
     }
 }
 
@@ -507,6 +515,16 @@ bool MoveGenerator::IsSquareAttacked(const Engine &engine, const int &index, con
 bool MoveGenerator::IsSquareAttacked(const Engine &engine, const Coord &square, const bool &attackingColor)
 {
     return IsSquareAttacked(engine, square.y * 8 + square.x, attackingColor);
+}
+
+bitboard GetDiagonalAttacks(const int& index,const bitboard& occ){
+    bitboard compressedOcc = ((occ & diagonalAttackMasks[index]) * fileMasks[1]) >> 58;
+    return fillUpAttacks[index&7][compressedOcc] & diagonalAttackMasks[index];
+}
+
+bitboard GetAntiDiagonalAttacks(const int& index, const bitboard& occ){
+    bitboard compressedOcc = ((occ & antiDiagonalAttackMasks[index])*fileMasks[1])>>58;
+    return fillUpAttacks[index&7][compressedOcc] & antiDiagonalAttackMasks[index];
 }
 
 void MoveGenerator::PreComputeMoves()
