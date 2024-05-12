@@ -14,7 +14,7 @@ $(DEBUGTARGT): $(DEBUGOBJS)
 	$(CXX) $(DEBUGCXXFLAGS) -o $@ $^ 
 
 $(TARGET): $(OBJS)
-	$(CXX) $(CXXFLAGS) -o $@ $^
+	$(CXX) $(CXXFLAGS) -o build/$@ $^
 
 
 obj/%.o: src/%.cpp $(HEADERS)
