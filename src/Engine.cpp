@@ -17,7 +17,6 @@ Engine::Engine()
 void Engine::Boot(){
 	ComputeMasks();
 	MoveGenerator::PreComputeMoves();
-	PrintBitBoard(fillUpAttacks[0][1]);
 }
 
 void Engine::NewGame()
