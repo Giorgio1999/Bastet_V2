@@ -25,5 +25,5 @@ obj/%_Debug.o: src/%.cpp $(HEADERS)
 	$(CXX) $(DEBUGCXXFLAGS) -c -o $@ $<
 
 clean:
-	rm $(TARGET)
+	rm $(TARGET)*
 	rm obj/*.o
