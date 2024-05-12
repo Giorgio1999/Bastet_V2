@@ -388,6 +388,12 @@ bitboard GetRankAttacks(const int& index, const bitboard& occ){
     return fillUpAttacks[index&7][compressedOcc] & rankAttackMasks[index];
 }
 
+bitboard GetFileAttacks(const int&index,const bitboard& occ){
+    bitboard compressedOcc = fileMasks[0] & (occ >> (index&7));
+    compressedOcc = ((antiDiagonalAttackMasks[1] & ~fileMasks[1])*occ) >> 58;
+    return aFileAttacks[index>>3][occ] << (index&7);
+}
+
 void MoveGenerator::PreComputeMoves()
 {
     PreComputeKingMoves();
@@ -493,5 +499,4 @@ void PreComputeAFileAttacks(){
             aFileAttacks[rank][occ] = up;            
         }
     }
-    PrintBitBoard(aFileAttacks[1][0b000100]);
 }

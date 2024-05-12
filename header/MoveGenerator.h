@@ -30,6 +30,7 @@ void PreComputeAFileAttacks();
 bitboard GetDiagonalAttacks(const int &index, const bitboard &occ);
 bitboard GetAntiDiagonalAttacks(const int &index, const bitboard &occ);
 bitboard GetRankAttacks(const int &index, const bitboard &occ);
+bitboard GetFileAttacks(const int & index,const bitboard &occ);
 
 void GetPseudoLegalPawnMoves(const Engine &engine, std::vector<Move> &pseudoLegalMoves);
 void GetPseudoLegalKnightMoves(const Engine &engine, std::vector<Move> &pseudoLegalMoves);
