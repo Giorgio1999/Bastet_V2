@@ -12,6 +12,7 @@ bitboard knightMoves[64];
 bitboard kingMoves[64];
 bitboard pawnAttacks[2][2][64];
 bitboard fillUpAttacks[8][64];
+bitboard aFileAttacks[8][64];
 
 void MoveGenerator::GetPseudoLegalMoves(const Engine &engine, std::vector<Move> &pseudoLegalMoves)
 {
@@ -364,33 +365,6 @@ bool MoveGenerator::IsSquareAttacked(const Engine &engine, const int &index, con
         return true;
     }
 
-    // increment = index + 1;
-    // while (increment < 64)
-    // {
-    //     if (CheckBit(horAndVertBlockerBoard, increment) || CheckBit(fileMasks[0], increment))
-    //     {
-    //         break;
-    //     }
-    //     if (CheckBit(horAndVertSliderBoard, increment))
-    //     {
-    //         return true;
-    //     }
-    //     increment++;
-    // }
-    // increment = index - 1;
-    // while (increment >= 0)
-    // {
-    //     if (CheckBit(horAndVertBlockerBoard, increment) || CheckBit(fileMasks[7], increment))
-    //     {
-    //         break;
-    //     }
-    //     if (CheckBit(horAndVertSliderBoard, increment))
-    //     {
-    //         return true;
-    //     }
-    //     increment--;
-    // }
-
     return false;
 }
 
@@ -420,6 +394,7 @@ void MoveGenerator::PreComputeMoves()
     PreComputeKnightMoves();
     PreComputePawnAttacks();
     PreComputeFillUpAttacks();
+    PreComputeAFileAttacks();
 }
 
 void PreComputeKnightMoves()
@@ -491,4 +466,32 @@ void PreComputeFillUpAttacks()
             fillUpAttacks[file][occ] = localmoves; 
         }
     }
+}
+
+void PreComputeAFileAttacks(){
+    for(auto rank = 0; rank<8;rank++){
+        for(bitboard occ = 0;occ<64;occ++){
+            bitboard up = 0;
+            bitboard down = 0;
+            bitboard decompressedOcc = 0;
+            for(auto i=1;i<8;i++){
+                decompressedOcc |= (occ & fileMasks[i-1]) << (i*8-(i-1));
+            }
+            if(rank < 7){
+                up = 1 << (rank+1)*8;
+                for(auto shift = 0; shift < 6-rank;shift++){
+                    up |= (up & ~decompressedOcc) << 8;
+                }
+            }
+            if(rank>0){
+                down = 1 << (rank-1)*8;
+                for(auto shift = 0;shift < rank;shift++){
+                    down |= (down & ~decompressedOcc) >> 8;
+                }
+            }
+            up |= down;
+            aFileAttacks[rank][occ] = up;            
+        }
+    }
+    PrintBitBoard(aFileAttacks[1][0b000100]);
 }
