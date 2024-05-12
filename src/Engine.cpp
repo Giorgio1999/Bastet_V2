@@ -10,52 +10,84 @@
 // This is the engine class implementation
 Engine::Engine()
 {
-	board = Board();
+	if(gameHistory.size()>0){
+		gameHistory.at(0) = Board();
+	}
+	else{
+		gameHistory.push_back(Board());
+	}
+	gameHistoryIndex = 0;
 	stopFlag = false;
 }
 
-void Engine::Boot(){
+void Engine::Boot()
+{
 	ComputeMasks();
 	MoveGenerator::PreComputeMoves();
 }
 
 void Engine::NewGame()
 {
-	board.Clear();
+	if (gameHistory.size() > 0)
+	{
+		gameHistory.at(0).Clear();
+	}
+	else
+	{
+		gameHistory.push_back(Board());
+	}
+	gameHistoryIndex = 0;
 }
 
 void Engine::SetBoard(const Board &newBoard)
 {
-	board = newBoard;
-	board.UpdateColorBoards();
-	board.InitialiseKingIndices();
+	if (gameHistory.size() > 0)
+	{
+		gameHistory.at(0) = newBoard;
+	}
+	else
+	{
+		gameHistory.push_back(newBoard);
+	}
+	gameHistory.at(0).UpdateColorBoards();
+	gameHistory.at(0).InitialiseKingIndices();
 }
 
 void Engine::MakeMove(const Move &move)
 {
-	gameHistory.push_back(board);
-	board.MakeMove(move);
+	if(gameHistory.size()>gameHistoryIndex+1){
+		gameHistory.at(gameHistoryIndex + 1) = gameHistory.at(gameHistoryIndex);
+	}
+	else{
+		gameHistory.push_back(gameHistory.at(gameHistoryIndex));
+	}
+	gameHistory[gameHistoryIndex + 1].MakeMove(move);
+	gameHistoryIndex++;
 }
 
-void Engine::CopyMake(const Move&move){
-	Board newBoard = board;
-	newBoard.MakeMove(move);
-}
-
-void Engine::MakeSimpleMove(const Move& move){
-	gameHistory.push_back(board);
-	board.MakeSimpleMove(move);
+void Engine::MakeSimpleMove(const Move &move)
+{
+	if(gameHistory.size()>gameHistoryIndex+1){
+		gameHistory.at(gameHistoryIndex + 1) = gameHistory.at(gameHistoryIndex);
+	}
+	else{
+		gameHistory.push_back(gameHistory.at(gameHistoryIndex));
+	}
+	gameHistory[gameHistoryIndex + 1].MakeSimpleMove(move);
+	gameHistoryIndex++;
 }
 
 void Engine::UndoLastMove()
 {
-	board = gameHistory.back();
-	gameHistory.pop_back();
+	gameHistoryIndex--;
 }
 
 std::string Engine::ShowBoard()
 {
-	return board.ShowBoard();
+	if(gameHistory.size()>0){
+		return gameHistory.at(0).ShowBoard();
+	}
+	return "";
 }
 
 void Engine::GetPseudoLegalMoves(std::vector<Move> &pseudoLegalMoves)
@@ -91,7 +123,8 @@ int Engine::Perft(const int &depth)
 	for (const auto &current : legalMoves)
 	{
 		MakeMove(current);
-		if(!stopFlag){
+		if (!stopFlag)
+		{
 			numberOfLeafs += Perft(newDepth);
 		}
 		UndoLastMove();
