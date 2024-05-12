@@ -74,9 +74,12 @@ int Engine::Perft(const int &depth)
 {
 	std::vector<Move> legalMoves;
 	GetLegalMoves(legalMoves);
-	if (depth == 1)
-	{
-		return legalMoves.size();
+	// if (depth == 1)
+	// {
+	// 	return legalMoves.size();
+	// }
+	if(depth==0){
+		return 1;
 	}
 	int numberOfLeafs = 0;
 	int newDepth = depth - 1;

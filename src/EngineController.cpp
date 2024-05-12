@@ -181,7 +181,7 @@ void EngineController::Bench(){
 	if(!isReady){
 		BootEngine();
 	}
-	auto fixedDepth = 5;
+	auto fixedDepth = 4;
 	auto fullStart = std::chrono::high_resolution_clock::now();
 	auto nodesVisited = 0;
 	for (auto i=0;i<6;i++)
