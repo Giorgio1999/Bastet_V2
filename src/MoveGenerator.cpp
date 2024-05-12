@@ -212,34 +212,41 @@ void GetPseudoLegalRookMoves(const Engine &engine, const bitboard &rookPieceBoar
     while (rookBoard > 0)
     {
         from = PopLsb(rookBoard);
-        to = from + 8;
-        while (to < 64)
+        attacks = GetFileAttacks(from,combinedBoard) & ~thisBoard;
+        while (attacks>0)
         {
-            if (CheckBit(thisBoard, to))
-            {
-                break;
-            }
-            pseudoLegalMoves.push_back(Move(from, to));
-            if (CheckBit(otherBoard, to))
-            {
-                break;
-            }
-            to += 8;
+            to = PopLsb(attacks);
+            pseudoLegalMoves.push_back(Move(from,to));
         }
-        to = from - 8;
-        while (to >= 0)
-        {
-            if (CheckBit(thisBoard, to))
-            {
-                break;
-            }
-            pseudoLegalMoves.push_back(Move(from, to));
-            if (CheckBit(otherBoard, to))
-            {
-                break;
-            }
-            to -= 8;
-        }
+        
+        // to = from + 8;
+        // while (to < 64)
+        // {
+        //     if (CheckBit(thisBoard, to))
+        //     {
+        //         break;
+        //     }
+        //     pseudoLegalMoves.push_back(Move(from, to));
+        //     if (CheckBit(otherBoard, to))
+        //     {
+        //         break;
+        //     }
+        //     to += 8;
+        // }
+        // to = from - 8;
+        // while (to >= 0)
+        // {
+        //     if (CheckBit(thisBoard, to))
+        //     {
+        //         break;
+        //     }
+        //     pseudoLegalMoves.push_back(Move(from, to));
+        //     if (CheckBit(otherBoard, to))
+        //     {
+        //         break;
+        //     }
+        //     to -= 8;
+        // }
 
         attacks = (GetRankAttacks(from,combinedBoard)|GetRankAttacks(from,combinedBoard)) & ~thisBoard;
         while (attacks>0)
@@ -389,9 +396,10 @@ bitboard GetRankAttacks(const int& index, const bitboard& occ){
 }
 
 bitboard GetFileAttacks(const int&index,const bitboard& occ){
+    const bitboard antiDiac7h2 = 0x0204081020408000;
     bitboard compressedOcc = fileMasks[0] & (occ >> (index&7));
-    compressedOcc = ((antiDiagonalAttackMasks[1] & ~fileMasks[1])*occ) >> 58;
-    return aFileAttacks[index>>3][occ] << (index&7);
+    compressedOcc = (antiDiac7h2*compressedOcc) >> 58;
+    return aFileAttacks[index>>3][compressedOcc] << (index&7);
 }
 
 void MoveGenerator::PreComputeMoves()
@@ -484,13 +492,13 @@ void PreComputeAFileAttacks(){
                 decompressedOcc |= (occ & fileMasks[i-1]) << (i*8-(i-1));
             }
             if(rank < 7){
-                up = 1 << (rank+1)*8;
+                up = ONE << (rank+1)*8;
                 for(auto shift = 0; shift < 6-rank;shift++){
                     up |= (up & ~decompressedOcc) << 8;
                 }
             }
             if(rank>0){
-                down = 1 << (rank-1)*8;
+                down = ONE << (rank-1)*8;
                 for(auto shift = 0;shift < rank;shift++){
                     down |= (down & ~decompressedOcc) >> 8;
                 }
