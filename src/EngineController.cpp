@@ -181,12 +181,12 @@ void EngineController::Bench(){
 	if(!isReady){
 		BootEngine();
 	}
-	auto fixedDepth = 5;
+	auto fixedDepth = 4;
 	auto fullStart = std::chrono::steady_clock::now();
 	auto nodesVisited = 0;
-	for (auto i=0;i<6;i++)
+	for (uint i=0;i<benchMarkingData.size();i++)
 	{
-		std::string fen = benchMarkingData[i];
+		std::string fen = benchMarkingData.at(i);
 		engine.SetBoard(Fen2Position(fen));
 		nodesVisited += engine.Perft(fixedDepth);
 	}
