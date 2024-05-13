@@ -6,16 +6,12 @@
 #include <string>
 #include <vector>
 #include <iostream>
+#include <cstring>
 
 // This is the engine class implementation
 Engine::Engine()
 {
-	if(gameHistory.size()>0){
-		gameHistory.at(0) = Board();
-	}
-	else{
-		gameHistory.push_back(Board());
-	}
+	gameHistory[0] = Board();
 	gameHistoryIndex = 0;
 	stopFlag = false;
 }
@@ -28,51 +24,27 @@ void Engine::Boot()
 
 void Engine::NewGame()
 {
-	if (gameHistory.size() > 0)
-	{
-		gameHistory.at(0).Clear();
-	}
-	else
-	{
-		gameHistory.push_back(Board());
-	}
+	gameHistory[0] = Board();
 	gameHistoryIndex = 0;
 }
 
 void Engine::SetBoard(const Board &newBoard)
 {
-	if (gameHistory.size() > 0)
-	{
-		gameHistory.at(0) = newBoard;
-	}
-	else
-	{
-		gameHistory.push_back(newBoard);
-	}
-	gameHistory.at(0).UpdateColorBoards();
-	gameHistory.at(0).InitialiseKingIndices();
+	gameHistory[0] = newBoard;
+	gameHistory[0].UpdateColorBoards();
+	gameHistory[0].InitialiseKingIndices();
 }
 
 void Engine::MakeMove(const Move &move)
 {
-	if(gameHistory.size()>gameHistoryIndex+1){
-		gameHistory.at(gameHistoryIndex + 1) = gameHistory.at(gameHistoryIndex);
-	}
-	else{
-		gameHistory.push_back(gameHistory.at(gameHistoryIndex));
-	}
+	std::memcpy(&gameHistory[gameHistoryIndex+1],&gameHistory[gameHistoryIndex],sizeof(Board));
 	gameHistory[gameHistoryIndex + 1].MakeMove(move);
 	gameHistoryIndex++;
 }
 
 void Engine::MakeSimpleMove(const Move &move)
 {
-	if(gameHistory.size()>gameHistoryIndex+1){
-		gameHistory.at(gameHistoryIndex + 1) = gameHistory.at(gameHistoryIndex);
-	}
-	else{
-		gameHistory.push_back(gameHistory.at(gameHistoryIndex));
-	}
+	std::memcpy(&gameHistory[gameHistoryIndex+1],&gameHistory[gameHistoryIndex],sizeof(Board));
 	gameHistory[gameHistoryIndex + 1].MakeSimpleMove(move);
 	gameHistoryIndex++;
 }
@@ -84,10 +56,7 @@ void Engine::UndoLastMove()
 
 std::string Engine::ShowBoard()
 {
-	if(gameHistory.size()>0){
-		return gameHistory.at(0).ShowBoard();
-	}
-	return "";
+	return gameHistory[0].ShowBoard();
 }
 
 void Engine::GetPseudoLegalMoves(std::vector<Move> &pseudoLegalMoves)

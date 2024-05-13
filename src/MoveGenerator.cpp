@@ -16,25 +16,25 @@ bitboard aFileAttacks[8][64];
 
 void MoveGenerator::GetPseudoLegalMoves(const Engine &engine, std::vector<Move> &pseudoLegalMoves)
 {
-    auto colorIndex = engine.gameHistory.at(engine.gameHistoryIndex).whiteToMove ? 0 : 6;
+    auto colorIndex = engine.gameHistory[engine.gameHistoryIndex].whiteToMove ? 0 : 6;
     GetPseudoLegalPawnMoves(engine, pseudoLegalMoves);
     GetPseudoLegalKnightMoves(engine, pseudoLegalMoves);
     GetPseudoLegalKingMoves(engine, pseudoLegalMoves);
-    GetPseudoLegalRookMoves(engine, engine.gameHistory.at(engine.gameHistoryIndex).pieceBoards[3 + colorIndex] | engine.gameHistory.at(engine.gameHistoryIndex).pieceBoards[4 + colorIndex], pseudoLegalMoves);   // rook + queen
-    GetPseudoLegalBishopMoves(engine, engine.gameHistory.at(engine.gameHistoryIndex).pieceBoards[2 + colorIndex] | engine.gameHistory.at(engine.gameHistoryIndex).pieceBoards[4 + colorIndex], pseudoLegalMoves); // bishop + queen
+    GetPseudoLegalRookMoves(engine, engine.gameHistory[engine.gameHistoryIndex].pieceBoards[3 + colorIndex] | engine.gameHistory[engine.gameHistoryIndex].pieceBoards[4 + colorIndex], pseudoLegalMoves);   // rook + queen
+    GetPseudoLegalBishopMoves(engine, engine.gameHistory[engine.gameHistoryIndex].pieceBoards[2 + colorIndex] | engine.gameHistory[engine.gameHistoryIndex].pieceBoards[4 + colorIndex], pseudoLegalMoves); // bishop + queen
 }
 
 void GetPseudoLegalPawnMoves(const Engine &engine, std::vector<Move> &pseudoLegalMoves)
 {
-    auto color = engine.gameHistory.at(engine.gameHistoryIndex).whiteToMove;
+    auto color = engine.gameHistory[engine.gameHistoryIndex].whiteToMove;
     auto colorIndex = color ? 0 : 6;
     auto colorDirection = color ? -8 : 8;
     auto startRank = color ? 1 : 6;
     auto promotionRank = color ? 7 : 0;
-    bitboard combinedColors = ~engine.gameHistory.at(engine.gameHistoryIndex).colorBoards[color] & ~engine.gameHistory.at(engine.gameHistoryIndex).colorBoards[!color];
+    bitboard combinedColors = ~engine.gameHistory[engine.gameHistoryIndex].colorBoards[color] & ~engine.gameHistory[engine.gameHistoryIndex].colorBoards[!color];
 
     // Single Pawn pushes
-    bitboard pushes = engine.gameHistory.at(engine.gameHistoryIndex).pieceBoards[colorIndex]; // Get pawn bitboard of mover color
+    bitboard pushes = engine.gameHistory[engine.gameHistoryIndex].pieceBoards[colorIndex]; // Get pawn bitboard of mover color
     if (color)
     { // if white, push up
         pushes = pushes >> 8;
@@ -65,7 +65,7 @@ void GetPseudoLegalPawnMoves(const Engine &engine, std::vector<Move> &pseudoLega
     }
 
     // Double pawn pushes - push all pawns twice (check for blockers inbetween)
-    pushes = engine.gameHistory.at(engine.gameHistoryIndex).pieceBoards[colorIndex] & rankMasks[startRank];
+    pushes = engine.gameHistory[engine.gameHistoryIndex].pieceBoards[colorIndex] & rankMasks[startRank];
     if (color)
     { // if white push up
         pushes = ((pushes >> 8) & combinedColors) >> 8;
@@ -82,14 +82,14 @@ void GetPseudoLegalPawnMoves(const Engine &engine, std::vector<Move> &pseudoLega
     }
 
     // // Pawn Captures
-    bitboard pawnBoard = engine.gameHistory.at(engine.gameHistoryIndex).pieceBoards[colorIndex];
+    bitboard pawnBoard = engine.gameHistory[engine.gameHistoryIndex].pieceBoards[colorIndex];
     auto from = 0;
     while (pawnBoard > 0)
     {
         from = PopLsb(pawnBoard);
         for (auto j = 0; j < 2; j++)
         {
-            bitboard captures = pawnAttacks[!color][j][from] & (engine.gameHistory.at(engine.gameHistoryIndex).colorBoards[color] | engine.gameHistory.at(engine.gameHistoryIndex).ghostBoard);
+            bitboard captures = pawnAttacks[!color][j][from] & (engine.gameHistory[engine.gameHistoryIndex].colorBoards[color] | engine.gameHistory[engine.gameHistoryIndex].ghostBoard);
             if (captures > 0)
             {
                 to = PopLsb(captures);
@@ -114,10 +114,10 @@ void GetPseudoLegalPawnMoves(const Engine &engine, std::vector<Move> &pseudoLega
 
 void GetPseudoLegalKnightMoves(const Engine &engine, std::vector<Move> &pseudoLegalMoves)
 {
-    auto color = engine.gameHistory.at(engine.gameHistoryIndex).whiteToMove;
+    auto color = engine.gameHistory[engine.gameHistoryIndex].whiteToMove;
     auto colorIndex = color ? 0 : 6;
-    bitboard thisBoard = ~engine.gameHistory.at(engine.gameHistoryIndex).colorBoards[!color]; //  ~friendly blockers
-    bitboard knights = engine.gameHistory.at(engine.gameHistoryIndex).pieceBoards[1 + colorIndex];
+    bitboard thisBoard = ~engine.gameHistory[engine.gameHistoryIndex].colorBoards[!color]; //  ~friendly blockers
+    bitboard knights = engine.gameHistory[engine.gameHistoryIndex].pieceBoards[1 + colorIndex];
     bitboard attacks = ZERO;
     auto from = 0;
     auto to = 0;
@@ -135,13 +135,13 @@ void GetPseudoLegalKnightMoves(const Engine &engine, std::vector<Move> &pseudoLe
 
 void GetPseudoLegalKingMoves(const Engine &engine, std::vector<Move> &pseudoLegalMoves)
 {
-    auto color = engine.gameHistory.at(engine.gameHistoryIndex).whiteToMove;
-    int kingIndex = engine.gameHistory.at(engine.gameHistoryIndex).kingIndices[!color];
+    auto color = engine.gameHistory[engine.gameHistoryIndex].whiteToMove;
+    int kingIndex = engine.gameHistory[engine.gameHistoryIndex].kingIndices[!color];
     auto castleColorIndex = color ? 0 : 2;                                               // to obtain colored castling rules
-    bitboard combinedColors = engine.gameHistory.at(engine.gameHistoryIndex).colorBoards[0] | engine.gameHistory.at(engine.gameHistoryIndex).colorBoards[1]; // | engine.gameHistory.at(engine.gameHistoryIndex).attackBoard; // Bitboard with both friendly and unfriendly blockers and attacked squares for castling
+    bitboard combinedColors = engine.gameHistory[engine.gameHistoryIndex].colorBoards[0] | engine.gameHistory[engine.gameHistoryIndex].colorBoards[1]; // | engine.gameHistory[engine.gameHistoryIndex].attackBoard; // Bitboard with both friendly and unfriendly blockers and attacked squares for castling
 
     // normal king moves
-    bitboard attacks = kingMoves[kingIndex] & ~engine.gameHistory.at(engine.gameHistoryIndex).colorBoards[!color];
+    bitboard attacks = kingMoves[kingIndex] & ~engine.gameHistory[engine.gameHistoryIndex].colorBoards[!color];
     auto to = 0;
     while (attacks > 0)
     {
@@ -157,7 +157,7 @@ void GetPseudoLegalKingMoves(const Engine &engine, std::vector<Move> &pseudoLega
     auto kingSideCastleTarget = color ? 62 : 6;
     auto queenSideCastleTarget = color ? 58 : 2;
     auto index = 0;
-    if (kingsideOccupation == 0 && engine.gameHistory.at(engine.gameHistoryIndex).castlingRights[castleColorIndex])
+    if (kingsideOccupation == 0 && engine.gameHistory[engine.gameHistoryIndex].castlingRights[castleColorIndex])
     {
         auto canCastle = true;
         index = 0;
@@ -175,7 +175,7 @@ void GetPseudoLegalKingMoves(const Engine &engine, std::vector<Move> &pseudoLega
             pseudoLegalMoves.push_back(Move(kingIndex, kingSideCastleTarget));
         }
     }
-    if (queenSideOccupation == 0 && engine.gameHistory.at(engine.gameHistoryIndex).castlingRights[castleColorIndex + 1])
+    if (queenSideOccupation == 0 && engine.gameHistory[engine.gameHistoryIndex].castlingRights[castleColorIndex + 1])
     {
         index = 0;
         auto canCastle = true;
@@ -200,9 +200,9 @@ void GetPseudoLegalKingMoves(const Engine &engine, std::vector<Move> &pseudoLega
 
 void GetPseudoLegalRookMoves(const Engine &engine, const bitboard &rookPieceBoard, std::vector<Move> &pseudoLegalMoves)
 {
-    auto color = engine.gameHistory.at(engine.gameHistoryIndex).whiteToMove;
-    bitboard thisBoard = engine.gameHistory.at(engine.gameHistoryIndex).colorBoards[!color];
-    bitboard otherBoard = engine.gameHistory.at(engine.gameHistoryIndex).colorBoards[color];
+    auto color = engine.gameHistory[engine.gameHistoryIndex].whiteToMove;
+    bitboard thisBoard = engine.gameHistory[engine.gameHistoryIndex].colorBoards[!color];
+    bitboard otherBoard = engine.gameHistory[engine.gameHistoryIndex].colorBoards[color];
     bitboard combinedBoard = thisBoard | otherBoard;
     bitboard rookBoard = rookPieceBoard;
 
@@ -230,9 +230,9 @@ void GetPseudoLegalRookMoves(const Engine &engine, const bitboard &rookPieceBoar
 
 void GetPseudoLegalBishopMoves(const Engine &engine, const bitboard &bishopPieceBoard, std::vector<Move> &pseudoLegalMoves)
 {
-    auto color = engine.gameHistory.at(engine.gameHistoryIndex).whiteToMove;
-    bitboard thisBoard = engine.gameHistory.at(engine.gameHistoryIndex).colorBoards[!color];
-    bitboard otherBoard = engine.gameHistory.at(engine.gameHistoryIndex).colorBoards[color];
+    auto color = engine.gameHistory[engine.gameHistoryIndex].whiteToMove;
+    bitboard thisBoard = engine.gameHistory[engine.gameHistoryIndex].colorBoards[!color];
+    bitboard otherBoard = engine.gameHistory[engine.gameHistoryIndex].colorBoards[color];
     bitboard bishopBoard = bishopPieceBoard;
     bitboard combinedBoard = thisBoard | otherBoard;
 
@@ -252,18 +252,18 @@ void GetPseudoLegalBishopMoves(const Engine &engine, const bitboard &bishopPiece
 
 void MoveGenerator::GetLegalMoves(Engine &engine, std::vector<Move> &legalmoves)
 {
-    auto color = engine.gameHistory.at(engine.gameHistoryIndex).whiteToMove;
+    auto color = engine.gameHistory[engine.gameHistoryIndex].whiteToMove;
     auto colorIndex = color ? 0 : 6;
     std::vector<Move> pseudoLegalMoves;
     GetPseudoLegalPawnMoves(engine, pseudoLegalMoves);
     GetPseudoLegalKnightMoves(engine, pseudoLegalMoves);
-    GetPseudoLegalRookMoves(engine, engine.gameHistory.at(engine.gameHistoryIndex).pieceBoards[3 + colorIndex] | engine.gameHistory.at(engine.gameHistoryIndex).pieceBoards[4 + colorIndex], pseudoLegalMoves);
-    GetPseudoLegalBishopMoves(engine, engine.gameHistory.at(engine.gameHistoryIndex).pieceBoards[2 + colorIndex] | engine.gameHistory.at(engine.gameHistoryIndex).pieceBoards[4 + colorIndex], pseudoLegalMoves);
+    GetPseudoLegalRookMoves(engine, engine.gameHistory[engine.gameHistoryIndex].pieceBoards[3 + colorIndex] | engine.gameHistory[engine.gameHistoryIndex].pieceBoards[4 + colorIndex], pseudoLegalMoves);
+    GetPseudoLegalBishopMoves(engine, engine.gameHistory[engine.gameHistoryIndex].pieceBoards[2 + colorIndex] | engine.gameHistory[engine.gameHistoryIndex].pieceBoards[4 + colorIndex], pseudoLegalMoves);
     GetPseudoLegalKingMoves(engine, pseudoLegalMoves);
     for (const auto &move : pseudoLegalMoves)
     {
         engine.MakeSimpleMove(move);
-        if (!MoveGenerator::IsSquareAttacked(engine, engine.gameHistory.at(engine.gameHistoryIndex).kingIndices[!color], !color))
+        if (!MoveGenerator::IsSquareAttacked(engine, engine.gameHistory[engine.gameHistoryIndex].kingIndices[!color], !color))
         {
             legalmoves.push_back(move);
         }
@@ -275,21 +275,21 @@ bool MoveGenerator::IsSquareAttacked(const Engine &engine, const int &index, con
 {
     auto colorIndex = attackingColor ? 0 : 6;
     // Bitboards containing slider pieces
-    bitboard horAndVertSliderBoard = engine.gameHistory.at(engine.gameHistoryIndex).pieceBoards[3 + colorIndex] | engine.gameHistory.at(engine.gameHistoryIndex).pieceBoards[4 + colorIndex];
-    bitboard diagonalSliderBoard = engine.gameHistory.at(engine.gameHistoryIndex).pieceBoards[2 + colorIndex] | engine.gameHistory.at(engine.gameHistoryIndex).pieceBoards[4 + colorIndex];
+    bitboard horAndVertSliderBoard = engine.gameHistory[engine.gameHistoryIndex].pieceBoards[3 + colorIndex] | engine.gameHistory[engine.gameHistoryIndex].pieceBoards[4 + colorIndex];
+    bitboard diagonalSliderBoard = engine.gameHistory[engine.gameHistoryIndex].pieceBoards[2 + colorIndex] | engine.gameHistory[engine.gameHistoryIndex].pieceBoards[4 + colorIndex];
     // Bitboards containing all pieces which cant check by sliding
-    bitboard horAndVertBlockerBoard = (engine.gameHistory.at(engine.gameHistoryIndex).colorBoards[!attackingColor] & ~engine.gameHistory.at(engine.gameHistoryIndex).pieceBoards[3 + colorIndex] & ~engine.gameHistory.at(engine.gameHistoryIndex).pieceBoards[4 + colorIndex]) | engine.gameHistory.at(engine.gameHistoryIndex).colorBoards[attackingColor];
-    bitboard diagonalBlockerBoard = (engine.gameHistory.at(engine.gameHistoryIndex).colorBoards[!attackingColor] & ~engine.gameHistory.at(engine.gameHistoryIndex).pieceBoards[2 + colorIndex] & ~engine.gameHistory.at(engine.gameHistoryIndex).pieceBoards[4 + colorIndex]) | engine.gameHistory.at(engine.gameHistoryIndex).colorBoards[attackingColor];
+    bitboard horAndVertBlockerBoard = (engine.gameHistory[engine.gameHistoryIndex].colorBoards[!attackingColor] & ~engine.gameHistory[engine.gameHistoryIndex].pieceBoards[3 + colorIndex] & ~engine.gameHistory[engine.gameHistoryIndex].pieceBoards[4 + colorIndex]) | engine.gameHistory[engine.gameHistoryIndex].colorBoards[attackingColor];
+    bitboard diagonalBlockerBoard = (engine.gameHistory[engine.gameHistoryIndex].colorBoards[!attackingColor] & ~engine.gameHistory[engine.gameHistoryIndex].pieceBoards[2 + colorIndex] & ~engine.gameHistory[engine.gameHistoryIndex].pieceBoards[4 + colorIndex]) | engine.gameHistory[engine.gameHistoryIndex].colorBoards[attackingColor];
 
     // Knights: can the piece on index attack a attackingcolor knight like a knight
-    bitboard attacks = knightMoves[index] & engine.gameHistory.at(engine.gameHistoryIndex).pieceBoards[1 + colorIndex];
+    bitboard attacks = knightMoves[index] & engine.gameHistory[engine.gameHistoryIndex].pieceBoards[1 + colorIndex];
     if (attacks > 0)
     {
         return true;
     }
 
     // King: is the piece on index attacked by the attackingcolor king
-    int attackingKingIndex = engine.gameHistory.at(engine.gameHistoryIndex).kingIndices[!attackingColor];
+    int attackingKingIndex = engine.gameHistory[engine.gameHistoryIndex].kingIndices[!attackingColor];
     attacks = kingMoves[attackingKingIndex];
     if (CheckBit(attacks, index))
     {
@@ -297,7 +297,7 @@ bool MoveGenerator::IsSquareAttacked(const Engine &engine, const int &index, con
     }
 
     // Pawns: can the piece on index attack an attackingcolor pawn like a pawn
-    attacks = (pawnAttacks[attackingColor][0][index] | pawnAttacks[attackingColor][1][index]) & engine.gameHistory.at(engine.gameHistoryIndex).pieceBoards[colorIndex];
+    attacks = (pawnAttacks[attackingColor][0][index] | pawnAttacks[attackingColor][1][index]) & engine.gameHistory[engine.gameHistoryIndex].pieceBoards[colorIndex];
     if (attacks > 0)
     {
         return true;

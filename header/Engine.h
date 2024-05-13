@@ -12,7 +12,7 @@ class Engine
 {
 public:
 	bool stopFlag;
-	std::vector<Board> gameHistory; // History of the game, consisting of boards. For undo or perhaps draw checks?
+	Board gameHistory[20]; // History of the game, consisting of boards. For undo or perhaps draw checks?
 	uint gameHistoryIndex = 0;	//Index into the gameHistory
 	Board board;					// Board representation
 	Engine();
