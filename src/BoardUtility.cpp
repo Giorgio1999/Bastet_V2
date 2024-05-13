@@ -1,4 +1,4 @@
-#include "Move.h"
+#include "BoardUtility.h"
 #include "BitBoardUtility.h"
 #include <string>
 #include <cmath>
@@ -6,8 +6,6 @@
 
 Coord::Coord()
 {
-	x = 0;
-	y = 0;
 }
 Coord::Coord(const int &_x, const int &_y)
 {
@@ -15,25 +13,21 @@ Coord::Coord(const int &_x, const int &_y)
 	y = _y;
 }
 
-Move::Move()
-{
-	startIndex = 0;
-	targetIndex = 0;
-}
+Mover::Mover(){}
 
-Move::Move(const int &start, const int &target)
+Mover::Mover(const int &start, const int &target)
 {
 	startIndex = start;
 	targetIndex = target;
 }
 
-Move::Move(const Coord &_startCoord, const Coord &_targetCoord)
+Mover::Mover(const Coord &_startCoord, const Coord &_targetCoord)
 {
-	startIndex = _startCoord.y*8+_startCoord.x;
-	targetIndex = _targetCoord.y*8+_targetCoord.x;
+	startIndex = _startCoord.y * 8 + _startCoord.x;
+	targetIndex = _targetCoord.y * 8 + _targetCoord.x;
 }
 
-Move::Move(const int &i1, const int &j1, const int &i2, const int &j2)
+Mover::Mover(const int &i1, const int &j1, const int &i2, const int &j2)
 {
 	startIndex = j1 * 8 + i1;
 	targetIndex = j2 * 8 + i2;
@@ -52,7 +46,7 @@ Coord Str2Coord(const std::string &coordString)
 	return Coord(cols.find(coordString[0]), rows.find(coordString[1]));
 }
 
-std::string Move2Str(const Move &move)
+std::string Move2Str(const Mover &move)
 {
 	std::string tmp = "";
 	auto i = move.startIndex % 8;
@@ -65,14 +59,14 @@ std::string Move2Str(const Move &move)
 	tmp += rows.at(j);
 	if (move.promotion)
 	{
-		tmp += types.at(move.convertTo+1);
+		tmp += types.at(move.convertTo + 1);
 	}
 	return tmp;
 }
 
-Move Str2Move(const std::string &moveString)
+Mover Str2Move(const std::string &moveString)
 {
-	Move move = Move(Str2Coord(moveString.substr(0, 2)), Str2Coord(moveString.substr(2, 4)));
+	Mover move = Mover(Str2Coord(moveString.substr(0, 2)), Str2Coord(moveString.substr(2, 4)));
 	if (moveString.length() == 5)
 	{
 		switch (moveString[moveString.length() - 1])
@@ -94,9 +88,9 @@ Move Str2Move(const std::string &moveString)
 	return move;
 }
 
-std::vector<Move> Str2Moves(std::string &movesString)
+std::vector<Mover> Str2Moves(std::string &movesString)
 {
-	std::vector<Move> moves;
+	std::vector<Mover> moves;
 	std::string currentMove = "";
 	while (movesString.length() > 0)
 	{
@@ -109,6 +103,17 @@ std::vector<Move> Str2Moves(std::string &movesString)
 		movesString = movesString.substr(currentMove.length() + 1, movesString.length());
 	}
 	return moves;
+}
+
+Mover Move2Mover(const move& move){
+	Mover mover = Mover(StartIndex(move),TargetIndex(move));
+	mover.convertTo = ConvertTo(move);
+	mover.promotion = (bool)Promotion(move);
+	return mover;
+}
+
+move Mover2Move(const Mover& mover){
+	return Move(mover.startIndex,mover.targetIndex,mover.convertTo,mover.promotion);
 }
 
 int Coord2Index(const Coord &coord)

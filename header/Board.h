@@ -1,6 +1,6 @@
 #pragma once
 #include "BitBoardUtility.h"
-#include "Move.h"
+#include "BoardUtility.h"
 #include <string>
 #include <cstdint>
 
@@ -20,11 +20,11 @@ public:
 
 	Board();
 	void Clear();
-	void MakeMove(const Move &move);		  // makes move and updates board
-	void MakeSimpleMove(const Move &move);	  // makes simple move which is expected to not be king move
+	void MakeMove(const move &move);		  // makes move and updates board
+	void MakeSimpleMove(const move &move);	  // makes simple move which is expected to not be king move
 	void UpdateColorBoards();				  // Updates the color boards
 	void InitialiseKingIndices();			  // finds the initial king coords
-	void UpdateKingIndices(const Move &move); // Updates the king coords after a move
+	void UpdateKingIndices(const int& startIndex, const int& targetIndex); // Updates the king coords after a move
 
 	std::string ShowBoard();
 };
