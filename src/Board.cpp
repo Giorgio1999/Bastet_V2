@@ -16,13 +16,13 @@ void Board::Clear()
 	ghostBoard = ZERO;
 }
 
-void Board::MakeMove(const Mover &move)
+void Board::MakeMove(const move &move)
 {
 	// Clear ghosts
 	ghostBoard = ZERO;
 
-	int startIndex = move.startIndex;
-	int targetIndex = move.targetIndex;
+	int startIndex = StartIndex(move);
+	int targetIndex = TargetIndex(move);
 
 	auto wasCastled = false; // Castling flag
 
@@ -95,10 +95,10 @@ void Board::MakeMove(const Mover &move)
 	}
 
 	// Promotions
-	if (move.promotion)
+	if (Promotion(move)==1)
 	{
 		UnsetBit(pieceBoards[color], targetIndex);
-		SetBit(pieceBoards[color + move.convertTo], targetIndex);
+		SetBit(pieceBoards[color + ConvertTo(move)], targetIndex);
 	}
 
 	// Update castling flags
@@ -136,19 +136,19 @@ void Board::MakeMove(const Mover &move)
 	UpdateColorBoards();
 
 	// Update King coords
-	UpdateKingIndices(move);
+	UpdateKingIndices(startIndex,targetIndex);
 
 	// Update turn flag
 	whiteToMove = !whiteToMove;
 }
 
-void Board::MakeSimpleMove(const Mover &move)
+void Board::MakeSimpleMove(const move &move)
 {
 	// Clear ghosts
 	ghostBoard = ZERO;
 
-	int startIndex = move.startIndex;
-	int targetIndex = move.targetIndex;
+	int startIndex = StartIndex(move);
+	int targetIndex = TargetIndex(move);
 
 	auto color = whiteToMove ? 0 : 6;
 	auto otherColor = whiteToMove ? 6 : 0;
@@ -188,7 +188,7 @@ void Board::MakeSimpleMove(const Mover &move)
 	UpdateColorBoards();
 
 	// Update King coords
-	UpdateKingIndices(move);
+	UpdateKingIndices(startIndex,targetIndex);
 
 	// Update turn flag
 	whiteToMove = !whiteToMove;
@@ -211,9 +211,9 @@ void Board::InitialiseKingIndices()
 	kingIndices[1] = BitScanForwards(pieceBoards[11])-1;
 }
 
-void Board::UpdateKingIndices(const Mover &move)
+void Board::UpdateKingIndices(const int& startIndex, const int&targetIndex)
 {
-	kingIndices[!whiteToMove] = kingIndices[!whiteToMove] == move.startIndex ? move.targetIndex : kingIndices[!whiteToMove];
+	kingIndices[!whiteToMove] = kingIndices[!whiteToMove] == startIndex ? targetIndex : kingIndices[!whiteToMove];
 }
 
 std::string Board::ShowBoard()

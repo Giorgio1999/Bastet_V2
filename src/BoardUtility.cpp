@@ -13,11 +13,7 @@ Coord::Coord(const int &_x, const int &_y)
 	y = _y;
 }
 
-Mover::Mover()
-{
-	startIndex = 0;
-	targetIndex = 0;
-}
+Mover::Mover(){}
 
 Mover::Mover(const int &start, const int &target)
 {
@@ -27,8 +23,8 @@ Mover::Mover(const int &start, const int &target)
 
 Mover::Mover(const Coord &_startCoord, const Coord &_targetCoord)
 {
-	startIndex = _startCoord.y*8+_startCoord.x;
-	targetIndex = _targetCoord.y*8+_targetCoord.x;
+	startIndex = _startCoord.y * 8 + _startCoord.x;
+	targetIndex = _targetCoord.y * 8 + _targetCoord.x;
 }
 
 Mover::Mover(const int &i1, const int &j1, const int &i2, const int &j2)
@@ -63,7 +59,7 @@ std::string Move2Str(const Mover &move)
 	tmp += rows.at(j);
 	if (move.promotion)
 	{
-		tmp += types.at(move.convertTo+1);
+		tmp += types.at(move.convertTo + 1);
 	}
 	return tmp;
 }
@@ -107,6 +103,17 @@ std::vector<Mover> Str2Moves(std::string &movesString)
 		movesString = movesString.substr(currentMove.length() + 1, movesString.length());
 	}
 	return moves;
+}
+
+Mover Move2Mover(const move& move){
+	Mover mover = Mover(StartIndex(move),TargetIndex(move));
+	mover.convertTo = ConvertTo(move);
+	mover.promotion = (bool)Promotion(move);
+	return mover;
+}
+
+move Mover2Move(const Mover& mover){
+	return Move(mover.startIndex,mover.targetIndex,mover.convertTo,mover.promotion);
 }
 
 int Coord2Index(const Coord &coord)

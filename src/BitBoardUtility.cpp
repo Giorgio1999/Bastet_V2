@@ -69,6 +69,34 @@ void UnsetBit(bitboard &value, const int &i, const int &j)
 	UnsetBit(value, j * 8 + i);
 }
 
+move Move(const move& move, const int& convertTo, const int& promotion){
+	return move | convertTo << 12 | promotion << 15;
+}
+
+move Move(const int& from, const int& to){
+	return from | to << 6;
+}
+
+move Move(const int& from, const int& to, const int& convertTo, const int& promotion){
+	return from | to << 6 | convertTo << 12 | promotion << 15;
+}
+
+int StartIndex(const move& move){
+	return move & 0x003F;
+}
+
+int TargetIndex(const move&move){
+	return (move & 0x0FC0) >> 6;
+}
+
+int ConvertTo(const move& move){
+	return (move & 0x7000) >> 12;
+}
+
+int Promotion(const move& move){
+	return (move&0x8000) >> 15;
+}
+
 void PrintBitBoard(const bitboard &value)
 {
 	std::string boardVisual = "";

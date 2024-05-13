@@ -15,8 +15,8 @@ const bitboard castleMasks[2][2] = {{0x6000000000000000, 0x0E00000000000000}, {0
 
 namespace MoveGenerator
 {
-    void GetPseudoLegalMoves(Engine &engine, std::array<Mover,320>& moveHolder, uint &moveHolderIndex);
-    void GetLegalMoves(Engine &engine, std::array<Mover,320>& moveHolder, uint &moveHolderIndex);
+    void GetPseudoLegalMoves(Engine &engine, std::array<move,256>& moveHolder, uint &moveHolderIndex);
+    void GetLegalMoves(Engine &engine, std::array<move,256>& moveHolder, uint &moveHolderIndex);
     bool IsSquareAttacked(const Engine &engine, const Coord &square, const bool &attackingColor);
     bool IsSquareAttacked(const Engine &engine, const int &index, const bool &attackingColor);
     void PreComputeMoves();
@@ -33,8 +33,8 @@ bitboard GetAntiDiagonalAttacks(const int &index, const bitboard &occ);
 bitboard GetRankAttacks(const int &index, const bitboard &occ);
 bitboard GetFileAttacks(const int &index, const bitboard &occ);
 
-void GetPseudoLegalPawnMoves(Engine &engine, std::array<Mover,320>& moveHolder, uint &moveHolderIndex);
-void GetPseudoLegalKnightMoves(Engine &engine, std::array<Mover,320>& moveHolder, uint &moveHolderIndex);
-void GetPseudoLegalKingMoves(Engine &engine, std::array<Mover,320>& moveHolder, uint &moveHolderIndex);
-void GetPseudoLegalRookMoves(Engine &engine, const bitboard &rookPieceBoard, std::array<Mover,320>& moveHolder, uint &moveHolderIndex);
-void GetPseudoLegalBishopMoves(Engine &engine, const bitboard &bishopPieceBoard, std::array<Mover,320>& moveHolder, uint &moveHolderIndex);
+void GetPseudoLegalPawnMoves(Engine &engine, std::array<move,256>& moveHolder, uint &moveHolderIndex);
+void GetPseudoLegalKnightMoves(Engine &engine, std::array<move,256>& moveHolder, uint &moveHolderIndex);
+void GetPseudoLegalKingMoves(Engine &engine, std::array<move,256>& moveHolder, uint &moveHolderIndex);
+void GetPseudoLegalRookMoves(Engine &engine, const bitboard &rookPieceBoard, std::array<move,256>& moveHolder, uint &moveHolderIndex);
+void GetPseudoLegalBishopMoves(Engine &engine, const bitboard &bishopPieceBoard, std::array<move,256>& moveHolder, uint &moveHolderIndex);

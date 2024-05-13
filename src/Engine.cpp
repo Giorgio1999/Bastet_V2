@@ -35,14 +35,14 @@ void Engine::SetBoard(const Board &newBoard)
 	gameHistory[0].InitialiseKingIndices();
 }
 
-void Engine::MakeMove(const Mover &move)
+void Engine::MakeMove(const move &move)
 {
 	std::memcpy(&gameHistory[gameHistoryIndex+1],&gameHistory[gameHistoryIndex],sizeof(Board));
 	gameHistory[gameHistoryIndex + 1].MakeMove(move);
 	gameHistoryIndex++;
 }
 
-void Engine::MakeSimpleMove(const Mover &move)
+void Engine::MakeSimpleMove(const move &move)
 {
 	std::memcpy(&gameHistory[gameHistoryIndex+1],&gameHistory[gameHistoryIndex],sizeof(Board));
 	gameHistory[gameHistoryIndex + 1].MakeSimpleMove(move);
@@ -59,27 +59,27 @@ std::string Engine::ShowBoard()
 	return gameHistory[0].ShowBoard();
 }
 
-void Engine::GetPseudoLegalMoves(std::array<Mover,320>& moveHolder,uint& moveHolderIndex)
+void Engine::GetPseudoLegalMoves(std::array<move,256>& moveHolder,uint& moveHolderIndex)
 {
 	MoveGenerator::GetPseudoLegalMoves(*this,moveHolder,moveHolderIndex);
 }
 
 Mover Engine::GetBestMove()
 {
-	std::array<Mover,320> moveHolder;
+	std::array<move,256> moveHolder;
 	uint moveHolderIndex = 0;
 	GetLegalMoves(moveHolder,moveHolderIndex);
-	return moveHolder[0];
+	return Move2Mover(moveHolder[0]);
 }
 
-void Engine::GetLegalMoves(std::array<Mover,320>& moveHolder,uint& moveHolderIndex)
+void Engine::GetLegalMoves(std::array<move,256>& moveHolder,uint& moveHolderIndex)
 {
 	MoveGenerator::GetLegalMoves(*this,moveHolder,moveHolderIndex);
 }
 
 int Engine::Perft(const int &depth)
 {
-	std::array<Mover,320> moveHolder;
+	std::array<move,256> moveHolder;
 	uint moveHolderIndex = 0;
 	GetLegalMoves(moveHolder,moveHolderIndex);
 	if (depth == 1)
@@ -89,7 +89,7 @@ int Engine::Perft(const int &depth)
 	// if(depth==0){
 	// 	return 1;
 	// }
-	int numberOfLeafs = 0;
+	bitboard numberOfLeafs = 0;
 	int newDepth = depth - 1;
 	for (uint i=0;i<moveHolderIndex;i++)
 	{

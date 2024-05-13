@@ -16,17 +16,17 @@ bitboard pawnAttacks[2][2][64];
 bitboard fillUpAttacks[8][64];
 bitboard aFileAttacks[8][64];
 
-void MoveGenerator::GetPseudoLegalMoves(Engine &engine, std::array<Mover,320>& moveHolder, uint &moveHolderIndex)
+void MoveGenerator::GetPseudoLegalMoves(Engine &engine, std::array<move, 256> &moveHolder, uint &moveHolderIndex)
 {
     auto colorIndex = engine.gameHistory[engine.gameHistoryIndex].whiteToMove ? 0 : 6;
-    GetPseudoLegalPawnMoves(engine,moveHolder,moveHolderIndex);
+    GetPseudoLegalPawnMoves(engine, moveHolder, moveHolderIndex);
     GetPseudoLegalKnightMoves(engine, moveHolder, moveHolderIndex);
     GetPseudoLegalKingMoves(engine, moveHolder, moveHolderIndex);
     GetPseudoLegalRookMoves(engine, engine.gameHistory[engine.gameHistoryIndex].pieceBoards[3 + colorIndex] | engine.gameHistory[engine.gameHistoryIndex].pieceBoards[4 + colorIndex], moveHolder, moveHolderIndex);   // rook + queen
     GetPseudoLegalBishopMoves(engine, engine.gameHistory[engine.gameHistoryIndex].pieceBoards[2 + colorIndex] | engine.gameHistory[engine.gameHistoryIndex].pieceBoards[4 + colorIndex], moveHolder, moveHolderIndex); // bishop + queen
 }
 
-void GetPseudoLegalPawnMoves(Engine &engine, std::array<Mover,320>& moveHolder, uint &moveHolderIndex)
+void GetPseudoLegalPawnMoves(Engine &engine, std::array<move, 256> &moveHolder, uint &moveHolderIndex)
 {
     auto color = engine.gameHistory[engine.gameHistoryIndex].whiteToMove;
     auto colorIndex = color ? 0 : 6;
@@ -50,14 +50,12 @@ void GetPseudoLegalPawnMoves(Engine &engine, std::array<Mover,320>& moveHolder, 
     while (pushes > 0)
     {
         to = PopLsb(pushes);
-        Mover move = Mover(to - colorDirection, to);
+        move move = Move(to - colorDirection, to); // from in the first 6 bits, to in the next 6
         if (CheckBit(rankMasks[promotionRank], to))
         {
             for (auto i = 1; i < 5; i++)
             {
-                move.convertTo = i;
-                move.promotion = true;
-                moveHolder[moveHolderIndex] = move;
+                moveHolder[moveHolderIndex] = Move(move,i,1);
                 moveHolderIndex++;
             }
         }
@@ -82,7 +80,7 @@ void GetPseudoLegalPawnMoves(Engine &engine, std::array<Mover,320>& moveHolder, 
     while (pushes > 0)
     {
         to = PopLsb(pushes);
-        moveHolder[moveHolderIndex] = Mover(to - colorDirection * 2, to);
+        moveHolder[moveHolderIndex] = Move(to - colorDirection * 2,to);
         moveHolderIndex++;
     }
 
@@ -98,14 +96,12 @@ void GetPseudoLegalPawnMoves(Engine &engine, std::array<Mover,320>& moveHolder, 
             if (captures > 0)
             {
                 to = PopLsb(captures);
-                Mover move(from, to);
+                move move = Move(from, to);
                 if (CheckBit(rankMasks[promotionRank], to))
                 {
                     for (auto i = 1; i < 5; i++)
                     {
-                        move.convertTo = i;
-                        move.promotion = true;
-                        moveHolder[moveHolderIndex] = move;
+                        moveHolder[moveHolderIndex] = Move(move,i,1);
                         moveHolderIndex++;
                     }
                 }
@@ -119,7 +115,7 @@ void GetPseudoLegalPawnMoves(Engine &engine, std::array<Mover,320>& moveHolder, 
     }
 }
 
-void GetPseudoLegalKnightMoves(Engine &engine, std::array<Mover,320>& moveHolder, uint &moveHolderIndex)
+void GetPseudoLegalKnightMoves(Engine &engine, std::array<move, 256> &moveHolder, uint &moveHolderIndex)
 {
     auto color = engine.gameHistory[engine.gameHistoryIndex].whiteToMove;
     auto colorIndex = color ? 0 : 6;
@@ -135,13 +131,13 @@ void GetPseudoLegalKnightMoves(Engine &engine, std::array<Mover,320>& moveHolder
         while (attacks > 0)
         {
             to = PopLsb(attacks);
-            moveHolder[moveHolderIndex] = Mover(from, to);
+            moveHolder[moveHolderIndex] = Move(from,to);
             moveHolderIndex++;
         }
     }
 }
 
-void GetPseudoLegalKingMoves(Engine &engine, std::array<Mover,320>& moveHolder, uint &moveHolderIndex)
+void GetPseudoLegalKingMoves(Engine &engine, std::array<move, 256> &moveHolder, uint &moveHolderIndex)
 {
     auto color = engine.gameHistory[engine.gameHistoryIndex].whiteToMove;
     int kingIndex = engine.gameHistory[engine.gameHistoryIndex].kingIndices[!color];
@@ -154,7 +150,7 @@ void GetPseudoLegalKingMoves(Engine &engine, std::array<Mover,320>& moveHolder, 
     while (attacks > 0)
     {
         to = PopLsb(attacks);
-        moveHolder[moveHolderIndex] = Mover(kingIndex, to);
+        moveHolder[moveHolderIndex] = Move(kingIndex,to);
         moveHolderIndex++;
     }
 
@@ -181,7 +177,7 @@ void GetPseudoLegalKingMoves(Engine &engine, std::array<Mover,320>& moveHolder, 
         }
         if (canCastle && !MoveGenerator::IsSquareAttacked(engine, kingIndex, !color))
         {
-            moveHolder[moveHolderIndex] = Mover(kingIndex, kingSideCastleTarget);
+            moveHolder[moveHolderIndex] = Move(kingIndex,kingSideCastleTarget);
             moveHolderIndex++;
         }
     }
@@ -203,13 +199,13 @@ void GetPseudoLegalKingMoves(Engine &engine, std::array<Mover,320>& moveHolder, 
         }
         if (canCastle && !MoveGenerator::IsSquareAttacked(engine, kingIndex, !color))
         {
-            moveHolder[moveHolderIndex] = Mover(kingIndex, queenSideCastleTarget);
+            moveHolder[moveHolderIndex] = Move(kingIndex, queenSideCastleTarget);
             moveHolderIndex++;
         }
     }
 }
 
-void GetPseudoLegalRookMoves(Engine &engine, const bitboard &rookPieceBoard, std::array<Mover,320>& moveHolder, uint &moveHolderIndex)
+void GetPseudoLegalRookMoves(Engine &engine, const bitboard &rookPieceBoard, std::array<move, 256> &moveHolder, uint &moveHolderIndex)
 {
     auto color = engine.gameHistory[engine.gameHistoryIndex].whiteToMove;
     bitboard thisBoard = engine.gameHistory[engine.gameHistoryIndex].colorBoards[!color];
@@ -227,7 +223,7 @@ void GetPseudoLegalRookMoves(Engine &engine, const bitboard &rookPieceBoard, std
         while (attacks > 0)
         {
             to = PopLsb(attacks);
-            moveHolder[moveHolderIndex] = Mover(from, to);
+            moveHolder[moveHolderIndex] = Move(from,to);
             moveHolderIndex++;
         }
 
@@ -235,13 +231,13 @@ void GetPseudoLegalRookMoves(Engine &engine, const bitboard &rookPieceBoard, std
         while (attacks > 0)
         {
             to = PopLsb(attacks);
-            moveHolder[moveHolderIndex] = Mover(from, to);
+            moveHolder[moveHolderIndex] = Move(from,to);
             moveHolderIndex++;
         }
     }
 }
 
-void GetPseudoLegalBishopMoves(Engine &engine, const bitboard &bishopPieceBoard, std::array<Mover,320>& moveHolder, uint &moveHolderIndex)
+void GetPseudoLegalBishopMoves(Engine &engine, const bitboard &bishopPieceBoard, std::array<move, 256> &moveHolder, uint &moveHolderIndex)
 {
     auto color = engine.gameHistory[engine.gameHistoryIndex].whiteToMove;
     bitboard thisBoard = engine.gameHistory[engine.gameHistoryIndex].colorBoards[!color];
@@ -258,13 +254,13 @@ void GetPseudoLegalBishopMoves(Engine &engine, const bitboard &bishopPieceBoard,
         while (attacks > 0)
         {
             to = PopLsb(attacks);
-            moveHolder[moveHolderIndex] = Mover(from, to);
+            moveHolder[moveHolderIndex] = Move(from,to);
             moveHolderIndex++;
         }
     }
 }
 
-void MoveGenerator::GetLegalMoves(Engine &engine, std::array<Mover,320>& moveHolder, uint &moveHolderIndex)
+void MoveGenerator::GetLegalMoves(Engine &engine, std::array<move, 256> &moveHolder, uint &moveHolderIndex)
 {
     auto color = engine.gameHistory[engine.gameHistoryIndex].whiteToMove;
     auto colorIndex = color ? 0 : 6;
@@ -279,7 +275,7 @@ void MoveGenerator::GetLegalMoves(Engine &engine, std::array<Mover,320>& moveHol
         engine.MakeSimpleMove(moveHolder[i]);
         if (!MoveGenerator::IsSquareAttacked(engine, engine.gameHistory[engine.gameHistoryIndex].kingIndices[!color], !color))
         {
-            std::memcpy(&moveHolder[end], &moveHolder[i], sizeof(Mover));
+            std::memcpy(&moveHolder[end], &moveHolder[i], sizeof(move));
             end++;
         }
         engine.UndoLastMove();

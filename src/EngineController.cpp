@@ -55,10 +55,10 @@ void EngineController::SetPosition(const std::string &fenString)
 
 void EngineController::MakeMoves(std::string &moveHistory)
 {
-	std::vector<Mover> moves = Str2Moves(moveHistory);
-	for (const auto &move : moves)
+	std::vector<Mover> movers = Str2Moves(moveHistory);
+	for (const auto &mover : movers)
 	{
-		engine.MakeMove(move);
+		engine.MakeMove(Mover2Move(mover));
 	}
 }
 
@@ -78,13 +78,13 @@ std::string EngineController::ShowBoard()
 
 std::string EngineController::GetLegalMoves()
 {
-	std::array<Mover,320> moveHolder;
+	std::array<move,256> moveHolder;
 	uint moveHolderIndex = 0;
 	engine.GetLegalMoves(moveHolder,moveHolderIndex);
 	std::string movesString = "";
 	for (uint i = 0;i<moveHolderIndex;i++)
 	{
-		movesString += Move2Str(moveHolder[i]) + " ";
+		movesString += Move2Str(Move2Mover(moveHolder[i])) + " ";
 	}
 	return movesString;
 }
@@ -97,7 +97,7 @@ std::string EngineController::Search()
 std::string EngineController::Perft(const int &depth)
 {
 	// auto start = std::chrono::high_resolution_clock::now();
-	int numberOfLeafs = engine.Perft(depth);
+	bitboard numberOfLeafs = engine.Perft(depth);
 	// auto end = std::chrono::high_resolution_clock::now();
 	// float duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
 	// auto mnps = numberOfLeafs / duration / 1000000. * 1000.;
@@ -108,15 +108,15 @@ std::string EngineController::Perft(const int &depth)
 
 std::string EngineController::SplitPerft(const int &depth)
 {
-	std::array<Mover,320> moveHolder;
+	std::array<move,256> moveHolder;
 	uint moveHolderIndex=0;
 	engine.GetLegalMoves(moveHolder,moveHolderIndex);
 	std::string returnString = "";
 	for (uint i = 0; i < moveHolderIndex; i++)
 	{
-		returnString += Move2Str(moveHolder[i]) += ": ";
+		returnString += Move2Str(Move2Mover(moveHolder[i])) += ": ";
 		engine.MakeMove(moveHolder[i]);
-		auto res = 0;
+		bitboard res = 0;
 		if (depth != 1)
 		{
 			res = engine.Perft(depth - 1);
@@ -163,7 +163,7 @@ void EngineController::FullPerftTest()
 		{
 			std::cout << "\tdepth " << depth << ": ";
 			auto start = std::chrono::high_resolution_clock::now();
-			auto result = engine.Perft(depth);
+			bitboard result = engine.Perft(depth);
 			auto end = std::chrono::high_resolution_clock::now();
 			float duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
 			auto mnps = result / duration / 1000000. * 1000.;

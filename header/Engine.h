@@ -19,13 +19,13 @@ public:
 	void Boot();
 	void NewGame();							// clears board for new game
 	void SetBoard(const Board &board);		// Sets a given PieceList as position
-	void MakeMove(const Mover &move);		// Make a move
-	void MakeSimpleMove(const Mover &move); // Makes a simple move (expected move is non king move)
+	void MakeMove(const move &move);		// Make a move
+	void MakeSimpleMove(const move &move); // Makes a simple move (expected move is non king move)
 	void UndoLastMove();					// Reverts to previous position
 	std::string ShowBoard();				// Debug tool to display current board in console
 
-	void GetPseudoLegalMoves(std::array<Mover,320>& moveHolder, uint &moveHolderIndex); // Gets pseudolegal moves. Implementation in MoveGenerator.cpp
-	void GetLegalMoves(std::array<Mover,320>& moveHolder, uint &moveHolderIndex);		// Gets legalMoves
+	void GetPseudoLegalMoves(std::array<move,256>& moveHolder, uint &moveHolderIndex); // Gets pseudolegal moves. Implementation in MoveGenerator.cpp
+	void GetLegalMoves(std::array<move,256>& moveHolder, uint &moveHolderIndex);		// Gets legalMoves
 
 	Mover GetBestMove(); // Returns best move after search
 

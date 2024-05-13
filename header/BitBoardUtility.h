@@ -5,6 +5,7 @@
 
 using bitboard = uint64_t;
 using line = uint8_t;
+using move = uint16_t;
 
 const bitboard ONE = (bitboard)1;
 const bitboard ZERO = (bitboard)0;
@@ -34,8 +35,23 @@ void UnsetBit(bitboard &value, const int &index); // Unsets bit at index in 1d b
 
 void UnsetBit(bitboard &value, const int &i, const int &j); // Unsets bit at i,j in 2d baord
 
+move Move(const move& move,const int& convertTo, const int & promotion);
+
+move Move(const int& from, const int& to);
+
+move Move(const int& from, const int& to, const int& convertTo, const int& promotion);
+
+int StartIndex(const move& move);
+
+int TargetIndex(const move& move);
+
+int ConvertTo(const move& move);
+
+int Promotion(const move& move);
+
 void PrintBitBoard(const bitboard &value); // Prints Bitboard to std::cout
 
 void PrintLine(const line &value); // Prints line to std::cout
 
 void ComputeMasks();
+
