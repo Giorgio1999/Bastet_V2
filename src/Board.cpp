@@ -90,40 +90,10 @@ void Board::MakeMove(const move &move)
 	}
 
 	// Update castling flags
-	if (startIndex == 63 || targetIndex == 63) // 7,7
-	{
-		// castlingRights[0] = false;
-		flags &= 0b00011101;
-	}
-	if (startIndex == 56 || targetIndex == 56) // 0,7
-	{
-		// castlingRights[1] = false;
-		flags &= 0b00011011;
-	}
-	if (startIndex == 7 || targetIndex == 7) // 7,0
-	{
-		// castlingRights[2] = false;
-		flags &= 0b00010111;
-	}
-	if (startIndex == 0 || targetIndex == 0) // 0,0
-	{
-		// castlingRights[3] = false;
-		flags &= 0b00001111;
-	}
-	if (startIndex == 60) // 4,7
-	{
-		flags &= 0b00011001;
-		// castlingRights[0] = false;
-		// castlingRights[1] = false;
-	}
-	if (startIndex == 4) // 4,0
-	{
-		flags &= 0b00000111;
-		// castlingRights[2] = false;
-		// castlingRights[3] = false;
-	}
-
-	// TO DO: Maybe check for checks?
+	flags &= (startIndex == 63 || targetIndex == 63 || startIndex == 60)?0b00011101:31;
+	flags &= (startIndex == 56 || targetIndex == 56 || startIndex == 60)?0b00011011:31;
+	flags &= (startIndex == 7 || targetIndex == 7 || startIndex == 4)?0b00010111:31;
+	flags &= (startIndex == 0 || targetIndex == 0 || startIndex == 4)?0b00001111:31;
 
 	// Update Color Boards
 	UpdateColorBoards();

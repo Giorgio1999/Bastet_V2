@@ -176,8 +176,8 @@ void EngineController::FullPerftTest()
 		}
 	}
 	auto fullEnd = std::chrono::high_resolution_clock::now();
-	float duration = std::chrono::duration_cast<std::chrono::minutes>(fullEnd - fullStart).count();
-	std::cout << "Done! Total time: " << duration << "m" << std::endl;
+	float duration = std::chrono::duration_cast<std::chrono::seconds>(fullEnd - fullStart).count();
+	std::cout << "Done! Total time: " << duration << "s" << std::endl;
 	dataStream.close();
 }
 
