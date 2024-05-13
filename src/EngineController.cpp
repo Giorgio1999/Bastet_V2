@@ -7,6 +7,7 @@
 #include <chrono>
 #include <iostream>
 #include <fstream>
+#include <array>
 
 EngineController::EngineController() {}
 
@@ -77,7 +78,7 @@ std::string EngineController::ShowBoard()
 
 std::string EngineController::GetLegalMoves()
 {
-	Mover moveHolder[320];
+	std::array<Mover,320> moveHolder;
 	uint moveHolderIndex = 0;
 	engine.GetLegalMoves(moveHolder,moveHolderIndex);
 	std::string movesString = "";
@@ -107,7 +108,7 @@ std::string EngineController::Perft(const int &depth)
 
 std::string EngineController::SplitPerft(const int &depth)
 {
-	Mover moveHolder[320];
+	std::array<Mover,320> moveHolder;
 	uint moveHolderIndex=0;
 	engine.GetLegalMoves(moveHolder,moveHolderIndex);
 	std::string returnString = "";

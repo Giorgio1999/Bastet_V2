@@ -59,27 +59,27 @@ std::string Engine::ShowBoard()
 	return gameHistory[0].ShowBoard();
 }
 
-void Engine::GetPseudoLegalMoves(Mover moveHolder[320],uint& moveHolderIndex)
+void Engine::GetPseudoLegalMoves(std::array<Mover,320>& moveHolder,uint& moveHolderIndex)
 {
 	MoveGenerator::GetPseudoLegalMoves(*this,moveHolder,moveHolderIndex);
 }
 
 Mover Engine::GetBestMove()
 {
-	Mover moveHolder[320];
+	std::array<Mover,320> moveHolder;
 	uint moveHolderIndex = 0;
 	GetLegalMoves(moveHolder,moveHolderIndex);
 	return moveHolder[0];
 }
 
-void Engine::GetLegalMoves(Mover moveHolder[320],uint& moveHolderIndex)
+void Engine::GetLegalMoves(std::array<Mover,320>& moveHolder,uint& moveHolderIndex)
 {
 	MoveGenerator::GetLegalMoves(*this,moveHolder,moveHolderIndex);
 }
 
 int Engine::Perft(const int &depth)
 {
-	Mover moveHolder[320];
+	std::array<Mover,320> moveHolder;
 	uint moveHolderIndex = 0;
 	GetLegalMoves(moveHolder,moveHolderIndex);
 	if (depth == 1)

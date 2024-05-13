@@ -6,6 +6,7 @@
 #include <cstdint>
 #include <iostream>
 #include <cstring>
+#include <array>
 // Testing of specific position: position startpos moves d5d6 h3g2 a2a3
 //  These are all functionalities connected to move generation
 
@@ -15,7 +16,7 @@ bitboard pawnAttacks[2][2][64];
 bitboard fillUpAttacks[8][64];
 bitboard aFileAttacks[8][64];
 
-void MoveGenerator::GetPseudoLegalMoves(Engine &engine, Mover moveHolder[320], uint &moveHolderIndex)
+void MoveGenerator::GetPseudoLegalMoves(Engine &engine, std::array<Mover,320>& moveHolder, uint &moveHolderIndex)
 {
     auto colorIndex = engine.gameHistory[engine.gameHistoryIndex].whiteToMove ? 0 : 6;
     GetPseudoLegalPawnMoves(engine,moveHolder,moveHolderIndex);
@@ -25,7 +26,7 @@ void MoveGenerator::GetPseudoLegalMoves(Engine &engine, Mover moveHolder[320], u
     GetPseudoLegalBishopMoves(engine, engine.gameHistory[engine.gameHistoryIndex].pieceBoards[2 + colorIndex] | engine.gameHistory[engine.gameHistoryIndex].pieceBoards[4 + colorIndex], moveHolder, moveHolderIndex); // bishop + queen
 }
 
-void GetPseudoLegalPawnMoves(Engine &engine, Mover moveHolder[320], uint &moveHolderIndex)
+void GetPseudoLegalPawnMoves(Engine &engine, std::array<Mover,320>& moveHolder, uint &moveHolderIndex)
 {
     auto color = engine.gameHistory[engine.gameHistoryIndex].whiteToMove;
     auto colorIndex = color ? 0 : 6;
@@ -118,7 +119,7 @@ void GetPseudoLegalPawnMoves(Engine &engine, Mover moveHolder[320], uint &moveHo
     }
 }
 
-void GetPseudoLegalKnightMoves(Engine &engine, Mover moveHolder[320], uint &moveHolderIndex)
+void GetPseudoLegalKnightMoves(Engine &engine, std::array<Mover,320>& moveHolder, uint &moveHolderIndex)
 {
     auto color = engine.gameHistory[engine.gameHistoryIndex].whiteToMove;
     auto colorIndex = color ? 0 : 6;
@@ -140,7 +141,7 @@ void GetPseudoLegalKnightMoves(Engine &engine, Mover moveHolder[320], uint &move
     }
 }
 
-void GetPseudoLegalKingMoves(Engine &engine, Mover moveHolder[320], uint &moveHolderIndex)
+void GetPseudoLegalKingMoves(Engine &engine, std::array<Mover,320>& moveHolder, uint &moveHolderIndex)
 {
     auto color = engine.gameHistory[engine.gameHistoryIndex].whiteToMove;
     int kingIndex = engine.gameHistory[engine.gameHistoryIndex].kingIndices[!color];
@@ -208,7 +209,7 @@ void GetPseudoLegalKingMoves(Engine &engine, Mover moveHolder[320], uint &moveHo
     }
 }
 
-void GetPseudoLegalRookMoves(Engine &engine, const bitboard &rookPieceBoard, Mover moveHolder[320], uint &moveHolderIndex)
+void GetPseudoLegalRookMoves(Engine &engine, const bitboard &rookPieceBoard, std::array<Mover,320>& moveHolder, uint &moveHolderIndex)
 {
     auto color = engine.gameHistory[engine.gameHistoryIndex].whiteToMove;
     bitboard thisBoard = engine.gameHistory[engine.gameHistoryIndex].colorBoards[!color];
@@ -240,7 +241,7 @@ void GetPseudoLegalRookMoves(Engine &engine, const bitboard &rookPieceBoard, Mov
     }
 }
 
-void GetPseudoLegalBishopMoves(Engine &engine, const bitboard &bishopPieceBoard, Mover moveHolder[320], uint &moveHolderIndex)
+void GetPseudoLegalBishopMoves(Engine &engine, const bitboard &bishopPieceBoard, std::array<Mover,320>& moveHolder, uint &moveHolderIndex)
 {
     auto color = engine.gameHistory[engine.gameHistoryIndex].whiteToMove;
     bitboard thisBoard = engine.gameHistory[engine.gameHistoryIndex].colorBoards[!color];
@@ -263,7 +264,7 @@ void GetPseudoLegalBishopMoves(Engine &engine, const bitboard &bishopPieceBoard,
     }
 }
 
-void MoveGenerator::GetLegalMoves(Engine &engine, Mover moveHolder[320], uint &moveHolderIndex)
+void MoveGenerator::GetLegalMoves(Engine &engine, std::array<Mover,320>& moveHolder, uint &moveHolderIndex)
 {
     auto color = engine.gameHistory[engine.gameHistoryIndex].whiteToMove;
     auto colorIndex = color ? 0 : 6;

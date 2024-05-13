@@ -5,6 +5,7 @@
 #include <string>
 #include <vector>
 #include <atomic>
+#include <array>
 
 // This will include the core functionality
 
@@ -23,8 +24,8 @@ public:
 	void UndoLastMove();					// Reverts to previous position
 	std::string ShowBoard();				// Debug tool to display current board in console
 
-	void GetPseudoLegalMoves(Mover moveHolder[320], uint &moveHolderIndex); // Gets pseudolegal moves. Implementation in MoveGenerator.cpp
-	void GetLegalMoves(Mover moveHolder[320], uint &moveHolderIndex);		// Gets legalMoves
+	void GetPseudoLegalMoves(std::array<Mover,320>& moveHolder, uint &moveHolderIndex); // Gets pseudolegal moves. Implementation in MoveGenerator.cpp
+	void GetLegalMoves(std::array<Mover,320>& moveHolder, uint &moveHolderIndex);		// Gets legalMoves
 
 	Mover GetBestMove(); // Returns best move after search
 
