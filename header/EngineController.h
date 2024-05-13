@@ -3,12 +3,13 @@
 #include "Engine.h"
 #include "Board.h"
 #include <string>
-
+#include <array>
+#include <vector>
 
 // This will serve as an mediator between the uci handler and the engine
 class EngineController
 {
-	const char *benchMarkingData[69] = { // fens from alexandria, ultimately from bitgenie
+	const std::vector<std::string> benchMarkingData { // fens from alexandria, ultimately from bitgenie
 		"r3k2r/2pb1ppp/2pp1q2/p7/1nP1B3/1P2P3/P2N1PPP/R2QK2R w KQkq a6 0 14",
 		"4rrk1/2p1b1p1/p1p3q1/4p3/2P2n1p/1P1NR2P/PB3PP1/3R1QK1 b - - 2 24",
 		"r3qbrk/6p1/2b2pPp/p3pP1Q/PpPpP2P/3P1B2/2PB3K/R5R1 w - - 16 42",
@@ -65,8 +66,8 @@ class EngineController
 
 public:
 	EngineController();
-	bool BootEngine();								// Boot engine
-	void SetStopFlag(const bool& value);
+	bool BootEngine(); // Boot engine
+	void SetStopFlag(const bool &value);
 	void NewGame();									// Clears board for a new game
 	void SetPosition();								// Sets starting position
 	void SetPosition(const std::string &fenString); // Sets position to fen string
@@ -74,12 +75,12 @@ public:
 	std::string GetLegalMoves();					// Gets legalmoves
 	bool IsReady();									// returns ready flag
 	std::string ShowBoard();						// Debug tool to display board in console
-	std::string Search();									// Search routine
+	std::string Search();							// Search routine
 	std::string Perft(const int &depth);			// Debug Routine for testing move generation
 	std::string SplitPerft(const int &depth);		// Split perft prints out number of leaves after each move
 	void UndoLastMove();							// Debug to test functionality
 	void TestReady();								// Test wheter engine is ready
-	void FullPerftTest();					//Runs a full perft test suite
+	void FullPerftTest();							// Runs a full perft test suite
 	void Bench();
-	void Validate();	//Validates move generation on test suit
+	void Validate(); // Validates move generation on test suit
 };
