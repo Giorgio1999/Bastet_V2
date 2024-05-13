@@ -50,7 +50,13 @@ void Board::MakeMove(const Move &move)
 				}
 			}
 		}
+		// if(i == color +5){
+		// 	wasCastled = startIndex == (whiteToMove ? 60 : 4) && std::abs(startIndex - targetIndex) > 1; // flag if move was a castle
+		// }
+
 		// Generic moving
+		// pieceBoards[i] |= ((pieceBoards[i] >> startIndex) & 1) << targetIndex;
+		// UnsetBit(pieceBoards[i],startIndex);
 		if (CheckBit(pieceBoards[i], startIndex))
 		{ // is piece found, set piece bitboard at target and unset at start
 			SetBit(pieceBoards[i], targetIndex);

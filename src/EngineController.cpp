@@ -182,7 +182,7 @@ void EngineController::Bench(){
 		BootEngine();
 	}
 	auto fixedDepth = 5;
-	auto fullStart = std::chrono::high_resolution_clock::now();
+	auto fullStart = std::chrono::steady_clock::now();
 	auto nodesVisited = 0;
 	for (auto i=0;i<6;i++)
 	{
@@ -190,9 +190,9 @@ void EngineController::Bench(){
 		engine.SetBoard(Fen2Position(fen));
 		nodesVisited += engine.Perft(fixedDepth);
 	}
-	auto fullEnd = std::chrono::high_resolution_clock::now();
-	float duration = std::chrono::duration_cast<std::chrono::seconds>(fullEnd - fullStart).count();
-	std::cout << std::to_string(nodesVisited) << " nodes " << std::to_string((int)(nodesVisited/duration)) << " nps" << std::endl;
+	auto fullEnd = std::chrono::steady_clock::now();
+	float duration = std::chrono::duration_cast<std::chrono::milliseconds>(fullEnd - fullStart).count();
+	std::cout << std::to_string(nodesVisited) << " nodes " << std::to_string((int)(nodesVisited/duration*1000)) << " nps" << std::endl;
 }
 
 void EngineController::Validate(){
