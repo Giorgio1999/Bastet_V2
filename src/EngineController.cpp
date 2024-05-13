@@ -181,9 +181,9 @@ void EngineController::Bench(){
 	if(!isReady){
 		BootEngine();
 	}
-	auto fixedDepth = 4;
+	auto fixedDepth = 5;
 	auto fullStart = std::chrono::steady_clock::now();
-	auto nodesVisited = 0;
+	bitboard nodesVisited = 0;
 	for (uint i=0;i<benchMarkingData.size();i++)
 	{
 		std::string fen = benchMarkingData.at(i);
