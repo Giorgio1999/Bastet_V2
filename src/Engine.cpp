@@ -56,7 +56,7 @@ void Engine::UndoLastMove()
 
 std::string Engine::ShowBoard()
 {
-	return gameHistory[0].ShowBoard();
+	return gameHistory[gameHistoryIndex].ShowBoard();
 }
 
 void Engine::GetPseudoLegalMoves(std::array<move,256>& moveHolder,uint& moveHolderIndex)

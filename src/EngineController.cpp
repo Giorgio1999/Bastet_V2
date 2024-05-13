@@ -169,7 +169,7 @@ void EngineController::FullPerftTest()
 			auto mnps = result / duration / 1000000. * 1000.;
 			std::string ref = line.substr(0, line.find_first_of(';'));
 			std::cout << result << "(" << ref << ")";
-			auto diff = result - std::stoi(ref);
+			int diff = result - std::stoi(ref);
 			std::cout << " diff: " << diff << ", speed: " << mnps << "Mnps" << std::endl;
 			line = line.substr(ref.size() + 1, line.size());
 			depth++;

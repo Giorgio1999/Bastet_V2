@@ -28,7 +28,7 @@ void Board::MakeMove(const move &move)
 
 	auto color = (flags&1)==1;
 	auto colorIndex = color ? 0 : 6;
-	auto otherColorIndex = !color ? 6 : 0;
+	auto otherColorIndex = color ? 6 : 0;
 	auto colorDirection = color ? -1 : 1;
 
 	// Pawn double pushes. leaves ghost
@@ -55,7 +55,7 @@ void Board::MakeMove(const move &move)
 		{ // is piece found, set piece bitboard at target and unset at start
 			SetBit(pieceBoards[i], targetIndex);
 			UnsetBit(pieceBoards[i], startIndex);
-			wasCastled = (i == 5 + color) && startIndex == (color ? 60 : 4) && std::abs(startIndex - targetIndex) > 1; // flag if move was a castle
+			wasCastled = (i == 5 + colorIndex) && startIndex == (color ? 60 : 4) && std::abs(startIndex - targetIndex) > 1; // flag if move was a castle
 			break;
 		}
 	}
@@ -71,22 +71,22 @@ void Board::MakeMove(const move &move)
 		auto castleTarget = color ? 62 : 6;
 		if (targetIndex == castleTarget)
 		{
-			SetBit(pieceBoards[3 + color], targetIndex - 1);
-			UnsetBit(pieceBoards[3 + color], targetIndex + 1);
+			SetBit(pieceBoards[3 + colorIndex], targetIndex - 1);
+			UnsetBit(pieceBoards[3 + colorIndex], targetIndex + 1);
 		}
 		castleTarget = color ? 58 : 2;
 		if (targetIndex == castleTarget)
 		{
-			SetBit(pieceBoards[3 + color], targetIndex + 1);
-			UnsetBit(pieceBoards[3 + color], targetIndex - 2);
+			SetBit(pieceBoards[3 + colorIndex], targetIndex + 1);
+			UnsetBit(pieceBoards[3 + colorIndex], targetIndex - 2);
 		}
 	}
 
 	// Promotions
 	if (Promotion(move)==1)
 	{
-		UnsetBit(pieceBoards[color], targetIndex);
-		SetBit(pieceBoards[color + ConvertTo(move)], targetIndex);
+		UnsetBit(pieceBoards[colorIndex], targetIndex);
+		SetBit(pieceBoards[colorIndex + ConvertTo(move)], targetIndex);
 	}
 
 	// Update castling flags
