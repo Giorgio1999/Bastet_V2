@@ -54,7 +54,7 @@ void EngineController::SetPosition(const std::string &fenString)
 
 void EngineController::MakeMoves(std::string &moveHistory)
 {
-	std::vector<Move> moves = Str2Moves(moveHistory);
+	std::vector<Mover> moves = Str2Moves(moveHistory);
 	for (const auto &move : moves)
 	{
 		engine.MakeMove(move);
@@ -77,12 +77,13 @@ std::string EngineController::ShowBoard()
 
 std::string EngineController::GetLegalMoves()
 {
-	std::vector<Move> legalMoves;
-	engine.GetLegalMoves(legalMoves);
+	Mover moveHolder[320];
+	uint moveHolderIndex = 0;
+	engine.GetLegalMoves(moveHolder,moveHolderIndex);
 	std::string movesString = "";
-	for (const auto &move : legalMoves)
+	for (uint i = 0;i<moveHolderIndex;i++)
 	{
-		movesString += Move2Str(move) + " ";
+		movesString += Move2Str(moveHolder[i]) + " ";
 	}
 	return movesString;
 }
@@ -106,13 +107,14 @@ std::string EngineController::Perft(const int &depth)
 
 std::string EngineController::SplitPerft(const int &depth)
 {
-	std::vector<Move> legalMoves;
-	engine.GetLegalMoves(legalMoves);
+	Mover moveHolder[320];
+	uint moveHolderIndex=0;
+	engine.GetLegalMoves(moveHolder,moveHolderIndex);
 	std::string returnString = "";
-	for (const auto &move : legalMoves)
+	for (uint i = 0; i < moveHolderIndex; i++)
 	{
-		engine.MakeMove(move);
-		returnString += Move2Str(move) += ": ";
+		returnString += Move2Str(moveHolder[i]) += ": ";
+		engine.MakeMove(moveHolder[i]);
 		auto res = 0;
 		if (depth != 1)
 		{
@@ -141,7 +143,8 @@ void EngineController::TestReady()
 
 void EngineController::FullPerftTest()
 {
-	if(!isReady){
+	if (!isReady)
+	{
 		BootEngine();
 	}
 	auto fullStart = std::chrono::high_resolution_clock::now();
@@ -177,14 +180,16 @@ void EngineController::FullPerftTest()
 	dataStream.close();
 }
 
-void EngineController::Bench(){
-	if(!isReady){
+void EngineController::Bench()
+{
+	if (!isReady)
+	{
 		BootEngine();
 	}
 	auto fixedDepth = 4;
 	auto fullStart = std::chrono::steady_clock::now();
 	bitboard nodesVisited = 0;
-	for (uint i=0;i<benchMarkingData.size();i++)
+	for (uint i = 0; i < benchMarkingData.size(); i++)
 	{
 		std::string fen = benchMarkingData.at(i);
 		engine.SetBoard(Fen2Position(fen));
@@ -192,11 +197,13 @@ void EngineController::Bench(){
 	}
 	auto fullEnd = std::chrono::steady_clock::now();
 	float duration = std::chrono::duration_cast<std::chrono::milliseconds>(fullEnd - fullStart).count();
-	std::cout << std::to_string(nodesVisited) << " nodes " << std::to_string((int)(nodesVisited/duration*1000)) << " nps" << std::endl;
+	std::cout << std::to_string(nodesVisited) << " nodes " << std::to_string((int)(nodesVisited / duration * 1000)) << " nps" << std::endl;
 }
 
-void EngineController::Validate(){
-	if(!isReady){
+void EngineController::Validate()
+{
+	if (!isReady)
+	{
 		BootEngine();
 	}
 	auto dataPath = "/home/giorgio/Bastet_V2/assets/perftTestSuit.txt";
@@ -215,13 +222,14 @@ void EngineController::Validate(){
 			std::string ref = line.substr(0, line.find_first_of(';'));
 			auto diff = result - std::stoi(ref);
 			line = line.substr(ref.size() + 1, line.size());
-			if(diff!=0){
+			if (diff != 0)
+			{
 				valid = false;
 				break;
 			}
 			depth++;
 		}
 	}
-	std::cout << (valid?"Is valid":"Is not valid") << std::endl;
+	std::cout << (valid ? "Is valid" : "Is not valid") << std::endl;
 	dataStream.close();
 }

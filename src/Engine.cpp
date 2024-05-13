@@ -1,6 +1,6 @@
 #include "Engine.h"
 #include "Board.h"
-#include "Move.h"
+#include "BoardUtility.h"
 #include "MoveGenerator.h"
 #include "BitBoardUtility.h"
 #include <string>
@@ -35,14 +35,14 @@ void Engine::SetBoard(const Board &newBoard)
 	gameHistory[0].InitialiseKingIndices();
 }
 
-void Engine::MakeMove(const Move &move)
+void Engine::MakeMove(const Mover &move)
 {
 	std::memcpy(&gameHistory[gameHistoryIndex+1],&gameHistory[gameHistoryIndex],sizeof(Board));
 	gameHistory[gameHistoryIndex + 1].MakeMove(move);
 	gameHistoryIndex++;
 }
 
-void Engine::MakeSimpleMove(const Move &move)
+void Engine::MakeSimpleMove(const Mover &move)
 {
 	std::memcpy(&gameHistory[gameHistoryIndex+1],&gameHistory[gameHistoryIndex],sizeof(Board));
 	gameHistory[gameHistoryIndex + 1].MakeSimpleMove(move);
@@ -59,39 +59,41 @@ std::string Engine::ShowBoard()
 	return gameHistory[0].ShowBoard();
 }
 
-void Engine::GetPseudoLegalMoves(std::vector<Move> &pseudoLegalMoves)
+void Engine::GetPseudoLegalMoves(Mover moveHolder[320],uint& moveHolderIndex)
 {
-	MoveGenerator::GetPseudoLegalMoves(*this, pseudoLegalMoves);
+	MoveGenerator::GetPseudoLegalMoves(*this,moveHolder,moveHolderIndex);
 }
 
-Move Engine::GetBestMove()
+Mover Engine::GetBestMove()
 {
-	std::vector<Move> legalmoves;
-	GetLegalMoves(legalmoves);
-	return legalmoves[0];
+	Mover moveHolder[320];
+	uint moveHolderIndex = 0;
+	GetLegalMoves(moveHolder,moveHolderIndex);
+	return moveHolder[0];
 }
 
-void Engine::GetLegalMoves(std::vector<Move> &legalMoves)
+void Engine::GetLegalMoves(Mover moveHolder[320],uint& moveHolderIndex)
 {
-	MoveGenerator::GetLegalMoves(*this, legalMoves);
+	MoveGenerator::GetLegalMoves(*this,moveHolder,moveHolderIndex);
 }
 
 int Engine::Perft(const int &depth)
 {
-	std::vector<Move> legalMoves;
-	GetLegalMoves(legalMoves);
+	Mover moveHolder[320];
+	uint moveHolderIndex = 0;
+	GetLegalMoves(moveHolder,moveHolderIndex);
 	if (depth == 1)
 	{
-		return legalMoves.size();
+		return moveHolderIndex;
 	}
 	// if(depth==0){
 	// 	return 1;
 	// }
 	int numberOfLeafs = 0;
 	int newDepth = depth - 1;
-	for (const auto &current : legalMoves)
+	for (uint i=0;i<moveHolderIndex;i++)
 	{
-		MakeMove(current);
+		MakeMove(moveHolder[i]);
 		if (!stopFlag)
 		{
 			numberOfLeafs += Perft(newDepth);

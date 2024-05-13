@@ -16,7 +16,7 @@ void Board::Clear()
 	ghostBoard = ZERO;
 }
 
-void Board::MakeMove(const Move &move)
+void Board::MakeMove(const Mover &move)
 {
 	// Clear ghosts
 	ghostBoard = ZERO;
@@ -142,7 +142,7 @@ void Board::MakeMove(const Move &move)
 	whiteToMove = !whiteToMove;
 }
 
-void Board::MakeSimpleMove(const Move &move)
+void Board::MakeSimpleMove(const Mover &move)
 {
 	// Clear ghosts
 	ghostBoard = ZERO;
@@ -211,7 +211,7 @@ void Board::InitialiseKingIndices()
 	kingIndices[1] = BitScanForwards(pieceBoards[11])-1;
 }
 
-void Board::UpdateKingIndices(const Move &move)
+void Board::UpdateKingIndices(const Mover &move)
 {
 	kingIndices[!whiteToMove] = kingIndices[!whiteToMove] == move.startIndex ? move.targetIndex : kingIndices[!whiteToMove];
 }
