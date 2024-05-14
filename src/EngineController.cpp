@@ -207,6 +207,7 @@ void EngineController::Validate()
 	{
 		BootEngine();
 	}
+	auto start = std::chrono::steady_clock::now();
 	auto dataPath = "/home/giorgio/Bastet_V2/assets/perftTestSuit.txt";
 	std::fstream dataStream(dataPath, std::ios::in);
 	std::string line;
@@ -231,6 +232,8 @@ void EngineController::Validate()
 			depth++;
 		}
 	}
-	std::cout << (valid ? "Is valid" : "Is not valid") << std::endl;
+	auto end = std::chrono::steady_clock::now();
+	auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end-start).count()/1000;
+	std::cout << (valid ? "Is valid, " : "Is not valid, ") << std::to_string(duration) << "s" << std::endl;
 	dataStream.close();
 }
