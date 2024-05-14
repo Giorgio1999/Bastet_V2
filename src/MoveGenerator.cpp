@@ -16,16 +16,6 @@ bitboard pawnAttacks[2][2][64];
 bitboard fillUpAttacks[8][64];
 bitboard aFileAttacks[8][64];
 
-void MoveGenerator::GetPseudoLegalMoves(Engine &engine, std::array<move, 256> &moveHolder, uint &moveHolderIndex)
-{
-    auto colorIndex = (engine.gameHistory[engine.gameHistoryIndex].flags&1)==1 ? 0 : 6;
-    GetPseudoLegalPawnMoves(engine, moveHolder, moveHolderIndex);
-    GetPseudoLegalKnightMoves(engine, moveHolder, moveHolderIndex);
-    GetPseudoLegalKingMoves(engine, moveHolder, moveHolderIndex);
-    GetPseudoLegalRookMoves(engine, engine.gameHistory[engine.gameHistoryIndex].pieceBoards[3 + colorIndex] | engine.gameHistory[engine.gameHistoryIndex].pieceBoards[4 + colorIndex], moveHolder, moveHolderIndex);   // rook + queen
-    GetPseudoLegalBishopMoves(engine, engine.gameHistory[engine.gameHistoryIndex].pieceBoards[2 + colorIndex] | engine.gameHistory[engine.gameHistoryIndex].pieceBoards[4 + colorIndex], moveHolder, moveHolderIndex); // bishop + queen
-}
-
 void GetPseudoLegalPawnMoves(Engine &engine, std::array<move, 256> &moveHolder, uint &moveHolderIndex)
 {
     auto color = (engine.gameHistory[engine.gameHistoryIndex].flags&1)==1;
