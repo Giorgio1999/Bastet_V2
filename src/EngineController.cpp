@@ -169,15 +169,15 @@ void EngineController::FullPerftTest()
 			auto mnps = result / duration / 1000000. * 1000.;
 			std::string ref = line.substr(0, line.find_first_of(';'));
 			std::cout << result << "(" << ref << ")";
-			auto diff = result - std::stoi(ref);
+			int diff = result - std::stoi(ref);
 			std::cout << " diff: " << diff << ", speed: " << mnps << "Mnps" << std::endl;
 			line = line.substr(ref.size() + 1, line.size());
 			depth++;
 		}
 	}
 	auto fullEnd = std::chrono::high_resolution_clock::now();
-	float duration = std::chrono::duration_cast<std::chrono::minutes>(fullEnd - fullStart).count();
-	std::cout << "Done! Total time: " << duration << "m" << std::endl;
+	float duration = std::chrono::duration_cast<std::chrono::seconds>(fullEnd - fullStart).count();
+	std::cout << "Done! Total time: " << duration << "s" << std::endl;
 	dataStream.close();
 }
 

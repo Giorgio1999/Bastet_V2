@@ -69,32 +69,39 @@ void UnsetBit(bitboard &value, const int &i, const int &j)
 	UnsetBit(value, j * 8 + i);
 }
 
-move Move(const move& move, const int& convertTo, const int& promotion){
+move Move(const move &move, const int &convertTo, const int &promotion)
+{
 	return move | convertTo << 12 | promotion << 15;
 }
 
-move Move(const int& from, const int& to){
+move Move(const int &from, const int &to)
+{
 	return from | to << 6;
 }
 
-move Move(const int& from, const int& to, const int& convertTo, const int& promotion){
+move Move(const int &from, const int &to, const int &convertTo, const int &promotion)
+{
 	return from | to << 6 | convertTo << 12 | promotion << 15;
 }
 
-int StartIndex(const move& move){
+int StartIndex(const move &move)
+{
 	return move & 0x003F;
 }
 
-int TargetIndex(const move&move){
+int TargetIndex(const move &move)
+{
 	return (move & 0x0FC0) >> 6;
 }
 
-int ConvertTo(const move& move){
+int ConvertTo(const move &move)
+{
 	return (move & 0x7000) >> 12;
 }
 
-int Promotion(const move& move){
-	return (move&0x8000) >> 15;
+int Promotion(const move &move)
+{
+	return (move & 0x8000) >> 15;
 }
 
 void PrintBitBoard(const bitboard &value)
@@ -132,30 +139,38 @@ void ComputeMasks()
 		rankMasks[i] = rankMasks[0] >> 8 * i;
 	}
 
-	for(auto index = 0;index<64;index+=9){
+	for (auto index = 0; index < 64; index += 9)
+	{
 		diagonalAttackMasks[index] = 0x8040201008040201;
-		for(auto i = 1; i < 8 - (index&7);i++){
-			diagonalAttackMasks[index+i] = (diagonalAttackMasks[index+i-1] & ~fileMasks[7]) << 1;
+		for (auto i = 1; i < 8 - (index & 7); i++)
+		{
+			diagonalAttackMasks[index + i] = (diagonalAttackMasks[index + i - 1] & ~fileMasks[7]) << 1;
 		}
-		for(auto i=-1;i>=-(index&7);i--){
-			diagonalAttackMasks[index+i] = (diagonalAttackMasks[index+i+1] & ~fileMasks[0]) >> 1;
+		for (auto i = -1; i >= -(index & 7); i--)
+		{
+			diagonalAttackMasks[index + i] = (diagonalAttackMasks[index + i + 1] & ~fileMasks[0]) >> 1;
 		}
 	}
 
-	for(auto index = 7;index<57;index+=7){
+	for (auto index = 7; index < 57; index += 7)
+	{
 		antiDiagonalAttackMasks[index] = 0x0102040810204080;
-		for(auto i=	1;i<8-(index&7);i++){
-			antiDiagonalAttackMasks[index+i] = (antiDiagonalAttackMasks[index+i-1] & ~fileMasks[7]) << 1;
+		for (auto i = 1; i < 8 - (index & 7); i++)
+		{
+			antiDiagonalAttackMasks[index + i] = (antiDiagonalAttackMasks[index + i - 1] & ~fileMasks[7]) << 1;
 		}
-		for(auto i=-1;i>=-(index&7);i--){
-			antiDiagonalAttackMasks[index+i] = (antiDiagonalAttackMasks[index+i+1] & ~fileMasks[0]) >> 1;
+		for (auto i = -1; i >= -(index & 7); i--)
+		{
+			antiDiagonalAttackMasks[index + i] = (antiDiagonalAttackMasks[index + i + 1] & ~fileMasks[0]) >> 1;
 		}
 	}
 
-	for(auto index = 0;index<64;index+=8){
-	rankAttackMasks[index] = rankMasks[7] << index;
-		for(auto shift = 0;shift<8;shift++){
-			rankAttackMasks[index+shift] = rankAttackMasks[index];
+	for (auto index = 0; index < 64; index += 8)
+	{
+		rankAttackMasks[index] = rankMasks[7] << index;
+		for (auto shift = 0; shift < 8; shift++)
+		{
+			rankAttackMasks[index + shift] = rankAttackMasks[index];
 		}
 	}
 }

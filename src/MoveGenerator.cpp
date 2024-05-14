@@ -16,19 +16,9 @@ bitboard pawnAttacks[2][2][64];
 bitboard fillUpAttacks[8][64];
 bitboard aFileAttacks[8][64];
 
-void MoveGenerator::GetPseudoLegalMoves(Engine &engine, std::array<move, 256> &moveHolder, uint &moveHolderIndex)
-{
-    auto colorIndex = engine.gameHistory[engine.gameHistoryIndex].whiteToMove ? 0 : 6;
-    GetPseudoLegalPawnMoves(engine, moveHolder, moveHolderIndex);
-    GetPseudoLegalKnightMoves(engine, moveHolder, moveHolderIndex);
-    GetPseudoLegalKingMoves(engine, moveHolder, moveHolderIndex);
-    GetPseudoLegalRookMoves(engine, engine.gameHistory[engine.gameHistoryIndex].pieceBoards[3 + colorIndex] | engine.gameHistory[engine.gameHistoryIndex].pieceBoards[4 + colorIndex], moveHolder, moveHolderIndex);   // rook + queen
-    GetPseudoLegalBishopMoves(engine, engine.gameHistory[engine.gameHistoryIndex].pieceBoards[2 + colorIndex] | engine.gameHistory[engine.gameHistoryIndex].pieceBoards[4 + colorIndex], moveHolder, moveHolderIndex); // bishop + queen
-}
-
 void GetPseudoLegalPawnMoves(Engine &engine, std::array<move, 256> &moveHolder, uint &moveHolderIndex)
 {
-    auto color = engine.gameHistory[engine.gameHistoryIndex].whiteToMove;
+    auto color = (engine.gameHistory[engine.gameHistoryIndex].flags&1)==1;
     auto colorIndex = color ? 0 : 6;
     auto colorDirection = color ? -8 : 8;
     auto startRank = color ? 1 : 6;
@@ -117,7 +107,7 @@ void GetPseudoLegalPawnMoves(Engine &engine, std::array<move, 256> &moveHolder, 
 
 void GetPseudoLegalKnightMoves(Engine &engine, std::array<move, 256> &moveHolder, uint &moveHolderIndex)
 {
-    auto color = engine.gameHistory[engine.gameHistoryIndex].whiteToMove;
+    auto color = (engine.gameHistory[engine.gameHistoryIndex].flags&1)==1;
     auto colorIndex = color ? 0 : 6;
     bitboard thisBoard = ~engine.gameHistory[engine.gameHistoryIndex].colorBoards[!color]; //  ~friendly blockers
     bitboard knights = engine.gameHistory[engine.gameHistoryIndex].pieceBoards[1 + colorIndex];
@@ -139,9 +129,8 @@ void GetPseudoLegalKnightMoves(Engine &engine, std::array<move, 256> &moveHolder
 
 void GetPseudoLegalKingMoves(Engine &engine, std::array<move, 256> &moveHolder, uint &moveHolderIndex)
 {
-    auto color = engine.gameHistory[engine.gameHistoryIndex].whiteToMove;
-    int kingIndex = engine.gameHistory[engine.gameHistoryIndex].kingIndices[!color];
-    auto castleColorIndex = color ? 0 : 2;                                                                                                             // to obtain colored castling rules
+    auto color = (engine.gameHistory[engine.gameHistoryIndex].flags&1)==1;
+    int kingIndex = engine.gameHistory[engine.gameHistoryIndex].kingIndices[!color];                                                                                                    // to obtain colored castling rules
     bitboard combinedColors = engine.gameHistory[engine.gameHistoryIndex].colorBoards[0] | engine.gameHistory[engine.gameHistoryIndex].colorBoards[1]; // | engine.gameHistory[engine.gameHistoryIndex].attackBoard; // Bitboard with both friendly and unfriendly blockers and attacked squares for castling
 
     // normal king moves
@@ -162,7 +151,7 @@ void GetPseudoLegalKingMoves(Engine &engine, std::array<move, 256> &moveHolder, 
     auto kingSideCastleTarget = color ? 62 : 6;
     auto queenSideCastleTarget = color ? 58 : 2;
     auto index = 0;
-    if (kingsideOccupation == 0 && engine.gameHistory[engine.gameHistoryIndex].castlingRights[castleColorIndex])
+    if (kingsideOccupation == 0 && engine.gameHistory[engine.gameHistoryIndex].flags&(color?0b00000010:0b00001000))
     {
         auto canCastle = true;
         index = 0;
@@ -181,7 +170,7 @@ void GetPseudoLegalKingMoves(Engine &engine, std::array<move, 256> &moveHolder, 
             moveHolderIndex++;
         }
     }
-    if (queenSideOccupation == 0 && engine.gameHistory[engine.gameHistoryIndex].castlingRights[castleColorIndex + 1])
+    if (queenSideOccupation == 0 && engine.gameHistory[engine.gameHistoryIndex].flags&(color?0b00000100:0b00010000))
     {
         index = 0;
         auto canCastle = true;
@@ -207,7 +196,7 @@ void GetPseudoLegalKingMoves(Engine &engine, std::array<move, 256> &moveHolder, 
 
 void GetPseudoLegalRookMoves(Engine &engine, const bitboard &rookPieceBoard, std::array<move, 256> &moveHolder, uint &moveHolderIndex)
 {
-    auto color = engine.gameHistory[engine.gameHistoryIndex].whiteToMove;
+    auto color = (engine.gameHistory[engine.gameHistoryIndex].flags&1)==1;
     bitboard thisBoard = engine.gameHistory[engine.gameHistoryIndex].colorBoards[!color];
     bitboard otherBoard = engine.gameHistory[engine.gameHistoryIndex].colorBoards[color];
     bitboard combinedBoard = thisBoard | otherBoard;
@@ -239,7 +228,7 @@ void GetPseudoLegalRookMoves(Engine &engine, const bitboard &rookPieceBoard, std
 
 void GetPseudoLegalBishopMoves(Engine &engine, const bitboard &bishopPieceBoard, std::array<move, 256> &moveHolder, uint &moveHolderIndex)
 {
-    auto color = engine.gameHistory[engine.gameHistoryIndex].whiteToMove;
+    auto color = (engine.gameHistory[engine.gameHistoryIndex].flags&1)==1;
     bitboard thisBoard = engine.gameHistory[engine.gameHistoryIndex].colorBoards[!color];
     bitboard otherBoard = engine.gameHistory[engine.gameHistoryIndex].colorBoards[color];
     bitboard bishopBoard = bishopPieceBoard;
@@ -262,7 +251,7 @@ void GetPseudoLegalBishopMoves(Engine &engine, const bitboard &bishopPieceBoard,
 
 void MoveGenerator::GetLegalMoves(Engine &engine, std::array<move, 256> &moveHolder, uint &moveHolderIndex)
 {
-    auto color = engine.gameHistory[engine.gameHistoryIndex].whiteToMove;
+    auto color = (engine.gameHistory[engine.gameHistoryIndex].flags&1)==1;
     auto colorIndex = color ? 0 : 6;
     GetPseudoLegalPawnMoves(engine, moveHolder, moveHolderIndex);
     GetPseudoLegalKnightMoves(engine, moveHolder, moveHolderIndex);

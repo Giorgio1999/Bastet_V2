@@ -15,7 +15,6 @@ const bitboard castleMasks[2][2] = {{0x6000000000000000, 0x0E00000000000000}, {0
 
 namespace MoveGenerator
 {
-    void GetPseudoLegalMoves(Engine &engine, std::array<move,256>& moveHolder, uint &moveHolderIndex);
     void GetLegalMoves(Engine &engine, std::array<move,256>& moveHolder, uint &moveHolderIndex);
     bool IsSquareAttacked(const Engine &engine, const Coord &square, const bool &attackingColor);
     bool IsSquareAttacked(const Engine &engine, const int &index, const bool &attackingColor);

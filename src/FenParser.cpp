@@ -103,10 +103,7 @@ Board Fen2Position(const std::string &fen)
 	switch (current)
 	{
 	case 'w':
-		board.whiteToMove = true;
-		break;
-	case 'b':
-		board.whiteToMove = false;
+		board.flags |= 0b00000001;
 		break;
 	}
 
@@ -117,22 +114,16 @@ Board Fen2Position(const std::string &fen)
 		switch (castling[i])
 		{
 		case 'K':
-			board.castlingRights[0] = true;
+			board.flags |= 0b00000010;
 			break;
 		case 'Q':
-			board.castlingRights[1] = true;
+			board.flags |= 0b00000100;
 			break;
 		case 'k':
-			board.castlingRights[2] = true;
+			board.flags |= 0b00001000;
 			break;
 		case 'q':
-			board.castlingRights[3] = true;
-			break;
-		case '-':
-			board.castlingRights[0] = false;
-			board.castlingRights[1] = false;
-			board.castlingRights[2] = false;
-			board.castlingRights[3] = false;
+			board.flags |= 0b00010000;
 			break;
 		}
 	}
