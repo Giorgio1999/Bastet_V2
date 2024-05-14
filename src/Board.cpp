@@ -29,7 +29,6 @@ void Board::MakeMove(const move &move)
 	auto color = (flags & 1) == 1;
 	auto colorIndex = color ? 0 : 6;
 	auto otherColorIndex = color ? 6 : 0;
-	auto colorDirection = color ? -1 : 1;
 
 	// Find Piece at start and move it to target
 	int startPiece = 0;
@@ -141,7 +140,6 @@ void Board::MakeSimpleMove(const move &move)
 	auto color = (flags & 1) == 1;
 	auto colorIndex = color ? 0 : 6;
 	auto otherColorIndex = color ? 6 : 0;
-	auto colorDirection = color ? -1 : 1;
 
 	// Find Piece at start and move it to target
 	int startPiece = 0;
