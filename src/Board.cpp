@@ -102,7 +102,7 @@ void Board::MakeMove(const move &move)
 	UpdateKingIndices(startIndex,targetIndex);
 
 	// Update turn flag
-	flags = color?flags&0b00011110:flags|0b00000001;
+	flags ^= ONE;
 }
 
 void Board::MakeSimpleMove(const move &move)
@@ -150,7 +150,7 @@ void Board::MakeSimpleMove(const move &move)
 	UpdateKingIndices(startIndex,targetIndex);
 
 	// Update turn flag
-	flags = color?flags&0b00011110:flags|0b00000001;
+	flags ^= ONE;
 }
 
 void Board::UpdateColorBoards()
