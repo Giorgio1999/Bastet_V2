@@ -120,7 +120,6 @@ void Board::MakeMove(const move &move)
 
 	// Update King coords
 	kingIndices[!color] = (startPiece==(5+colorIndex))?targetIndex:kingIndices[!color];
-	kingIndices[color] = (startPiece==(5+otherColorIndex))?targetIndex:kingIndices[color];
 
 
 	// Update turn flag
@@ -129,9 +128,6 @@ void Board::MakeMove(const move &move)
 
 void Board::MakeSimpleMove(const move &move)
 {
-		// Clear ghosts
-	ghostBoard = ZERO;
-
 	int startIndex = StartIndex(move);
 	int targetIndex = TargetIndex(move);
 	bitboard start = ONE << startIndex;
@@ -185,8 +181,6 @@ void Board::MakeSimpleMove(const move &move)
 
 	// Update King coords
 	kingIndices[!color] = (startPiece==(5+colorIndex))?targetIndex:kingIndices[!color];
-	kingIndices[color] = (startPiece==(5+otherColorIndex))?targetIndex:kingIndices[color];
-
 
 	// Update turn flag
 	flags ^= ONE;

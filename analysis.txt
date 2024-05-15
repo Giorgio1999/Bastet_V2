@@ -3,48 +3,47 @@ Flat profile:
 Each sample counts as 0.01 seconds.
   %   cumulative   self              self     total           
  time   seconds   seconds    calls   s/call   s/call  name    
- 34.62      0.63     0.63  1869781     0.00     0.00  MoveGenerator::GetLegalMoves(Engine&, std::array<unsigned short, 256ul>&, unsigned int&)
- 18.13      0.96     0.33 72613415     0.00     0.00  Engine::MakeSimpleMove(unsigned short const&)
- 15.38      1.24     0.28 72613415     0.00     0.00  Board::MakeSimpleMove(unsigned short const&)
-  8.79      1.40     0.16 93979036     0.00     0.00  PopLsb(unsigned long&)
-  4.40      1.48     0.08 81587905     0.00     0.00  CheckBit(unsigned long const&, int const&)
-  4.40      1.56     0.08 74483146     0.00     0.00  TargetIndex(unsigned short const&)
-  3.30      1.62     0.06 74483146     0.00     0.00  StartIndex(unsigned short const&)
-  2.75      1.67     0.05 72613415     0.00     0.00  Engine::UndoLastMove()
-  2.20      1.71     0.04  1869781     0.00     0.00  GetPseudoLegalPawnMoves(Engine&, std::array<unsigned short, 256ul>&, unsigned int&)
-  1.65      1.74     0.03  1869781     0.00     0.00  GetPseudoLegalRookMoves(Engine&, unsigned long const&, std::array<unsigned short, 256ul>&, unsigned int&)
-  1.10      1.76     0.02 72402776     0.00     0.00  Move(int const&, int const&)
-  1.10      1.78     0.02  1869781     0.00     0.00  GetPseudoLegalBishopMoves(Engine&, unsigned long const&, std::array<unsigned short, 256ul>&, unsigned int&)
-  0.55      1.79     0.01  1869781     0.00     0.00  GetPseudoLegalKingMoves(Engine&, std::array<unsigned short, 256ul>&, unsigned int&)
-  0.55      1.80     0.01  1869781     0.00     0.00  GetPseudoLegalKnightMoves(Engine&, std::array<unsigned short, 256ul>&, unsigned int&)
-  0.55      1.81     0.01  1869731     0.00     0.00  Board::MakeMove(unsigned short const&)
-  0.55      1.82     0.01   826575     0.00     0.00  MoveGenerator::IsSquareAttacked(Engine const&, int const&, bool const&)
-  0.00      1.82     0.00  1869731     0.00     0.00  Promotion(unsigned short const&)
-  0.00      1.82     0.00   280852     0.00     0.00  Move(unsigned short const&, int const&, int const&)
-  0.00      1.82     0.00      268     0.00     0.00  ConvertTo(unsigned short const&)
-  0.00      1.82     0.00      100     0.00     0.00  BitScanForwards(unsigned long const&)
-  0.00      1.82     0.00       94     0.00     0.00  Board::Board()
-  0.00      1.82     0.00       51     0.00     0.00  Fen2Position(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&)
-  0.00      1.82     0.00       50     0.00     0.00  Board::UpdateColorBoards()
-  0.00      1.82     0.00       50     0.00     0.00  Board::InitialiseKingIndices()
-  0.00      1.82     0.00       50     0.00     0.04  Engine::Perft(int const&)
-  0.00      1.82     0.00       50     0.00     0.00  Engine::SetBoard(Board const&)
-  0.00      1.82     0.00       25     0.00     0.00  std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >::basic_string<std::allocator<char> >(char const*, std::allocator<char> const&)
-  0.00      1.82     0.00        6     0.00     0.00  _GLOBAL__sub_I__ZN6EngineC2Ev
-  0.00      1.82     0.00        4     0.00     0.00  SetBit(unsigned long&, int const&, int const&)
-  0.00      1.82     0.00        4     0.00     0.00  Str2Coord(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&)
-  0.00      1.82     0.00        2     0.00     0.00  Engine::Engine()
-  0.00      1.82     0.00        1     0.00     0.00  ComputeMasks()
-  0.00      1.82     0.00        1     0.00     0.00  Fen2Position()
-  0.00      1.82     0.00        1     0.00     0.00  PreComputeKnightMoves()
-  0.00      1.82     0.00        1     0.00     0.00  PreComputeAFileAttacks()
-  0.00      1.82     0.00        1     0.00     0.00  PreComputeFillUpAttacks()
-  0.00      1.82     0.00        1     0.00     1.82  Bench()
-  0.00      1.82     0.00        1     0.00     0.00  MoveGenerator::PreComputeMoves()
-  0.00      1.82     0.00        1     0.00     0.00  EngineController::BootEngine()
-  0.00      1.82     0.00        1     0.00     1.82  EngineController::Bench()
-  0.00      1.82     0.00        1     0.00     0.00  EngineController::EngineController()
-  0.00      1.82     0.00        1     0.00     0.00  Engine::Boot()
+ 38.04      0.70     0.70  1869781     0.00     0.00  MoveGenerator::GetLegalMoves(Engine&, std::array<unsigned short, 256ul>&, unsigned int&)
+ 14.67      0.97     0.27 72613415     0.00     0.00  Board::MakeSimpleMove(unsigned short const&)
+ 14.13      1.23     0.26 72613415     0.00     0.00  Engine::MakeSimpleMove(unsigned short const&)
+ 10.33      1.42     0.19 93979036     0.00     0.00  PopLsb(unsigned long&)
+  3.26      1.48     0.06 74483146     0.00     0.00  TargetIndex(unsigned short const&)
+  3.26      1.54     0.06 72613415     0.00     0.00  Engine::UndoLastMove()
+  2.17      1.58     0.04 74483146     0.00     0.00  StartIndex(unsigned short const&)
+  2.17      1.62     0.04 72402776     0.00     0.00  Move(int const&, int const&)
+  2.17      1.66     0.04  1869781     0.00     0.00  GetPseudoLegalPawnMoves(Engine&, std::array<unsigned short, 256ul>&, unsigned int&)
+  2.17      1.70     0.04  1869731     0.00     0.00  Board::MakeMove(unsigned short const&)
+  2.17      1.74     0.04       50     0.00     0.04  Engine::Perft(int const&)
+  1.63      1.77     0.03  1869781     0.00     0.00  GetPseudoLegalKingMoves(Engine&, std::array<unsigned short, 256ul>&, unsigned int&)
+  1.63      1.80     0.03  1869781     0.00     0.00  GetPseudoLegalKnightMoves(Engine&, std::array<unsigned short, 256ul>&, unsigned int&)
+  0.54      1.81     0.01  1869781     0.00     0.00  GetPseudoLegalRookMoves(Engine&, unsigned long const&, std::array<unsigned short, 256ul>&, unsigned int&)
+  0.54      1.82     0.01  1869781     0.00     0.00  GetPseudoLegalBishopMoves(Engine&, unsigned long const&, std::array<unsigned short, 256ul>&, unsigned int&)
+  0.54      1.83     0.01  1869731     0.00     0.00  Promotion(unsigned short const&)
+  0.54      1.84     0.01   280852     0.00     0.00  Move(unsigned short const&, int const&, int const&)
+  0.00      1.84     0.00   591715     0.00     0.00  MoveGenerator::IsSquareAttacked(Engine const&, int const&, bool const&)
+  0.00      1.84     0.00      268     0.00     0.00  ConvertTo(unsigned short const&)
+  0.00      1.84     0.00      100     0.00     0.00  BitScanForwards(unsigned long const&)
+  0.00      1.84     0.00       94     0.00     0.00  Board::Board()
+  0.00      1.84     0.00       51     0.00     0.00  Fen2Position(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&)
+  0.00      1.84     0.00       50     0.00     0.00  Board::UpdateColorBoards()
+  0.00      1.84     0.00       50     0.00     0.00  Board::InitialiseKingIndices()
+  0.00      1.84     0.00       50     0.00     0.00  Engine::SetBoard(Board const&)
+  0.00      1.84     0.00       25     0.00     0.00  std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >::basic_string<std::allocator<char> >(char const*, std::allocator<char> const&)
+  0.00      1.84     0.00        6     0.00     0.00  _GLOBAL__sub_I__ZN6EngineC2Ev
+  0.00      1.84     0.00        4     0.00     0.00  SetBit(unsigned long&, int const&, int const&)
+  0.00      1.84     0.00        4     0.00     0.00  Str2Coord(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&)
+  0.00      1.84     0.00        2     0.00     0.00  Engine::Engine()
+  0.00      1.84     0.00        1     0.00     0.00  ComputeMasks()
+  0.00      1.84     0.00        1     0.00     0.00  Fen2Position()
+  0.00      1.84     0.00        1     0.00     0.00  PreComputeKnightMoves()
+  0.00      1.84     0.00        1     0.00     0.00  PreComputeAFileAttacks()
+  0.00      1.84     0.00        1     0.00     0.00  PreComputeFillUpAttacks()
+  0.00      1.84     0.00        1     0.00     1.84  Bench()
+  0.00      1.84     0.00        1     0.00     0.00  MoveGenerator::PreComputeMoves()
+  0.00      1.84     0.00        1     0.00     0.00  EngineController::BootEngine()
+  0.00      1.84     0.00        1     0.00     1.84  EngineController::Bench()
+  0.00      1.84     0.00        1     0.00     0.00  EngineController::EngineController()
+  0.00      1.84     0.00        1     0.00     0.00  Engine::Boot()
 
  %         the percentage of the total running time of the
 time       program used by this function.
@@ -82,220 +81,212 @@ notice and this notice are preserved.
 		     Call graph (explanation follows)
 
 
-granularity: each sample hit covers 4 byte(s) for 0.55% of 1.82 seconds
+granularity: each sample hit covers 4 byte(s) for 0.54% of 1.84 seconds
 
 index % time    self  children    called     name
                                                  <spontaneous>
-[1]    100.0    0.00    1.82                 main [1]
-                0.00    1.82       1/1           Bench() [3]
-                0.00    0.00       1/25          std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >::basic_string<std::allocator<char> >(char const*, std::allocator<char> const&) [37]
+[1]    100.0    0.00    1.84                 main [1]
+                0.00    1.84       1/1           Bench() [3]
+                0.00    0.00       1/25          std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >::basic_string<std::allocator<char> >(char const*, std::allocator<char> const&) [36]
 -----------------------------------------------
                              1869731             Engine::Perft(int const&) [2]
-                0.00    1.82      50/50          EngineController::Bench() [4]
-[2]    100.0    0.00    1.82      50+1869731 Engine::Perft(int const&) [2]
-                0.63    1.18 1869781/1869781     MoveGenerator::GetLegalMoves(Engine&, std::array<unsigned short, 256ul>&, unsigned int&) [5]
-                0.01    0.00 1869731/1869731     Board::MakeMove(unsigned short const&) [19]
+                0.04    1.80      50/50          EngineController::Bench() [4]
+[2]    100.0    0.04    1.80      50+1869731 Engine::Perft(int const&) [2]
+                0.70    1.05 1869781/1869781     MoveGenerator::GetLegalMoves(Engine&, std::array<unsigned short, 256ul>&, unsigned int&) [5]
+                0.04    0.01 1869731/1869731     Board::MakeMove(unsigned short const&) [15]
                              1869731             Engine::Perft(int const&) [2]
 -----------------------------------------------
-                0.00    1.82       1/1           main [1]
-[3]    100.0    0.00    1.82       1         Bench() [3]
-                0.00    1.82       1/1           EngineController::Bench() [4]
-                0.00    0.00       1/1           EngineController::EngineController() [49]
+                0.00    1.84       1/1           main [1]
+[3]    100.0    0.00    1.84       1         Bench() [3]
+                0.00    1.84       1/1           EngineController::Bench() [4]
+                0.00    0.00       1/1           EngineController::EngineController() [48]
 -----------------------------------------------
-                0.00    1.82       1/1           Bench() [3]
-[4]    100.0    0.00    1.82       1         EngineController::Bench() [4]
-                0.00    1.82      50/50          Engine::Perft(int const&) [2]
-                0.00    0.00      50/51          Fen2Position(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&) [33]
-                0.00    0.00      50/50          Board::InitialiseKingIndices() [35]
-                0.00    0.00      50/50          Engine::SetBoard(Board const&) [36]
-                0.00    0.00       1/1           EngineController::BootEngine() [48]
+                0.00    1.84       1/1           Bench() [3]
+[4]    100.0    0.00    1.84       1         EngineController::Bench() [4]
+                0.04    1.80      50/50          Engine::Perft(int const&) [2]
+                0.00    0.00      50/51          Fen2Position(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&) [32]
+                0.00    0.00      50/50          Board::InitialiseKingIndices() [34]
+                0.00    0.00      50/50          Engine::SetBoard(Board const&) [35]
+                0.00    0.00       1/1           EngineController::BootEngine() [47]
 -----------------------------------------------
-                0.63    1.18 1869781/1869781     Engine::Perft(int const&) [2]
-[5]     99.3    0.63    1.18 1869781         MoveGenerator::GetLegalMoves(Engine&, std::array<unsigned short, 256ul>&, unsigned int&) [5]
-                0.33    0.42 72613415/72613415     Engine::MakeSimpleMove(unsigned short const&) [6]
-                0.04    0.05 1869781/1869781     GetPseudoLegalPawnMoves(Engine&, std::array<unsigned short, 256ul>&, unsigned int&) [9]
-                0.03    0.06 1869781/1869781     GetPseudoLegalRookMoves(Engine&, unsigned long const&, std::array<unsigned short, 256ul>&, unsigned int&) [10]
-                0.07    0.00 72227029/81587905     CheckBit(unsigned long const&, int const&) [11]
-                0.02    0.05 1869781/1869781     GetPseudoLegalBishopMoves(Engine&, unsigned long const&, std::array<unsigned short, 256ul>&, unsigned int&) [13]
-                0.05    0.00 72613415/72613415     Engine::UndoLastMove() [15]
-                0.01    0.02 1869781/1869781     GetPseudoLegalKingMoves(Engine&, std::array<unsigned short, 256ul>&, unsigned int&) [16]
-                0.01    0.02 1869781/1869781     GetPseudoLegalKnightMoves(Engine&, std::array<unsigned short, 256ul>&, unsigned int&) [17]
+                0.70    1.05 1869781/1869781     Engine::Perft(int const&) [2]
+[5]     95.0    0.70    1.05 1869781         MoveGenerator::GetLegalMoves(Engine&, std::array<unsigned short, 256ul>&, unsigned int&) [5]
+                0.26    0.37 72613415/72613415     Engine::MakeSimpleMove(unsigned short const&) [6]
+                0.04    0.06 1869781/1869781     GetPseudoLegalPawnMoves(Engine&, std::array<unsigned short, 256ul>&, unsigned int&) [9]
+                0.01    0.08 1869781/1869781     GetPseudoLegalRookMoves(Engine&, unsigned long const&, std::array<unsigned short, 256ul>&, unsigned int&) [10]
+                0.01    0.06 1869781/1869781     GetPseudoLegalBishopMoves(Engine&, unsigned long const&, std::array<unsigned short, 256ul>&, unsigned int&) [11]
+                0.06    0.00 72613415/72613415     Engine::UndoLastMove() [13]
+                0.03    0.03 1869781/1869781     GetPseudoLegalKnightMoves(Engine&, std::array<unsigned short, 256ul>&, unsigned int&) [14]
+                0.03    0.02 1869781/1869781     GetPseudoLegalKingMoves(Engine&, std::array<unsigned short, 256ul>&, unsigned int&) [16]
 -----------------------------------------------
-                0.33    0.42 72613415/72613415     MoveGenerator::GetLegalMoves(Engine&, std::array<unsigned short, 256ul>&, unsigned int&) [5]
-[6]     41.0    0.33    0.42 72613415         Engine::MakeSimpleMove(unsigned short const&) [6]
-                0.28    0.14 72613415/72613415     Board::MakeSimpleMove(unsigned short const&) [7]
+                0.26    0.37 72613415/72613415     MoveGenerator::GetLegalMoves(Engine&, std::array<unsigned short, 256ul>&, unsigned int&) [5]
+[6]     34.1    0.26    0.37 72613415         Engine::MakeSimpleMove(unsigned short const&) [6]
+                0.27    0.10 72613415/72613415     Board::MakeSimpleMove(unsigned short const&) [7]
 -----------------------------------------------
-                0.28    0.14 72613415/72613415     Engine::MakeSimpleMove(unsigned short const&) [6]
-[7]     22.9    0.28    0.14 72613415         Board::MakeSimpleMove(unsigned short const&) [7]
-                0.08    0.00 72613415/74483146     TargetIndex(unsigned short const&) [12]
-                0.06    0.00 72613415/74483146     StartIndex(unsigned short const&) [14]
+                0.27    0.10 72613415/72613415     Engine::MakeSimpleMove(unsigned short const&) [6]
+[7]     20.0    0.27    0.10 72613415         Board::MakeSimpleMove(unsigned short const&) [7]
+                0.06    0.00 72613415/74483146     TargetIndex(unsigned short const&) [12]
+                0.04    0.00 72613415/74483146     StartIndex(unsigned short const&) [17]
 -----------------------------------------------
                 0.01    0.00 7158871/93979036     GetPseudoLegalKingMoves(Engine&, std::array<unsigned short, 256ul>&, unsigned int&) [16]
-                0.02    0.00 10997035/93979036     GetPseudoLegalKnightMoves(Engine&, std::array<unsigned short, 256ul>&, unsigned int&) [17]
+                0.02    0.00 10997035/93979036     GetPseudoLegalKnightMoves(Engine&, std::array<unsigned short, 256ul>&, unsigned int&) [14]
                 0.04    0.00 22079426/93979036     GetPseudoLegalPawnMoves(Engine&, std::array<unsigned short, 256ul>&, unsigned int&) [9]
-                0.04    0.00 23294473/93979036     GetPseudoLegalBishopMoves(Engine&, unsigned long const&, std::array<unsigned short, 256ul>&, unsigned int&) [13]
-                0.05    0.00 30449231/93979036     GetPseudoLegalRookMoves(Engine&, unsigned long const&, std::array<unsigned short, 256ul>&, unsigned int&) [10]
-[8]      8.8    0.16    0.00 93979036         PopLsb(unsigned long&) [8]
+                0.05    0.00 23294473/93979036     GetPseudoLegalBishopMoves(Engine&, unsigned long const&, std::array<unsigned short, 256ul>&, unsigned int&) [11]
+                0.06    0.00 30449231/93979036     GetPseudoLegalRookMoves(Engine&, unsigned long const&, std::array<unsigned short, 256ul>&, unsigned int&) [10]
+[8]     10.3    0.19    0.00 93979036         PopLsb(unsigned long&) [8]
 -----------------------------------------------
-                0.04    0.05 1869781/1869781     MoveGenerator::GetLegalMoves(Engine&, std::array<unsigned short, 256ul>&, unsigned int&) [5]
-[9]      4.9    0.04    0.05 1869781         GetPseudoLegalPawnMoves(Engine&, std::array<unsigned short, 256ul>&, unsigned int&) [9]
+                0.04    0.06 1869781/1869781     MoveGenerator::GetLegalMoves(Engine&, std::array<unsigned short, 256ul>&, unsigned int&) [5]
+[9]      5.5    0.04    0.06 1869781         GetPseudoLegalPawnMoves(Engine&, std::array<unsigned short, 256ul>&, unsigned int&) [9]
                 0.04    0.00 22079426/93979036     PopLsb(unsigned long&) [8]
-                0.01    0.00 8537163/81587905     CheckBit(unsigned long const&, int const&) [11]
-                0.00    0.00 11433059/72402776     Move(int const&, int const&) [18]
-                0.00    0.00  280852/280852      Move(unsigned short const&, int const&, int const&) [29]
+                0.01    0.00  280852/280852      Move(unsigned short const&, int const&, int const&) [20]
+                0.01    0.00 11433059/72402776     Move(int const&, int const&) [18]
 -----------------------------------------------
-                0.03    0.06 1869781/1869781     MoveGenerator::GetLegalMoves(Engine&, std::array<unsigned short, 256ul>&, unsigned int&) [5]
-[10]     4.9    0.03    0.06 1869781         GetPseudoLegalRookMoves(Engine&, unsigned long const&, std::array<unsigned short, 256ul>&, unsigned int&) [10]
-                0.05    0.00 30449231/93979036     PopLsb(unsigned long&) [8]
+                0.01    0.08 1869781/1869781     MoveGenerator::GetLegalMoves(Engine&, std::array<unsigned short, 256ul>&, unsigned int&) [5]
+[10]     4.7    0.01    0.08 1869781         GetPseudoLegalRookMoves(Engine&, unsigned long const&, std::array<unsigned short, 256ul>&, unsigned int&) [10]
+                0.06    0.00 30449231/93979036     PopLsb(unsigned long&) [8]
                 0.01    0.00 25625818/72402776     Move(int const&, int const&) [18]
 -----------------------------------------------
-                0.00    0.00  823713/81587905     MoveGenerator::IsSquareAttacked(Engine const&, int const&, bool const&) [20]
-                0.01    0.00 8537163/81587905     GetPseudoLegalPawnMoves(Engine&, std::array<unsigned short, 256ul>&, unsigned int&) [9]
-                0.07    0.00 72227029/81587905     MoveGenerator::GetLegalMoves(Engine&, std::array<unsigned short, 256ul>&, unsigned int&) [5]
-[11]     4.4    0.08    0.00 81587905         CheckBit(unsigned long const&, int const&) [11]
------------------------------------------------
-                0.00    0.00 1869731/74483146     Board::MakeMove(unsigned short const&) [19]
-                0.08    0.00 72613415/74483146     Board::MakeSimpleMove(unsigned short const&) [7]
-[12]     4.4    0.08    0.00 74483146         TargetIndex(unsigned short const&) [12]
------------------------------------------------
-                0.02    0.05 1869781/1869781     MoveGenerator::GetLegalMoves(Engine&, std::array<unsigned short, 256ul>&, unsigned int&) [5]
-[13]     3.6    0.02    0.05 1869781         GetPseudoLegalBishopMoves(Engine&, unsigned long const&, std::array<unsigned short, 256ul>&, unsigned int&) [13]
-                0.04    0.00 23294473/93979036     PopLsb(unsigned long&) [8]
+                0.01    0.06 1869781/1869781     MoveGenerator::GetLegalMoves(Engine&, std::array<unsigned short, 256ul>&, unsigned int&) [5]
+[11]     3.7    0.01    0.06 1869781         GetPseudoLegalBishopMoves(Engine&, unsigned long const&, std::array<unsigned short, 256ul>&, unsigned int&) [11]
+                0.05    0.00 23294473/93979036     PopLsb(unsigned long&) [8]
                 0.01    0.00 19500485/72402776     Move(int const&, int const&) [18]
 -----------------------------------------------
-                0.00    0.00 1869731/74483146     Board::MakeMove(unsigned short const&) [19]
+                0.00    0.00 1869731/74483146     Board::MakeMove(unsigned short const&) [15]
                 0.06    0.00 72613415/74483146     Board::MakeSimpleMove(unsigned short const&) [7]
-[14]     3.3    0.06    0.00 74483146         StartIndex(unsigned short const&) [14]
+[12]     3.3    0.06    0.00 74483146         TargetIndex(unsigned short const&) [12]
 -----------------------------------------------
-                0.05    0.00 72613415/72613415     MoveGenerator::GetLegalMoves(Engine&, std::array<unsigned short, 256ul>&, unsigned int&) [5]
-[15]     2.7    0.05    0.00 72613415         Engine::UndoLastMove() [15]
+                0.06    0.00 72613415/72613415     MoveGenerator::GetLegalMoves(Engine&, std::array<unsigned short, 256ul>&, unsigned int&) [5]
+[13]     3.3    0.06    0.00 72613415         Engine::UndoLastMove() [13]
 -----------------------------------------------
-                0.01    0.02 1869781/1869781     MoveGenerator::GetLegalMoves(Engine&, std::array<unsigned short, 256ul>&, unsigned int&) [5]
-[16]     1.9    0.01    0.02 1869781         GetPseudoLegalKingMoves(Engine&, std::array<unsigned short, 256ul>&, unsigned int&) [16]
-                0.01    0.00 7158871/93979036     PopLsb(unsigned long&) [8]
-                0.01    0.00  826575/826575      MoveGenerator::IsSquareAttacked(Engine const&, int const&, bool const&) [20]
-                0.00    0.00 6707106/72402776     Move(int const&, int const&) [18]
------------------------------------------------
-                0.01    0.02 1869781/1869781     MoveGenerator::GetLegalMoves(Engine&, std::array<unsigned short, 256ul>&, unsigned int&) [5]
-[17]     1.7    0.01    0.02 1869781         GetPseudoLegalKnightMoves(Engine&, std::array<unsigned short, 256ul>&, unsigned int&) [17]
+                0.03    0.03 1869781/1869781     MoveGenerator::GetLegalMoves(Engine&, std::array<unsigned short, 256ul>&, unsigned int&) [5]
+[14]     3.1    0.03    0.03 1869781         GetPseudoLegalKnightMoves(Engine&, std::array<unsigned short, 256ul>&, unsigned int&) [14]
                 0.02    0.00 10997035/93979036     PopLsb(unsigned long&) [8]
-                0.00    0.00 9136308/72402776     Move(int const&, int const&) [18]
+                0.01    0.00 9136308/72402776     Move(int const&, int const&) [18]
+-----------------------------------------------
+                0.04    0.01 1869731/1869731     Engine::Perft(int const&) [2]
+[15]     2.9    0.04    0.01 1869731         Board::MakeMove(unsigned short const&) [15]
+                0.01    0.00 1869731/1869731     Promotion(unsigned short const&) [19]
+                0.00    0.00 1869731/74483146     TargetIndex(unsigned short const&) [12]
+                0.00    0.00 1869731/74483146     StartIndex(unsigned short const&) [17]
+                0.00    0.00     268/268         ConvertTo(unsigned short const&) [29]
+-----------------------------------------------
+                0.03    0.02 1869781/1869781     MoveGenerator::GetLegalMoves(Engine&, std::array<unsigned short, 256ul>&, unsigned int&) [5]
+[16]     2.6    0.03    0.02 1869781         GetPseudoLegalKingMoves(Engine&, std::array<unsigned short, 256ul>&, unsigned int&) [16]
+                0.01    0.00 7158871/93979036     PopLsb(unsigned long&) [8]
+                0.00    0.00 6707106/72402776     Move(int const&, int const&) [18]
+                0.00    0.00  591715/591715      MoveGenerator::IsSquareAttacked(Engine const&, int const&, bool const&) [28]
+-----------------------------------------------
+                0.00    0.00 1869731/74483146     Board::MakeMove(unsigned short const&) [15]
+                0.04    0.00 72613415/74483146     Board::MakeSimpleMove(unsigned short const&) [7]
+[17]     2.2    0.04    0.00 74483146         StartIndex(unsigned short const&) [17]
 -----------------------------------------------
                 0.00    0.00 6707106/72402776     GetPseudoLegalKingMoves(Engine&, std::array<unsigned short, 256ul>&, unsigned int&) [16]
-                0.00    0.00 9136308/72402776     GetPseudoLegalKnightMoves(Engine&, std::array<unsigned short, 256ul>&, unsigned int&) [17]
-                0.00    0.00 11433059/72402776     GetPseudoLegalPawnMoves(Engine&, std::array<unsigned short, 256ul>&, unsigned int&) [9]
-                0.01    0.00 19500485/72402776     GetPseudoLegalBishopMoves(Engine&, unsigned long const&, std::array<unsigned short, 256ul>&, unsigned int&) [13]
+                0.01    0.00 9136308/72402776     GetPseudoLegalKnightMoves(Engine&, std::array<unsigned short, 256ul>&, unsigned int&) [14]
+                0.01    0.00 11433059/72402776     GetPseudoLegalPawnMoves(Engine&, std::array<unsigned short, 256ul>&, unsigned int&) [9]
+                0.01    0.00 19500485/72402776     GetPseudoLegalBishopMoves(Engine&, unsigned long const&, std::array<unsigned short, 256ul>&, unsigned int&) [11]
                 0.01    0.00 25625818/72402776     GetPseudoLegalRookMoves(Engine&, unsigned long const&, std::array<unsigned short, 256ul>&, unsigned int&) [10]
-[18]     1.1    0.02    0.00 72402776         Move(int const&, int const&) [18]
+[18]     2.2    0.04    0.00 72402776         Move(int const&, int const&) [18]
 -----------------------------------------------
-                0.01    0.00 1869731/1869731     Engine::Perft(int const&) [2]
-[19]     0.7    0.01    0.00 1869731         Board::MakeMove(unsigned short const&) [19]
-                0.00    0.00 1869731/74483146     TargetIndex(unsigned short const&) [12]
-                0.00    0.00 1869731/74483146     StartIndex(unsigned short const&) [14]
-                0.00    0.00 1869731/1869731     Promotion(unsigned short const&) [28]
-                0.00    0.00     268/268         ConvertTo(unsigned short const&) [30]
+                0.01    0.00 1869731/1869731     Board::MakeMove(unsigned short const&) [15]
+[19]     0.5    0.01    0.00 1869731         Promotion(unsigned short const&) [19]
 -----------------------------------------------
-                0.01    0.00  826575/826575      GetPseudoLegalKingMoves(Engine&, std::array<unsigned short, 256ul>&, unsigned int&) [16]
-[20]     0.6    0.01    0.00  826575         MoveGenerator::IsSquareAttacked(Engine const&, int const&, bool const&) [20]
-                0.00    0.00  823713/81587905     CheckBit(unsigned long const&, int const&) [11]
+                0.01    0.00  280852/280852      GetPseudoLegalPawnMoves(Engine&, std::array<unsigned short, 256ul>&, unsigned int&) [9]
+[20]     0.5    0.01    0.00  280852         Move(unsigned short const&, int const&, int const&) [20]
 -----------------------------------------------
-                0.00    0.00 1869731/1869731     Board::MakeMove(unsigned short const&) [19]
-[28]     0.0    0.00    0.00 1869731         Promotion(unsigned short const&) [28]
+                0.00    0.00  591715/591715      GetPseudoLegalKingMoves(Engine&, std::array<unsigned short, 256ul>&, unsigned int&) [16]
+[28]     0.0    0.00    0.00  591715         MoveGenerator::IsSquareAttacked(Engine const&, int const&, bool const&) [28]
 -----------------------------------------------
-                0.00    0.00  280852/280852      GetPseudoLegalPawnMoves(Engine&, std::array<unsigned short, 256ul>&, unsigned int&) [9]
-[29]     0.0    0.00    0.00  280852         Move(unsigned short const&, int const&, int const&) [29]
+                0.00    0.00     268/268         Board::MakeMove(unsigned short const&) [15]
+[29]     0.0    0.00    0.00     268         ConvertTo(unsigned short const&) [29]
 -----------------------------------------------
-                0.00    0.00     268/268         Board::MakeMove(unsigned short const&) [19]
-[30]     0.0    0.00    0.00     268         ConvertTo(unsigned short const&) [30]
+                0.00    0.00     100/100         Board::InitialiseKingIndices() [34]
+[30]     0.0    0.00    0.00     100         BitScanForwards(unsigned long const&) [30]
 -----------------------------------------------
-                0.00    0.00     100/100         Board::InitialiseKingIndices() [35]
-[31]     0.0    0.00    0.00     100         BitScanForwards(unsigned long const&) [31]
+                0.00    0.00       1/94          EngineController::EngineController() [48]
+                0.00    0.00      42/94          Engine::Engine() [40]
+                0.00    0.00      51/94          Fen2Position(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&) [32]
+[31]     0.0    0.00    0.00      94         Board::Board() [31]
 -----------------------------------------------
-                0.00    0.00       1/94          EngineController::EngineController() [49]
-                0.00    0.00      42/94          Engine::Engine() [41]
-                0.00    0.00      51/94          Fen2Position(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&) [33]
-[32]     0.0    0.00    0.00      94         Board::Board() [32]
------------------------------------------------
-                0.00    0.00       1/51          Fen2Position() [43]
+                0.00    0.00       1/51          Fen2Position() [42]
                 0.00    0.00      50/51          EngineController::Bench() [4]
-[33]     0.0    0.00    0.00      51         Fen2Position(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&) [33]
-                0.00    0.00      51/94          Board::Board() [32]
-                0.00    0.00       4/4           Str2Coord(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&) [40]
-                0.00    0.00       4/4           SetBit(unsigned long&, int const&, int const&) [39]
+[32]     0.0    0.00    0.00      51         Fen2Position(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&) [32]
+                0.00    0.00      51/94          Board::Board() [31]
+                0.00    0.00       4/4           Str2Coord(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&) [39]
+                0.00    0.00       4/4           SetBit(unsigned long&, int const&, int const&) [38]
 -----------------------------------------------
-                0.00    0.00      50/50          Engine::SetBoard(Board const&) [36]
-[34]     0.0    0.00    0.00      50         Board::UpdateColorBoards() [34]
------------------------------------------------
-                0.00    0.00      50/50          EngineController::Bench() [4]
-[35]     0.0    0.00    0.00      50         Board::InitialiseKingIndices() [35]
-                0.00    0.00     100/100         BitScanForwards(unsigned long const&) [31]
+                0.00    0.00      50/50          Engine::SetBoard(Board const&) [35]
+[33]     0.0    0.00    0.00      50         Board::UpdateColorBoards() [33]
 -----------------------------------------------
                 0.00    0.00      50/50          EngineController::Bench() [4]
-[36]     0.0    0.00    0.00      50         Engine::SetBoard(Board const&) [36]
-                0.00    0.00      50/50          Board::UpdateColorBoards() [34]
+[34]     0.0    0.00    0.00      50         Board::InitialiseKingIndices() [34]
+                0.00    0.00     100/100         BitScanForwards(unsigned long const&) [30]
+-----------------------------------------------
+                0.00    0.00      50/50          EngineController::Bench() [4]
+[35]     0.0    0.00    0.00      50         Engine::SetBoard(Board const&) [35]
+                0.00    0.00      50/50          Board::UpdateColorBoards() [33]
 -----------------------------------------------
                 0.00    0.00       1/25          main [1]
-                0.00    0.00       3/25          _GLOBAL__sub_I__ZN5BoardC2Ev [54]
-                0.00    0.00       3/25          _GLOBAL__sub_I__ZN5CoordC2Ev [55]
-                0.00    0.00       3/25          _GLOBAL__sub_I__ZN6EngineC2Ev [38]
-                0.00    0.00       3/25          _GLOBAL__sub_I_knightMoves [57]
-                0.00    0.00       3/25          _GLOBAL__sub_I__Z6Listenv [52]
-                0.00    0.00       3/25          _GLOBAL__sub_I_main [58]
-                0.00    0.00       6/25          _GLOBAL__sub_I__Z12Fen2Positionv [51]
-[37]     0.0    0.00    0.00      25         std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >::basic_string<std::allocator<char> >(char const*, std::allocator<char> const&) [37]
+                0.00    0.00       3/25          _GLOBAL__sub_I__ZN5BoardC2Ev [53]
+                0.00    0.00       3/25          _GLOBAL__sub_I__ZN5CoordC2Ev [54]
+                0.00    0.00       3/25          _GLOBAL__sub_I__ZN6EngineC2Ev [37]
+                0.00    0.00       3/25          _GLOBAL__sub_I_knightMoves [56]
+                0.00    0.00       3/25          _GLOBAL__sub_I__Z6Listenv [51]
+                0.00    0.00       3/25          _GLOBAL__sub_I_main [57]
+                0.00    0.00       6/25          _GLOBAL__sub_I__Z12Fen2Positionv [50]
+[36]     0.0    0.00    0.00      25         std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >::basic_string<std::allocator<char> >(char const*, std::allocator<char> const&) [36]
 -----------------------------------------------
-                0.00    0.00       6/6           _GLOBAL__sub_I__ZN16EngineControllerC2Ev [53]
-[38]     0.0    0.00    0.00       6         _GLOBAL__sub_I__ZN6EngineC2Ev [38]
-                0.00    0.00       3/25          std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >::basic_string<std::allocator<char> >(char const*, std::allocator<char> const&) [37]
+                0.00    0.00       6/6           _GLOBAL__sub_I__ZN16EngineControllerC2Ev [52]
+[37]     0.0    0.00    0.00       6         _GLOBAL__sub_I__ZN6EngineC2Ev [37]
+                0.00    0.00       3/25          std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >::basic_string<std::allocator<char> >(char const*, std::allocator<char> const&) [36]
 -----------------------------------------------
-                0.00    0.00       4/4           Fen2Position(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&) [33]
-[39]     0.0    0.00    0.00       4         SetBit(unsigned long&, int const&, int const&) [39]
+                0.00    0.00       4/4           Fen2Position(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&) [32]
+[38]     0.0    0.00    0.00       4         SetBit(unsigned long&, int const&, int const&) [38]
 -----------------------------------------------
-                0.00    0.00       4/4           Fen2Position(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&) [33]
-[40]     0.0    0.00    0.00       4         Str2Coord(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&) [40]
+                0.00    0.00       4/4           Fen2Position(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&) [32]
+[39]     0.0    0.00    0.00       4         Str2Coord(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&) [39]
 -----------------------------------------------
-                0.00    0.00       1/2           EngineController::EngineController() [49]
-                0.00    0.00       1/2           EngineController::BootEngine() [48]
-[41]     0.0    0.00    0.00       2         Engine::Engine() [41]
-                0.00    0.00      42/94          Board::Board() [32]
+                0.00    0.00       1/2           EngineController::EngineController() [48]
+                0.00    0.00       1/2           EngineController::BootEngine() [47]
+[40]     0.0    0.00    0.00       2         Engine::Engine() [40]
+                0.00    0.00      42/94          Board::Board() [31]
 -----------------------------------------------
-                0.00    0.00       1/1           Engine::Boot() [50]
-[42]     0.0    0.00    0.00       1         ComputeMasks() [42]
+                0.00    0.00       1/1           Engine::Boot() [49]
+[41]     0.0    0.00    0.00       1         ComputeMasks() [41]
 -----------------------------------------------
-                0.00    0.00       1/1           EngineController::BootEngine() [48]
-[43]     0.0    0.00    0.00       1         Fen2Position() [43]
-                0.00    0.00       1/51          Fen2Position(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&) [33]
+                0.00    0.00       1/1           EngineController::BootEngine() [47]
+[42]     0.0    0.00    0.00       1         Fen2Position() [42]
+                0.00    0.00       1/51          Fen2Position(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&) [32]
 -----------------------------------------------
-                0.00    0.00       1/1           MoveGenerator::PreComputeMoves() [47]
-[44]     0.0    0.00    0.00       1         PreComputeKnightMoves() [44]
+                0.00    0.00       1/1           MoveGenerator::PreComputeMoves() [46]
+[43]     0.0    0.00    0.00       1         PreComputeKnightMoves() [43]
 -----------------------------------------------
-                0.00    0.00       1/1           EngineController::BootEngine() [48]
-[45]     0.0    0.00    0.00       1         PreComputeAFileAttacks() [45]
+                0.00    0.00       1/1           EngineController::BootEngine() [47]
+[44]     0.0    0.00    0.00       1         PreComputeAFileAttacks() [44]
 -----------------------------------------------
-                0.00    0.00       1/1           MoveGenerator::PreComputeMoves() [47]
-[46]     0.0    0.00    0.00       1         PreComputeFillUpAttacks() [46]
+                0.00    0.00       1/1           MoveGenerator::PreComputeMoves() [46]
+[45]     0.0    0.00    0.00       1         PreComputeFillUpAttacks() [45]
 -----------------------------------------------
-                0.00    0.00       1/1           EngineController::BootEngine() [48]
-[47]     0.0    0.00    0.00       1         MoveGenerator::PreComputeMoves() [47]
-                0.00    0.00       1/1           PreComputeKnightMoves() [44]
-                0.00    0.00       1/1           PreComputeFillUpAttacks() [46]
+                0.00    0.00       1/1           EngineController::BootEngine() [47]
+[46]     0.0    0.00    0.00       1         MoveGenerator::PreComputeMoves() [46]
+                0.00    0.00       1/1           PreComputeKnightMoves() [43]
+                0.00    0.00       1/1           PreComputeFillUpAttacks() [45]
 -----------------------------------------------
                 0.00    0.00       1/1           EngineController::Bench() [4]
-[48]     0.0    0.00    0.00       1         EngineController::BootEngine() [48]
-                0.00    0.00       1/2           Engine::Engine() [41]
-                0.00    0.00       1/1           Fen2Position() [43]
-                0.00    0.00       1/1           PreComputeAFileAttacks() [45]
-                0.00    0.00       1/1           MoveGenerator::PreComputeMoves() [47]
-                0.00    0.00       1/1           Engine::Boot() [50]
+[47]     0.0    0.00    0.00       1         EngineController::BootEngine() [47]
+                0.00    0.00       1/2           Engine::Engine() [40]
+                0.00    0.00       1/1           Fen2Position() [42]
+                0.00    0.00       1/1           PreComputeAFileAttacks() [44]
+                0.00    0.00       1/1           MoveGenerator::PreComputeMoves() [46]
+                0.00    0.00       1/1           Engine::Boot() [49]
 -----------------------------------------------
                 0.00    0.00       1/1           Bench() [3]
-[49]     0.0    0.00    0.00       1         EngineController::EngineController() [49]
-                0.00    0.00       1/2           Engine::Engine() [41]
-                0.00    0.00       1/94          Board::Board() [32]
+[48]     0.0    0.00    0.00       1         EngineController::EngineController() [48]
+                0.00    0.00       1/2           Engine::Engine() [40]
+                0.00    0.00       1/94          Board::Board() [31]
 -----------------------------------------------
-                0.00    0.00       1/1           EngineController::BootEngine() [48]
-[50]     0.0    0.00    0.00       1         Engine::Boot() [50]
-                0.00    0.00       1/1           ComputeMasks() [42]
+                0.00    0.00       1/1           EngineController::BootEngine() [47]
+[49]     0.0    0.00    0.00       1         Engine::Boot() [49]
+                0.00    0.00       1/1           ComputeMasks() [41]
 -----------------------------------------------
 
  This table describes the call tree of the program, and was sorted by
@@ -388,17 +379,17 @@ notice and this notice are preserved.
 
 Index by function name
 
-  [38] _GLOBAL__sub_I__ZN6EngineC2Ev [17] GetPseudoLegalKnightMoves(Engine&, std::array<unsigned short, 256ul>&, unsigned int&) [4] EngineController::Bench()
-  [14] StartIndex(unsigned short const&) [18] Move(int const&, int const&) [49] EngineController::EngineController()
-  [12] TargetIndex(unsigned short const&) [29] Move(unsigned short const&, int const&, int const&) [7] Board::MakeSimpleMove(unsigned short const&)
-  [42] ComputeMasks()          [3] Bench()                [34] Board::UpdateColorBoards()
-  [33] Fen2Position(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&) [8] PopLsb(unsigned long&) [35] Board::InitialiseKingIndices()
-  [43] Fen2Position()         [39] SetBit(unsigned long&, int const&, int const&) [19] Board::MakeMove(unsigned short const&)
-  [31] BitScanForwards(unsigned long const&) [11] CheckBit(unsigned long const&, int const&) [32] Board::Board()
-  [44] PreComputeKnightMoves() [30] ConvertTo(unsigned short const&) [15] Engine::UndoLastMove()
-  [45] PreComputeAFileAttacks() [28] Promotion(unsigned short const&) [6] Engine::MakeSimpleMove(unsigned short const&)
-  [16] GetPseudoLegalKingMoves(Engine&, std::array<unsigned short, 256ul>&, unsigned int&) [40] Str2Coord(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&) [50] Engine::Boot()
-   [9] GetPseudoLegalPawnMoves(Engine&, std::array<unsigned short, 256ul>&, unsigned int&) [5] MoveGenerator::GetLegalMoves(Engine&, std::array<unsigned short, 256ul>&, unsigned int&) [2] Engine::Perft(int const&)
-  [10] GetPseudoLegalRookMoves(Engine&, unsigned long const&, std::array<unsigned short, 256ul>&, unsigned int&) [47] MoveGenerator::PreComputeMoves() [36] Engine::SetBoard(Board const&)
-  [46] PreComputeFillUpAttacks() [20] MoveGenerator::IsSquareAttacked(Engine const&, int const&, bool const&) [41] Engine::Engine()
-  [13] GetPseudoLegalBishopMoves(Engine&, unsigned long const&, std::array<unsigned short, 256ul>&, unsigned int&) [48] EngineController::BootEngine() [37] std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >::basic_string<std::allocator<char> >(char const*, std::allocator<char> const&)
+  [37] _GLOBAL__sub_I__ZN6EngineC2Ev [14] GetPseudoLegalKnightMoves(Engine&, std::array<unsigned short, 256ul>&, unsigned int&) [48] EngineController::EngineController()
+  [17] StartIndex(unsigned short const&) [18] Move(int const&, int const&) [7] Board::MakeSimpleMove(unsigned short const&)
+  [12] TargetIndex(unsigned short const&) [20] Move(unsigned short const&, int const&, int const&) [33] Board::UpdateColorBoards()
+  [41] ComputeMasks()          [3] Bench()                [34] Board::InitialiseKingIndices()
+  [32] Fen2Position(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&) [8] PopLsb(unsigned long&) [15] Board::MakeMove(unsigned short const&)
+  [42] Fen2Position()         [38] SetBit(unsigned long&, int const&, int const&) [31] Board::Board()
+  [30] BitScanForwards(unsigned long const&) [29] ConvertTo(unsigned short const&) [13] Engine::UndoLastMove()
+  [43] PreComputeKnightMoves() [19] Promotion(unsigned short const&) [6] Engine::MakeSimpleMove(unsigned short const&)
+  [44] PreComputeAFileAttacks() [39] Str2Coord(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&) [49] Engine::Boot()
+  [16] GetPseudoLegalKingMoves(Engine&, std::array<unsigned short, 256ul>&, unsigned int&) [5] MoveGenerator::GetLegalMoves(Engine&, std::array<unsigned short, 256ul>&, unsigned int&) [2] Engine::Perft(int const&)
+   [9] GetPseudoLegalPawnMoves(Engine&, std::array<unsigned short, 256ul>&, unsigned int&) [46] MoveGenerator::PreComputeMoves() [35] Engine::SetBoard(Board const&)
+  [10] GetPseudoLegalRookMoves(Engine&, unsigned long const&, std::array<unsigned short, 256ul>&, unsigned int&) [28] MoveGenerator::IsSquareAttacked(Engine const&, int const&, bool const&) [40] Engine::Engine()
+  [45] PreComputeFillUpAttacks() [47] EngineController::BootEngine() [36] std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >::basic_string<std::allocator<char> >(char const*, std::allocator<char> const&)
+  [11] GetPseudoLegalBishopMoves(Engine&, unsigned long const&, std::array<unsigned short, 256ul>&, unsigned int&) [4] EngineController::Bench()

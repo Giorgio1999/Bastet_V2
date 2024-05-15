@@ -33,6 +33,7 @@ void Engine::SetBoard(const Board &newBoard)
 	gameHistory[0] = newBoard;
 	gameHistory[0].UpdateColorBoards();
 	gameHistory[0].InitialiseKingIndices();
+	gameHistoryIndex = 0;
 }
 
 void Engine::MakeMove(const move &move)
