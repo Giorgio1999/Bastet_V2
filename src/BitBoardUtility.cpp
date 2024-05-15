@@ -20,7 +20,8 @@ int BitScanForwards(const bitboard &value)
 int PopLsb(bitboard &value)
 {
 	auto index = BitScanForwards(value) - 1;
-	UnsetBit(value, index);
+	// UnsetBit(value, index);
+	value^=ONE << index;
 	return index;
 }
 

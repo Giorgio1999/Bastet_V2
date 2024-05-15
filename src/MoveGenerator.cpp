@@ -306,7 +306,8 @@ bool MoveGenerator::IsSquareAttacked(const Engine &engine, const int &index, con
     // King: is the piece on index attacked by the attackingcolor king
     int attackingKingIndex = engine.gameHistory[engine.gameHistoryIndex].kingIndices[!attackingColor];
     attacks = kingMoves[attackingKingIndex];
-    if (CheckBit(attacks, index))
+    // if (CheckBit(attacks, index))
+    if(attacks&(ONE<<index))
     {
         return true;
     }
