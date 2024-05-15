@@ -18,96 +18,110 @@ bitboard aFileAttacks[8][64];
 
 void GetPseudoLegalPawnMoves(Engine &engine, std::array<move, 256> &moveHolder, uint &moveHolderIndex)
 {
-    auto color = (engine.gameHistory[engine.gameHistoryIndex].flags&1)==1;
+    auto color = (engine.gameHistory[engine.gameHistoryIndex].flags & 1) == 1;
     auto colorIndex = color ? 0 : 6;
     auto colorDirection = color ? -8 : 8;
     auto startRank = color ? 1 : 6;
-    auto promotionRank = color ? 7 : 0;
-    bitboard combinedColors = ~engine.gameHistory[engine.gameHistoryIndex].colorBoards[color] & ~engine.gameHistory[engine.gameHistoryIndex].colorBoards[!color];
+    auto promoterRank = color ? 6 : 1;
+    bitboard combinedColors = engine.gameHistory[engine.gameHistoryIndex].colorBoards[color] | engine.gameHistory[engine.gameHistoryIndex].colorBoards[!color];
+    bitboard pusher = engine.gameHistory[engine.gameHistoryIndex].pieceBoards[colorIndex] & ~rankMasks[promoterRank];
+    bitboard doublePusher = pusher & rankMasks[startRank];
+    bitboard promoter = engine.gameHistory[engine.gameHistoryIndex].pieceBoards[colorIndex] & rankMasks[promoterRank];
+    bitboard capturer = pusher;
+    bitboard promotionCapturer = promoter;
 
-    // Single Pawn pushes
-    bitboard pushes = engine.gameHistory[engine.gameHistoryIndex].pieceBoards[colorIndex]; // Get pawn bitboard of mover color
+    // Single pawn push
     if (color)
-    { // if white, push up
-        pushes = pushes >> 8;
+    {
+        pusher = (pusher >> 8) & ~combinedColors;
     }
     else
-    { // if black, push down
-        pushes = pushes << 8;
-    }
-    pushes &= combinedColors; // remove pawns which landed on occupied squares
-    auto to = 0;
-    while (pushes > 0)
     {
-        to = PopLsb(pushes);
-        move move = Move(to - colorDirection, to); // from in the first 6 bits, to in the next 6
-        if (CheckBit(rankMasks[promotionRank], to))
-        {
-            for (auto i = 1; i < 5; i++)
-            {
+        pusher = (pusher << 8) & ~combinedColors;
+    }
+    while (pusher > 0)
+    {
+        auto to = PopLsb(pusher);
+        moveHolder[moveHolderIndex] = Move(to - colorDirection, to);
+        moveHolderIndex++;
+    }
+
+    // Double pawn push
+    if (color)
+    {
+        doublePusher = (((doublePusher >> 8) & ~combinedColors) >> 8) & ~combinedColors;
+    }
+    else
+    {
+        doublePusher = (((doublePusher << 8) & ~combinedColors) << 8) & ~combinedColors;
+    }
+    while (doublePusher>0)
+    {
+        auto to =PopLsb(doublePusher);
+        moveHolder[moveHolderIndex] = Move(to-2*colorDirection,to);
+        moveHolderIndex++;
+    }
+    
+    // Captures without promotion
+    while (capturer>0)
+    {
+        auto from = PopLsb(capturer);
+        bitboard attacks = pawnAttacks[!color][0][from]&(engine.gameHistory[engine.gameHistoryIndex].colorBoards[color]|engine.gameHistory[engine.gameHistoryIndex].ghostBoard);
+        if(attacks>0){
+            moveHolder[moveHolderIndex] = Move(from,PopLsb(attacks));
+            moveHolderIndex++;        
+        }
+        attacks = pawnAttacks[!color][1][from]&(engine.gameHistory[engine.gameHistoryIndex].colorBoards[color]|engine.gameHistory[engine.gameHistoryIndex].ghostBoard);
+        if(attacks>0){
+            moveHolder[moveHolderIndex] = Move(from,PopLsb(attacks));
+            moveHolderIndex++;
+        }
+    }
+    
+    // Push with promotion
+    if(color){
+        promoter = (promoter >> 8)&~combinedColors;
+    }
+    else{
+        promoter = (promoter << 8)&~combinedColors;
+    }
+    while (promoter>0)
+    {
+        auto to = PopLsb(promoter);
+        move move = Move(to-colorDirection,to);
+        for(uint8_t i=1;i<5;i++){
+            moveHolder[moveHolderIndex] = Move(move,i,1);
+            moveHolderIndex++;
+        }
+    }
+    
+    // Capture with promotion
+    while (promotionCapturer>0)
+    {
+        auto from = PopLsb(promotionCapturer);
+        bitboard attacks = pawnAttacks[!color][0][from]&engine.gameHistory[engine.gameHistoryIndex].colorBoards[color];
+        if(attacks>0){
+            move move = Move(from,PopLsb(attacks));
+            for(uint8_t i=1;i<5;i++){
                 moveHolder[moveHolderIndex] = Move(move,i,1);
                 moveHolderIndex++;
             }
         }
-        else
-        {
-            moveHolder[moveHolderIndex] = move;
-            moveHolderIndex++;
-        }
-    }
-
-    // Double pawn pushes - push all pawns twice (check for blockers inbetween)
-    pushes = engine.gameHistory[engine.gameHistoryIndex].pieceBoards[colorIndex] & rankMasks[startRank];
-    if (color)
-    { // if white push up
-        pushes = ((pushes >> 8) & combinedColors) >> 8;
-    }
-    else
-    { // if black push down
-        pushes = ((pushes << 8) & combinedColors) << 8;
-    }
-    pushes &= combinedColors; // remove pawns which landed on occupied squares
-    while (pushes > 0)
-    {
-        to = PopLsb(pushes);
-        moveHolder[moveHolderIndex] = Move(to - colorDirection * 2,to);
-        moveHolderIndex++;
-    }
-
-    // // Pawn Captures
-    bitboard pawnBoard = engine.gameHistory[engine.gameHistoryIndex].pieceBoards[colorIndex];
-    auto from = 0;
-    while (pawnBoard > 0)
-    {
-        from = PopLsb(pawnBoard);
-        for (auto j = 0; j < 2; j++)
-        {
-            bitboard captures = pawnAttacks[!color][j][from] & (engine.gameHistory[engine.gameHistoryIndex].colorBoards[color] | engine.gameHistory[engine.gameHistoryIndex].ghostBoard);
-            if (captures > 0)
-            {
-                to = PopLsb(captures);
-                move move = Move(from, to);
-                if (CheckBit(rankMasks[promotionRank], to))
-                {
-                    for (auto i = 1; i < 5; i++)
-                    {
-                        moveHolder[moveHolderIndex] = Move(move,i,1);
-                        moveHolderIndex++;
-                    }
-                }
-                else
-                {
-                    moveHolder[moveHolderIndex] = move;
-                    moveHolderIndex++;
-                }
+        attacks = pawnAttacks[!color][1][from]&engine.gameHistory[engine.gameHistoryIndex].colorBoards[color];
+        if(attacks>0){
+            move move = Move(from,PopLsb(attacks));
+            for(uint8_t i=1;i<5;i++){
+                moveHolder[moveHolderIndex] = Move(move,i,1);
+                moveHolderIndex++;
             }
-        }
+        }        
     }
+    
 }
 
 void GetPseudoLegalKnightMoves(Engine &engine, std::array<move, 256> &moveHolder, uint &moveHolderIndex)
 {
-    auto color = (engine.gameHistory[engine.gameHistoryIndex].flags&1)==1;
+    auto color = (engine.gameHistory[engine.gameHistoryIndex].flags & 1) == 1;
     auto colorIndex = color ? 0 : 6;
     bitboard thisBoard = ~engine.gameHistory[engine.gameHistoryIndex].colorBoards[!color]; //  ~friendly blockers
     bitboard knights = engine.gameHistory[engine.gameHistoryIndex].pieceBoards[1 + colorIndex];
@@ -121,7 +135,7 @@ void GetPseudoLegalKnightMoves(Engine &engine, std::array<move, 256> &moveHolder
         while (attacks > 0)
         {
             to = PopLsb(attacks);
-            moveHolder[moveHolderIndex] = Move(from,to);
+            moveHolder[moveHolderIndex] = Move(from, to);
             moveHolderIndex++;
         }
     }
@@ -129,8 +143,8 @@ void GetPseudoLegalKnightMoves(Engine &engine, std::array<move, 256> &moveHolder
 
 void GetPseudoLegalKingMoves(Engine &engine, std::array<move, 256> &moveHolder, uint &moveHolderIndex)
 {
-    auto color = (engine.gameHistory[engine.gameHistoryIndex].flags&1)==1;
-    int kingIndex = engine.gameHistory[engine.gameHistoryIndex].kingIndices[!color];                                                                                                    // to obtain colored castling rules
+    auto color = (engine.gameHistory[engine.gameHistoryIndex].flags & 1) == 1;
+    int kingIndex = engine.gameHistory[engine.gameHistoryIndex].kingIndices[!color];                                                                   // to obtain colored castling rules
     bitboard combinedColors = engine.gameHistory[engine.gameHistoryIndex].colorBoards[0] | engine.gameHistory[engine.gameHistoryIndex].colorBoards[1]; // | engine.gameHistory[engine.gameHistoryIndex].attackBoard; // Bitboard with both friendly and unfriendly blockers and attacked squares for castling
 
     // normal king moves
@@ -139,7 +153,7 @@ void GetPseudoLegalKingMoves(Engine &engine, std::array<move, 256> &moveHolder, 
     while (attacks > 0)
     {
         to = PopLsb(attacks);
-        moveHolder[moveHolderIndex] = Move(kingIndex,to);
+        moveHolder[moveHolderIndex] = Move(kingIndex, to);
         moveHolderIndex++;
     }
 
@@ -151,7 +165,7 @@ void GetPseudoLegalKingMoves(Engine &engine, std::array<move, 256> &moveHolder, 
     auto kingSideCastleTarget = color ? 62 : 6;
     auto queenSideCastleTarget = color ? 58 : 2;
     auto index = 0;
-    if (kingsideOccupation == 0 && engine.gameHistory[engine.gameHistoryIndex].flags&(color?0b00000010:0b00001000))
+    if (kingsideOccupation == 0 && engine.gameHistory[engine.gameHistoryIndex].flags & (color ? 0b00000010 : 0b00001000))
     {
         auto canCastle = true;
         index = 0;
@@ -166,11 +180,11 @@ void GetPseudoLegalKingMoves(Engine &engine, std::array<move, 256> &moveHolder, 
         }
         if (canCastle && !MoveGenerator::IsSquareAttacked(engine, kingIndex, !color))
         {
-            moveHolder[moveHolderIndex] = Move(kingIndex,kingSideCastleTarget);
+            moveHolder[moveHolderIndex] = Move(kingIndex, kingSideCastleTarget);
             moveHolderIndex++;
         }
     }
-    if (queenSideOccupation == 0 && engine.gameHistory[engine.gameHistoryIndex].flags&(color?0b00000100:0b00010000))
+    if (queenSideOccupation == 0 && engine.gameHistory[engine.gameHistoryIndex].flags & (color ? 0b00000100 : 0b00010000))
     {
         index = 0;
         auto canCastle = true;
@@ -196,7 +210,7 @@ void GetPseudoLegalKingMoves(Engine &engine, std::array<move, 256> &moveHolder, 
 
 void GetPseudoLegalRookMoves(Engine &engine, const bitboard &rookPieceBoard, std::array<move, 256> &moveHolder, uint &moveHolderIndex)
 {
-    auto color = (engine.gameHistory[engine.gameHistoryIndex].flags&1)==1;
+    auto color = (engine.gameHistory[engine.gameHistoryIndex].flags & 1) == 1;
     bitboard thisBoard = engine.gameHistory[engine.gameHistoryIndex].colorBoards[!color];
     bitboard otherBoard = engine.gameHistory[engine.gameHistoryIndex].colorBoards[color];
     bitboard combinedBoard = thisBoard | otherBoard;
@@ -212,7 +226,7 @@ void GetPseudoLegalRookMoves(Engine &engine, const bitboard &rookPieceBoard, std
         while (attacks > 0)
         {
             to = PopLsb(attacks);
-            moveHolder[moveHolderIndex] = Move(from,to);
+            moveHolder[moveHolderIndex] = Move(from, to);
             moveHolderIndex++;
         }
 
@@ -220,7 +234,7 @@ void GetPseudoLegalRookMoves(Engine &engine, const bitboard &rookPieceBoard, std
         while (attacks > 0)
         {
             to = PopLsb(attacks);
-            moveHolder[moveHolderIndex] = Move(from,to);
+            moveHolder[moveHolderIndex] = Move(from, to);
             moveHolderIndex++;
         }
     }
@@ -228,7 +242,7 @@ void GetPseudoLegalRookMoves(Engine &engine, const bitboard &rookPieceBoard, std
 
 void GetPseudoLegalBishopMoves(Engine &engine, const bitboard &bishopPieceBoard, std::array<move, 256> &moveHolder, uint &moveHolderIndex)
 {
-    auto color = (engine.gameHistory[engine.gameHistoryIndex].flags&1)==1;
+    auto color = (engine.gameHistory[engine.gameHistoryIndex].flags & 1) == 1;
     bitboard thisBoard = engine.gameHistory[engine.gameHistoryIndex].colorBoards[!color];
     bitboard otherBoard = engine.gameHistory[engine.gameHistoryIndex].colorBoards[color];
     bitboard bishopBoard = bishopPieceBoard;
@@ -243,7 +257,7 @@ void GetPseudoLegalBishopMoves(Engine &engine, const bitboard &bishopPieceBoard,
         while (attacks > 0)
         {
             to = PopLsb(attacks);
-            moveHolder[moveHolderIndex] = Move(from,to);
+            moveHolder[moveHolderIndex] = Move(from, to);
             moveHolderIndex++;
         }
     }
@@ -251,7 +265,7 @@ void GetPseudoLegalBishopMoves(Engine &engine, const bitboard &bishopPieceBoard,
 
 void MoveGenerator::GetLegalMoves(Engine &engine, std::array<move, 256> &moveHolder, uint &moveHolderIndex)
 {
-    auto color = (engine.gameHistory[engine.gameHistoryIndex].flags&1)==1;
+    auto color = (engine.gameHistory[engine.gameHistoryIndex].flags & 1) == 1;
     auto colorIndex = color ? 0 : 6;
     GetPseudoLegalPawnMoves(engine, moveHolder, moveHolderIndex);
     GetPseudoLegalKnightMoves(engine, moveHolder, moveHolderIndex);

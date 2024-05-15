@@ -113,10 +113,10 @@ void Board::MakeMove(const move &move)
 	}
 
 	// Update castling flags
-	flags &= (startIndex == 63 || targetIndex == 63 || startIndex == 60) ? 0b00011101 : 31;
-	flags &= (startIndex == 56 || targetIndex == 56 || startIndex == 60) ? 0b00011011 : 31;
-	flags &= (startIndex == 7 || targetIndex == 7 || startIndex == 4) ? 0b00010111 : 31;
-	flags &= (startIndex == 0 || targetIndex == 0 || startIndex == 4) ? 0b00001111 : 31;
+	flags &= (startIndex == 63 || targetIndex == 63 || startIndex == 60) ? 0b00011101 : flags;
+	flags &= (startIndex == 56 || targetIndex == 56 || startIndex == 60) ? 0b00011011 : flags;
+	flags &= (startIndex == 7 || targetIndex == 7 || startIndex == 4) ? 0b00010111 : flags;
+	flags &= (startIndex == 0 || targetIndex == 0 || startIndex == 4) ? 0b00001111 : flags;
 
 	// Update King coords
 	kingIndices[!color] = (startPiece==(5+colorIndex))?targetIndex:kingIndices[!color];
