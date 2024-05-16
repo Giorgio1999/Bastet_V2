@@ -21,8 +21,8 @@ void Board::MakeMove(const move &move)
 	// Clear ghosts
 	ghostBoard = ZERO;
 
-	int startIndex = StartIndex(move);
-	int targetIndex = TargetIndex(move);
+	int startIndex = move & 0x003F; //StartIndex(move);
+	int targetIndex =(move & 0x0FC0) >> 6;// TargetIndex(move);
 	bitboard start = ONE << startIndex;
 	bitboard target = ONE << targetIndex;
 
@@ -104,11 +104,11 @@ void Board::MakeMove(const move &move)
 	}
 
 	// Promotions
-	if (Promotion(move) == 1)
+	if (((move & 0x8000) >> 15)==1)
 	{
 		pieceBoards[colorIndex] ^= target;
 		colorBoards[!color] ^= target;
-		pieceBoards[colorIndex+ConvertTo(move)] ^= target;
+		pieceBoards[colorIndex+((move & 0x7000) >> 12)] ^= target;
 		colorBoards[!color] ^=target;
 	}
 
@@ -128,8 +128,8 @@ void Board::MakeMove(const move &move)
 
 void Board::MakeSimpleMove(const move &move)
 {
-	int startIndex = StartIndex(move);
-	int targetIndex = TargetIndex(move);
+	int startIndex = move & 0x003F; //StartIndex(move);
+	int targetIndex =(move & 0x0FC0) >> 6;// TargetIndex(move);
 	bitboard start = ONE << startIndex;
 	bitboard target = ONE << targetIndex;
 

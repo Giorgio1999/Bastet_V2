@@ -7,6 +7,7 @@ using bitboard = uint64_t;
 using line = uint8_t;
 using move = uint16_t;
 using flag = uint8_t;
+using square = uint_fast8_t;
 
 const bitboard ONE = (bitboard)1;
 const bitboard ZERO = (bitboard)0;

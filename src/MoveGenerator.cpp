@@ -55,68 +55,76 @@ void GetPseudoLegalPawnMoves(Engine &engine, std::array<move, 256> &moveHolder, 
     {
         doublePusher = (((doublePusher << 8) & ~combinedColors) << 8) & ~combinedColors;
     }
-    while (doublePusher>0)
+    while (doublePusher > 0)
     {
-        auto to =PopLsb(doublePusher);
-        moveHolder[moveHolderIndex] = Move(to-2*colorDirection,to);
+        auto to = PopLsb(doublePusher);
+        moveHolder[moveHolderIndex] = Move(to - 2 * colorDirection, to);
         moveHolderIndex++;
     }
-    
+
     // Captures without promotion
-    while (capturer>0)
+    while (capturer > 0)
     {
         auto from = PopLsb(capturer);
-        bitboard attacks = pawnAttacks[!color][0][from]&(engine.gameHistory[engine.gameHistoryIndex].colorBoards[color]|engine.gameHistory[engine.gameHistoryIndex].ghostBoard);
-        if(attacks>0){
-            moveHolder[moveHolderIndex] = Move(from,PopLsb(attacks));
-            moveHolderIndex++;        
+        bitboard attacks = pawnAttacks[!color][0][from] & (engine.gameHistory[engine.gameHistoryIndex].colorBoards[color] | engine.gameHistory[engine.gameHistoryIndex].ghostBoard);
+        if (attacks > 0)
+        {
+            moveHolder[moveHolderIndex] = Move(from, PopLsb(attacks));
+            moveHolderIndex++;
         }
-        attacks = pawnAttacks[!color][1][from]&(engine.gameHistory[engine.gameHistoryIndex].colorBoards[color]|engine.gameHistory[engine.gameHistoryIndex].ghostBoard);
-        if(attacks>0){
-            moveHolder[moveHolderIndex] = Move(from,PopLsb(attacks));
+        attacks = pawnAttacks[!color][1][from] & (engine.gameHistory[engine.gameHistoryIndex].colorBoards[color] | engine.gameHistory[engine.gameHistoryIndex].ghostBoard);
+        if (attacks > 0)
+        {
+            moveHolder[moveHolderIndex] = Move(from, PopLsb(attacks));
             moveHolderIndex++;
         }
     }
-    
+
     // Push with promotion
-    if(color){
-        promoter = (promoter >> 8)&~combinedColors;
+    if (color)
+    {
+        promoter = (promoter >> 8) & ~combinedColors;
     }
-    else{
-        promoter = (promoter << 8)&~combinedColors;
+    else
+    {
+        promoter = (promoter << 8) & ~combinedColors;
     }
-    while (promoter>0)
+    while (promoter > 0)
     {
         auto to = PopLsb(promoter);
-        move move = Move(to-colorDirection,to);
-        for(uint8_t i=1;i<5;i++){
-            moveHolder[moveHolderIndex] = Move(move,i,1);
+        move move = Move(to - colorDirection, to);
+        for (uint8_t i = 1; i < 5; i++)
+        {
+            moveHolder[moveHolderIndex] = Move(move, i, 1);
             moveHolderIndex++;
         }
     }
-    
+
     // Capture with promotion
-    while (promotionCapturer>0)
+    while (promotionCapturer > 0)
     {
         auto from = PopLsb(promotionCapturer);
-        bitboard attacks = pawnAttacks[!color][0][from]&engine.gameHistory[engine.gameHistoryIndex].colorBoards[color];
-        if(attacks>0){
-            move move = Move(from,PopLsb(attacks));
-            for(uint8_t i=1;i<5;i++){
-                moveHolder[moveHolderIndex] = Move(move,i,1);
+        bitboard attacks = pawnAttacks[!color][0][from] & engine.gameHistory[engine.gameHistoryIndex].colorBoards[color];
+        if (attacks > 0)
+        {
+            move move = Move(from, PopLsb(attacks));
+            for (uint8_t i = 1; i < 5; i++)
+            {
+                moveHolder[moveHolderIndex] = Move(move, i, 1);
                 moveHolderIndex++;
             }
         }
-        attacks = pawnAttacks[!color][1][from]&engine.gameHistory[engine.gameHistoryIndex].colorBoards[color];
-        if(attacks>0){
-            move move = Move(from,PopLsb(attacks));
-            for(uint8_t i=1;i<5;i++){
-                moveHolder[moveHolderIndex] = Move(move,i,1);
+        attacks = pawnAttacks[!color][1][from] & engine.gameHistory[engine.gameHistoryIndex].colorBoards[color];
+        if (attacks > 0)
+        {
+            move move = Move(from, PopLsb(attacks));
+            for (uint8_t i = 1; i < 5; i++)
+            {
+                moveHolder[moveHolderIndex] = Move(move, i, 1);
                 moveHolderIndex++;
             }
-        }        
+        }
     }
-    
 }
 
 void GetPseudoLegalKnightMoves(Engine &engine, std::array<move, 256> &moveHolder, uint &moveHolderIndex)
@@ -267,23 +275,351 @@ void MoveGenerator::GetLegalMoves(Engine &engine, std::array<move, 256> &moveHol
 {
     auto color = (engine.gameHistory[engine.gameHistoryIndex].flags & 1) == 1;
     auto colorIndex = color ? 0 : 6;
-    GetPseudoLegalPawnMoves(engine, moveHolder, moveHolderIndex);
-    GetPseudoLegalKnightMoves(engine, moveHolder, moveHolderIndex);
-    GetPseudoLegalRookMoves(engine, engine.gameHistory[engine.gameHistoryIndex].pieceBoards[3 + colorIndex] | engine.gameHistory[engine.gameHistoryIndex].pieceBoards[4 + colorIndex], moveHolder, moveHolderIndex);
-    GetPseudoLegalBishopMoves(engine, engine.gameHistory[engine.gameHistoryIndex].pieceBoards[2 + colorIndex] | engine.gameHistory[engine.gameHistoryIndex].pieceBoards[4 + colorIndex], moveHolder, moveHolderIndex);
-    GetPseudoLegalKingMoves(engine, moveHolder, moveHolderIndex);
-    auto end = 0;
-    for (uint i = 0; i < moveHolderIndex; i++)
+    auto colorDirection = color ? -8 : 8;
+    auto startRank = color ? 1 : 6;
+    auto promoterRank = color ? 6 : 1;
+    bitboard combinedColors = engine.gameHistory[engine.gameHistoryIndex].colorBoards[color] | engine.gameHistory[engine.gameHistoryIndex].colorBoards[!color];
+    bitboard notCombinedColors = ~combinedColors;
+    bitboard notThisBoard = ~engine.gameHistory[engine.gameHistoryIndex].colorBoards[!color]; //  ~friendly blockers
+    bitboard otherBoard = engine.gameHistory[engine.gameHistoryIndex].colorBoards[color];
+    bitboard knights = engine.gameHistory[engine.gameHistoryIndex].pieceBoards[1 + colorIndex];
+    // GetPseudoLegalPawnMoves(engine, moveHolder, moveHolderIndex);
+    // GetPseudoLegalKnightMoves(engine, moveHolder, moveHolderIndex);
+    // GetPseudoLegalRookMoves(engine, engine.gameHistory[engine.gameHistoryIndex].pieceBoards[3 + colorIndex] | engine.gameHistory[engine.gameHistoryIndex].pieceBoards[4 + colorIndex], moveHolder, moveHolderIndex);
+    // GetPseudoLegalBishopMoves(engine, engine.gameHistory[engine.gameHistoryIndex].pieceBoards[2 + colorIndex] | engine.gameHistory[engine.gameHistoryIndex].pieceBoards[4 + colorIndex], moveHolder, moveHolderIndex);
+    // GetPseudoLegalKingMoves(engine, moveHolder, moveHolderIndex);
+    square from;
+    square to;
+    bitboard attacks;
+    move move;
+
+    // Pawns
+    //----------------------------------------------------------------------------------
+    bitboard pusher = engine.gameHistory[engine.gameHistoryIndex].pieceBoards[colorIndex] & ~rankMasks[promoterRank];
+    bitboard doublePusher = pusher & rankMasks[startRank];
+    bitboard promoter = engine.gameHistory[engine.gameHistoryIndex].pieceBoards[colorIndex] & rankMasks[promoterRank];
+    bitboard capturer = pusher;
+    bitboard promotionCapturer = promoter;
+
+    // Single pawn push
+    if (color)
     {
-        engine.MakeSimpleMove(moveHolder[i]);
-        if (!MoveGenerator::IsSquareAttacked(engine, engine.gameHistory[engine.gameHistoryIndex].kingIndices[!color], !color))
+        pusher = (pusher >> 8) & notCombinedColors;
+    }
+    else
+    {
+        pusher = (pusher << 8) & notCombinedColors;
+    }
+    while (pusher > 0)
+    {
+        to = PopLsb(pusher);
+        move = Move(to - colorDirection, to);
+        engine.MakeSimpleMove(move);
+        if (IsSquareAttacked(engine, engine.gameHistory[engine.gameHistoryIndex].kingIndices[!color], !color))
         {
-            std::memcpy(&moveHolder[end], &moveHolder[i], sizeof(move));
-            end++;
+            engine.UndoLastMove();
+            continue;
         }
         engine.UndoLastMove();
+        moveHolder[moveHolderIndex] = move;
+        moveHolderIndex++;
     }
-    moveHolderIndex = end;
+
+    // Double pawn push
+    if (color)
+    {
+        doublePusher = (((doublePusher >> 8) & notCombinedColors) >> 8) & notCombinedColors;
+    }
+    else
+    {
+        doublePusher = (((doublePusher << 8) & notCombinedColors) << 8) & notCombinedColors;
+    }
+    while (doublePusher > 0)
+    {
+        to = PopLsb(doublePusher);
+        move = Move(to - 2 * colorDirection, to);
+        engine.MakeSimpleMove(move);
+        if (IsSquareAttacked(engine, engine.gameHistory[engine.gameHistoryIndex].kingIndices[!color], !color))
+        {
+            engine.UndoLastMove();
+            continue;
+        }
+        engine.UndoLastMove();
+        moveHolder[moveHolderIndex] = move;
+        moveHolderIndex++;
+    }
+
+    // Captures without promotion
+    while (capturer > 0)
+    {
+        from = PopLsb(capturer);
+        attacks = pawnAttacks[!color][0][from] & (otherBoard | engine.gameHistory[engine.gameHistoryIndex].ghostBoard);
+        if (attacks > 0)
+        {
+            move = Move(from, PopLsb(attacks));
+            engine.MakeSimpleMove(move);
+            if (!IsSquareAttacked(engine, engine.gameHistory[engine.gameHistoryIndex].kingIndices[!color], !color))
+            {
+                moveHolder[moveHolderIndex] = move;
+                moveHolderIndex++;
+            }
+            engine.UndoLastMove();
+        }
+        attacks = pawnAttacks[!color][1][from] & (otherBoard | engine.gameHistory[engine.gameHistoryIndex].ghostBoard);
+        // PrintBitBoard(attacks);
+        // PrintBitBoard(pawnAttacks[!color][1][from]);
+        // PrintBitBoard(otherBoard);
+        if (attacks > 0)
+        {
+            move = Move(from, PopLsb(attacks));
+            engine.MakeSimpleMove(move);
+            if (IsSquareAttacked(engine, engine.gameHistory[engine.gameHistoryIndex].kingIndices[!color], !color))
+            {
+                engine.UndoLastMove();
+                continue;
+            }
+            engine.UndoLastMove();
+            moveHolder[moveHolderIndex] = move;
+            moveHolderIndex++;
+        }
+    }
+
+    // Push with promotion
+    if (color)
+    {
+        promoter = (promoter >> 8) & notCombinedColors;
+    }
+    else
+    {
+        promoter = (promoter << 8) & notCombinedColors;
+    }
+    while (promoter > 0)
+    {
+        to = PopLsb(promoter);
+        move = Move(to - colorDirection, to);
+        engine.MakeSimpleMove(move);
+        if (IsSquareAttacked(engine, engine.gameHistory[engine.gameHistoryIndex].kingIndices[!color], !color))
+        {
+            engine.UndoLastMove();
+            continue;
+        }
+        engine.UndoLastMove();
+        for (uint8_t i = 1; i < 5; i++)
+        {
+            moveHolder[moveHolderIndex] = Move(move, i, 1);
+            moveHolderIndex++;
+        }
+    }
+
+    // Capture with promotion
+    while (promotionCapturer > 0)
+    {
+        from = PopLsb(promotionCapturer);
+        attacks = pawnAttacks[!color][0][from] & otherBoard;
+        if (attacks > 0)
+        {
+            move = Move(from, PopLsb(attacks));
+            engine.MakeSimpleMove(move);
+            if (!IsSquareAttacked(engine, engine.gameHistory[engine.gameHistoryIndex].kingIndices[!color], !color))
+            {
+                for (uint8_t i = 1; i < 5; i++)
+                {
+                    moveHolder[moveHolderIndex] = Move(move, i, 1);
+                    moveHolderIndex++;
+                }
+            }
+            engine.UndoLastMove();
+        }
+        attacks = pawnAttacks[!color][1][from] & otherBoard;
+        if (attacks > 0)
+        {
+            move = Move(from, PopLsb(attacks));
+            engine.MakeSimpleMove(move);
+            if (IsSquareAttacked(engine, engine.gameHistory[engine.gameHistoryIndex].kingIndices[!color], !color))
+            {
+                engine.UndoLastMove();
+                continue;
+            }
+            engine.UndoLastMove();
+            for (uint8_t i = 1; i < 5; i++)
+            {
+                moveHolder[moveHolderIndex] = Move(move, i, 1);
+                moveHolderIndex++;
+            }
+        }
+    }
+    // ---------------------------------------------------------------------------------------------------------------------------
+
+    // Knights
+    // --------------------------------------------------------------------------------------------------------------------------
+    while (knights > 0)
+    {
+        from = PopLsb(knights);
+        attacks = knightMoves[from] & notThisBoard;
+        while (attacks > 0)
+        {
+            to = PopLsb(attacks);
+            move = Move(from, to);
+            engine.MakeSimpleMove(move);
+            if (IsSquareAttacked(engine, engine.gameHistory[engine.gameHistoryIndex].kingIndices[!color], !color))
+            {
+                engine.UndoLastMove();
+                continue;
+            }
+            engine.UndoLastMove();
+            moveHolder[moveHolderIndex] = move;
+            moveHolderIndex++;
+        }
+    }
+    // -----------------------------------------------------------------------------------------------------------------------------
+
+    // King
+    //  ----------------------------------------------------------------------------------------------------------------------------------
+    int kingIndex = engine.gameHistory[engine.gameHistoryIndex].kingIndices[!color];
+
+    // normal king moves
+    attacks = kingMoves[kingIndex] & notThisBoard;
+    while (attacks > 0)
+    {
+        to = PopLsb(attacks);
+        move = Move(kingIndex, to);
+        engine.MakeSimpleMove(move);
+        if (IsSquareAttacked(engine, engine.gameHistory[engine.gameHistoryIndex].kingIndices[!color], !color))
+        {
+            engine.UndoLastMove();
+            continue;
+        }
+        engine.UndoLastMove();
+        moveHolder[moveHolderIndex] = move;
+        moveHolderIndex++;
+    }
+
+    // fucking castling
+    bitboard kingSideMask = castleMasks[!color][0];
+    bitboard queenSideMask = castleMasks[!color][1];
+    bitboard kingsideOccupation = kingSideMask & combinedColors; // castling masks with blocked indices removed
+    bitboard queenSideOccupation = queenSideMask & combinedColors;
+    auto kingSideCastleTarget = color ? 62 : 6;
+    auto queenSideCastleTarget = color ? 58 : 2;
+    if (kingsideOccupation == 0 && engine.gameHistory[engine.gameHistoryIndex].flags & (color ? 0b00000010 : 0b00001000))
+    {
+        auto canCastle = true;
+        while (kingSideMask > 0)
+        {
+            to = PopLsb(kingSideMask);
+            if (MoveGenerator::IsSquareAttacked(engine, to, !color))
+            {
+                canCastle = false;
+                break;
+            }
+        }
+        if (canCastle && !MoveGenerator::IsSquareAttacked(engine, kingIndex, !color))
+        {
+            moveHolder[moveHolderIndex] = Move(kingIndex, kingSideCastleTarget);
+            moveHolderIndex++;
+        }
+    }
+    if (queenSideOccupation == 0 && engine.gameHistory[engine.gameHistoryIndex].flags & (color ? 0b00000100 : 0b00010000))
+    {
+        auto canCastle = true;
+        while (queenSideMask > 0)
+        {
+            to = PopLsb(queenSideMask);
+            if (to != queenSideCastleTarget - 1)
+            {
+                if (MoveGenerator::IsSquareAttacked(engine, to, !color))
+                {
+                    canCastle = false;
+                    break;
+                }
+            }
+        }
+        if (canCastle && !MoveGenerator::IsSquareAttacked(engine, kingIndex, !color))
+        {
+            moveHolder[moveHolderIndex] = Move(kingIndex, queenSideCastleTarget);
+            moveHolderIndex++;
+        }
+    }
+    // ---------------------------------------------------------------------------------------------
+
+    // Rooks
+    // -------------------------------------------------------------------------------------------------
+    bitboard rookBoard = engine.gameHistory[engine.gameHistoryIndex].pieceBoards[3 + colorIndex] | engine.gameHistory[engine.gameHistoryIndex].pieceBoards[4 + colorIndex];
+
+    while (rookBoard > 0)
+    {
+        from = PopLsb(rookBoard);
+        attacks = GetFileAttacks(from, combinedColors) & notThisBoard;
+        while (attacks > 0)
+        {
+            to = PopLsb(attacks);
+            move = Move(from, to);
+            engine.MakeSimpleMove(move);
+            if (IsSquareAttacked(engine, engine.gameHistory[engine.gameHistoryIndex].kingIndices[!color], !color))
+            {
+                engine.UndoLastMove();
+                continue;
+            }
+            engine.UndoLastMove();
+            moveHolder[moveHolderIndex] = move;
+            moveHolderIndex++;
+        }
+
+        attacks = (GetRankAttacks(from, combinedColors) | GetRankAttacks(from, combinedColors)) & notThisBoard;
+        while (attacks > 0)
+        {
+            to = PopLsb(attacks);
+            move = Move(from, to);
+            engine.MakeSimpleMove(move);
+            if (IsSquareAttacked(engine, engine.gameHistory[engine.gameHistoryIndex].kingIndices[!color], !color))
+            {
+                engine.UndoLastMove();
+                continue;
+            }
+            engine.UndoLastMove();
+            moveHolder[moveHolderIndex] = move;
+            moveHolderIndex++;
+        }
+    }
+    // -------------------------------------------------------------------------------------------------------------------
+
+    // Bishops
+    // ---------------------------------------------------------------------------------------------------------------------
+    bitboard bishopBoard = engine.gameHistory[engine.gameHistoryIndex].pieceBoards[2 + colorIndex] | engine.gameHistory[engine.gameHistoryIndex].pieceBoards[4 + colorIndex];
+
+    while (bishopBoard > 0)
+    {
+        from = PopLsb(bishopBoard);
+        attacks = (GetDiagonalAttacks(from, combinedColors) | GetAntiDiagonalAttacks(from, combinedColors)) & notThisBoard;
+        while (attacks > 0)
+        {
+            to = PopLsb(attacks);
+            move = Move(from, to);
+            engine.MakeSimpleMove(move);
+            if (IsSquareAttacked(engine, engine.gameHistory[engine.gameHistoryIndex].kingIndices[!color], !color))
+            {
+                engine.UndoLastMove();
+                continue;
+            }
+            engine.UndoLastMove();
+            moveHolder[moveHolderIndex] = move;
+            moveHolderIndex++;
+        }
+    }
+    // -----------------------------------------------------------------------------------------------------------------------
+
+    // auto end = 0;
+    // for (uint i = 0; i < moveHolderIndex; i++)
+    // {
+    //     engine.MakeSimpleMove(moveHolder[i]);
+    //     if (!MoveGenerator::IsSquareAttacked(engine, engine.gameHistory[engine.gameHistoryIndex].kingIndices[!color], !color))
+    //     {
+    //         std::memcpy(&moveHolder[end], &moveHolder[i], sizeof(move));
+    //         end++;
+    //     }
+    //     engine.UndoLastMove();
+    // }
+    // moveHolderIndex = end;
 }
 
 bool MoveGenerator::IsSquareAttacked(const Engine &engine, const int &index, const bool &attackingColor)
@@ -307,7 +643,7 @@ bool MoveGenerator::IsSquareAttacked(const Engine &engine, const int &index, con
     int attackingKingIndex = engine.gameHistory[engine.gameHistoryIndex].kingIndices[!attackingColor];
     attacks = kingMoves[attackingKingIndex];
     // if (CheckBit(attacks, index))
-    if(attacks&(ONE<<index))
+    if (attacks & (ONE << index))
     {
         return true;
     }
