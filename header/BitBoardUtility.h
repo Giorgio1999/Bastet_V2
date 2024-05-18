@@ -21,6 +21,8 @@ int BitScanForwards(const bitboard &value); // returns index of least significan
 
 int PopLsb(bitboard &value); // returns index of least significant bit and removes it
 
+int NumberOfSetBits(bitboard&value);    // Counts number of Set bits
+
 bool CheckBit(const bitboard &value, const int &index); // Checks bit at index in 1d board
 
 bool CheckBit(const line &value, const int &index); // Checks bit in file

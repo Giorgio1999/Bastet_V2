@@ -3,6 +3,8 @@
 #include "BoardUtility.h"
 #include "MoveGenerator.h"
 #include "BitBoardUtility.h"
+#include "Timer.h"
+#include "Search.h"
 #include <string>
 #include <vector>
 #include <iostream>
@@ -61,12 +63,9 @@ std::string Engine::ShowBoard()
 }
 
 
-Mover Engine::GetBestMove()
+Mover Engine::GetBestMove(const Timer&timer)
 {
-	std::array<move,256> moveHolder;
-	uint moveHolderIndex = 0;
-	GetLegalMoves(moveHolder,moveHolderIndex);
-	return Move2Mover(moveHolder[0]);
+	return Move2Mover(Search::GetBestMove(*this,timer));
 }
 
 void Engine::GetLegalMoves(std::array<move,256>& moveHolder,uint& moveHolderIndex)

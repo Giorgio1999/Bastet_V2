@@ -75,7 +75,7 @@ public:
 	std::string GetLegalMoves();					// Gets legalmoves
 	bool IsReady();									// returns ready flag
 	std::string ShowBoard();						// Debug tool to display board in console
-	std::string Search();							// Search routine
+	std::string Search(const int wTime,const int bTime);							// Search routine
 	std::string Perft(const int &depth);			// Debug Routine for testing move generation
 	std::string SplitPerft(const int &depth);		// Split perft prints out number of leaves after each move
 	void UndoLastMove();							// Debug to test functionality

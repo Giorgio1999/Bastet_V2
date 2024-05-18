@@ -55,25 +55,29 @@ void Listen()
 		}
 		if (key == "go")
 		{
-			std::string wTime;
-			std::string bTime;
+			std::string wTimeString;
+			std::string bTimeString;
+			int wTime;
+			int bTime;
 			if (instruction.length() != key.length())
 			{
 				std::string options = instruction.substr(instruction.find(' ') + 1, instruction.length());
 				if (options.find("wtime") <= options.length())
 				{
-					wTime = options.substr(options.find("wtime") + 6, options.length());
-					wTime = wTime.substr(0, wTime.find(' '));
+					wTimeString = options.substr(options.find("wtime") + 6, options.length());
+					wTimeString = wTimeString.substr(0, wTimeString.find(' '));
 				}
 				if (options.find("btime") <= options.length())
 				{
-					bTime = options.substr(options.find("btime") + 6, options.length());
-					bTime = bTime.substr(0, bTime.find(' '));
+					bTimeString = options.substr(options.find("btime") + 6, options.length());
+					bTimeString = bTimeString.substr(0, bTimeString.find(' '));
 				}
 			}
+			wTime = std::stoi(wTimeString);
+			bTime = std::stoi(bTimeString);
 			// TO DO: parse options and dispatch engine search, once finished return here and
-			std::thread([&engineController]
-						{std::string result =  "bestmove " + engineController.Search();
+			std::thread([&engineController,&wTime,&bTime]
+						{std::string result =  "bestmove " + engineController.Search(wTime,bTime);
 						std::cout << result << std::endl;
 						engineController.SetStopFlag(false); })
 				.detach();

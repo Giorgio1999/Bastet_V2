@@ -21,8 +21,19 @@ int PopLsb(bitboard &value)
 {
 	auto index = BitScanForwards(value) - 1;
 	// UnsetBit(value, index);
-	value^=ONE << index;
+	value ^= ONE << index;
 	return index;
+}
+
+int NumberOfSetBits(bitboard &value)
+{
+	int count = 0;
+	while (value > 0)
+	{
+		value &= (value - 1);
+		count++;
+	}
+	return count;
 }
 
 bool CheckBit(const bitboard &value, const int &index)

@@ -2,6 +2,7 @@
 #include "Engine.h"
 #include "FenParser.h"
 #include "BitBoardUtility.h"
+#include "Timer.h"
 #include <string>
 #include <list>
 #include <chrono>
@@ -78,20 +79,22 @@ std::string EngineController::ShowBoard()
 
 std::string EngineController::GetLegalMoves()
 {
-	std::array<move,256> moveHolder;
+	std::array<move, 256> moveHolder;
 	uint moveHolderIndex = 0;
-	engine.GetLegalMoves(moveHolder,moveHolderIndex);
+	engine.GetLegalMoves(moveHolder, moveHolderIndex);
 	std::string movesString = "";
-	for (uint i = 0;i<moveHolderIndex;i++)
+	for (uint i = 0; i < moveHolderIndex; i++)
 	{
 		movesString += Move2Str(Move2Mover(moveHolder[i])) + " ";
 	}
 	return movesString;
 }
 
-std::string EngineController::Search()
+std::string EngineController::Search(const int wTime, const int bTime)
 {
-	return Move2Str(engine.GetBestMove());
+	// Timer timer(wTime, bTime);
+	Timer timer(0,0);
+	return Move2Str(engine.GetBestMove(timer));
 }
 
 std::string EngineController::Perft(const int &depth)
@@ -108,9 +111,9 @@ std::string EngineController::Perft(const int &depth)
 
 std::string EngineController::SplitPerft(const int &depth)
 {
-	std::array<move,256> moveHolder;
-	uint moveHolderIndex=0;
-	engine.GetLegalMoves(moveHolder,moveHolderIndex);
+	std::array<move, 256> moveHolder;
+	uint moveHolderIndex = 0;
+	engine.GetLegalMoves(moveHolder, moveHolderIndex);
 	std::string returnString = "";
 	for (uint i = 0; i < moveHolderIndex; i++)
 	{
@@ -233,7 +236,7 @@ void EngineController::Validate()
 		}
 	}
 	auto end = std::chrono::steady_clock::now();
-	auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end-start).count()/1000;
+	auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count() / 1000;
 	std::cout << (valid ? "Is valid, " : "Is not valid, ") << std::to_string(duration) << "s" << std::endl;
 	dataStream.close();
 }
