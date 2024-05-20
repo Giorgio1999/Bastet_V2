@@ -31,7 +31,7 @@ move Search::GetBestMove(Engine &engine, const Timer &timer)
 
 int FixedDepthSearch(Engine &engine, int depth)
 {
-    if (depth == engine.maxDepth)
+    if (depth == engine.maxDepth || engine.stopFlag)
     {
         return Evaluation::StaticEvaluation(engine);
     }

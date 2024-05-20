@@ -15,7 +15,7 @@ class Engine
 public:
 	int maxDepth = 4;
 	bool stopFlag;
-	Board gameHistory[20];	   // History of the game, consisting of boards. For undo or perhaps draw checks?
+	Board gameHistory[400];	   // History of the game, consisting of boards. For undo or perhaps draw checks?
 	uint gameHistoryIndex = 0; // Index to the end of the gameHistory
 	Engine();
 	void Boot();

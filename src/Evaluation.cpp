@@ -11,6 +11,6 @@ int Evaluation::StaticEvaluation(Engine &engine)
     for(auto i=0;i<5;i++){
         evaluation += pieceValues[i]*colorMultiplier*(NumberOfSetBits(engine.gameHistory[engine.gameHistoryIndex].pieceBoards[i])-NumberOfSetBits(engine.gameHistory[engine.gameHistoryIndex].pieceBoards[i+6]));
     }
-    std::cout << evaluation << std::endl;
+    // std::cout << evaluation << std::endl;
     return evaluation;
 }
