@@ -1,32 +1,34 @@
 #include "BitBoardUtility.h"
-#include <vector>
 #include <cstdint>
 #include <string>
 #include <iostream>
-#include <bit>
 
+// Declaration of lookup tables
+// -----------------------------------------
 bitboard fileMasks[8];
 bitboard rankMasks[8];
 bitboard diagonalAttackMasks[64];
 bitboard antiDiagonalAttackMasks[64];
 bitboard rankAttackMasks[64];
+// -----------------------------------------
 
+// Bit manipulation functions
+// -----------------------------------------
 int BitScanForwards(const bitboard &value)
 {
-	// return std::countr_zero(value);
-	return __builtin_ffsl(value);
+	return __builtin_ffsl(value); // built in CPU function for bitscanning
 }
 
 int PopLsb(bitboard &value)
 {
-	auto index = BitScanForwards(value) - 1;
-	// UnsetBit(value, index);
-	value ^= ONE << index;
+	auto index = BitScanForwards(value) - 1; // Get index of LSB
+	value ^= ONE << index;					 // Flip LSB off
 	return index;
 }
 
 int NumberOfSetBits(bitboard &value)
 {
+	// Implementation of __ algorithm
 	int count = 0;
 	while (value > 0)
 	{
@@ -42,12 +44,6 @@ bool CheckBit(const bitboard &value, const int &index)
 	return (value & bitIndex) == bitIndex;
 }
 
-bool CheckBit(const line &value, const int &index)
-{
-	line bitIndex = 1 << index;
-	return (value & bitIndex) == bitIndex;
-}
-
 bool CheckBit(const bitboard &value, const int &i, const int &j)
 {
 	return CheckBit(value, j * 8 + i);
@@ -56,12 +52,6 @@ bool CheckBit(const bitboard &value, const int &i, const int &j)
 void SetBit(bitboard &value, const int &index)
 {
 	bitboard bitIndex = ONE << index;
-	value |= bitIndex;
-}
-
-void SetBit(line &value, const int &index)
-{
-	line bitIndex = 1 << index;
 	value |= bitIndex;
 }
 
@@ -81,9 +71,9 @@ void UnsetBit(bitboard &value, const int &i, const int &j)
 	UnsetBit(value, j * 8 + i);
 }
 
-move Move(const move &move, const int &convertTo, const int &promotion)
+move Move(const int &from, const int &to, const int &convertTo, const int &promotion)
 {
-	return move | convertTo << 12 | promotion << 15;
+	return from | to << 6 | convertTo << 12 | promotion << 15;
 }
 
 move Move(const int &from, const int &to)
@@ -91,9 +81,9 @@ move Move(const int &from, const int &to)
 	return from | to << 6;
 }
 
-move Move(const int &from, const int &to, const int &convertTo, const int &promotion)
+move Move(const move &move, const int &convertTo, const int &promotion)
 {
-	return from | to << 6 | convertTo << 12 | promotion << 15;
+	return move | convertTo << 12 | promotion << 15;
 }
 
 int StartIndex(const move &move)
@@ -115,7 +105,10 @@ int Promotion(const move &move)
 {
 	return (move & 0x8000) >> 15;
 }
+// -----------------------------------------
 
+// Visualization tools
+// -----------------------------------------
 void PrintBitBoard(const bitboard &value)
 {
 	std::string boardVisual = "";
@@ -130,21 +123,14 @@ void PrintBitBoard(const bitboard &value)
 	boardVisual += "\n";
 	std::cout << boardVisual;
 }
+// -----------------------------------------
 
-void PrintLine(const line &value)
-{
-	std::string lineVisual = "";
-	for (auto i = 0; i < 8; i++)
-	{
-		lineVisual += std::to_string(CheckBit(value, i));
-	}
-	std::cout << lineVisual << std::endl;
-}
-
+// Initialisation Functions for lookup tables
+// -----------------------------------------
 void ComputeMasks()
 {
-	fileMasks[0] = 0x0101010101010101;
-	rankMasks[0] = 0xFF00000000000000;
+	fileMasks[0] = 0x0101010101010101; // A-File mask
+	rankMasks[0] = 0xFF00000000000000; // 8-Rank mask
 	for (auto i = 1; i < 8; i++)
 	{
 		fileMasks[i] = fileMasks[0] << i;
@@ -153,7 +139,7 @@ void ComputeMasks()
 
 	for (auto index = 0; index < 64; index += 9)
 	{
-		diagonalAttackMasks[index] = 0x8040201008040201;
+		diagonalAttackMasks[index] = 0x8040201008040201; // Main diagonal mask
 		for (auto i = 1; i < 8 - (index & 7); i++)
 		{
 			diagonalAttackMasks[index + i] = (diagonalAttackMasks[index + i - 1] & ~fileMasks[7]) << 1;
@@ -166,7 +152,7 @@ void ComputeMasks()
 
 	for (auto index = 7; index < 57; index += 7)
 	{
-		antiDiagonalAttackMasks[index] = 0x0102040810204080;
+		antiDiagonalAttackMasks[index] = 0x0102040810204080; // main antidiagonal mask
 		for (auto i = 1; i < 8 - (index & 7); i++)
 		{
 			antiDiagonalAttackMasks[index + i] = (antiDiagonalAttackMasks[index + i - 1] & ~fileMasks[7]) << 1;
@@ -186,3 +172,4 @@ void ComputeMasks()
 		}
 	}
 }
+// -----------------------------------------

@@ -3,6 +3,8 @@
 #include <string>
 #include <cstdint>
 
+// Updating the board
+// --------------------------------------------
 Board::Board()
 {
 }
@@ -21,8 +23,8 @@ void Board::MakeMove(const move &move)
 	// Clear ghosts
 	ghostBoard = ZERO;
 
-	int startIndex = move & 0x003F; //StartIndex(move);
-	int targetIndex =(move & 0x0FC0) >> 6;// TargetIndex(move);
+	int startIndex = move & 0x003F;			// StartIndex(move);
+	int targetIndex = (move & 0x0FC0) >> 6; // TargetIndex(move);
 	bitboard start = ONE << startIndex;
 	bitboard target = ONE << targetIndex;
 
@@ -38,7 +40,7 @@ void Board::MakeMove(const move &move)
 		{
 			startPiece = i + colorIndex;
 			pieceBoards[startPiece] ^= start | target;
-			colorBoards[!color] ^= start|target;
+			colorBoards[!color] ^= start | target;
 			break;
 		}
 	}
@@ -51,7 +53,7 @@ void Board::MakeMove(const move &move)
 		{
 			targetPiece = i + otherColorIndex;
 			pieceBoards[targetPiece] ^= target;
-			colorBoards[color] ^=target;
+			colorBoards[color] ^= target;
 			break;
 		}
 	}
@@ -104,12 +106,12 @@ void Board::MakeMove(const move &move)
 	}
 
 	// Promotions
-	if (((move & 0x8000) >> 15)==1)
+	if (((move & 0x8000) >> 15) == 1)
 	{
 		pieceBoards[colorIndex] ^= target;
 		colorBoards[!color] ^= target;
-		pieceBoards[colorIndex+((move & 0x7000) >> 12)] ^= target;
-		colorBoards[!color] ^=target;
+		pieceBoards[colorIndex + ((move & 0x7000) >> 12)] ^= target;
+		colorBoards[!color] ^= target;
 	}
 
 	// Update castling flags
@@ -119,8 +121,7 @@ void Board::MakeMove(const move &move)
 	flags &= (startIndex == 0 || targetIndex == 0 || startIndex == 4) ? 0b00001111 : flags;
 
 	// Update King coords
-	kingIndices[!color] = (startPiece==(5+colorIndex))?targetIndex:kingIndices[!color];
-
+	kingIndices[!color] = (startPiece == (5 + colorIndex)) ? targetIndex : kingIndices[!color];
 
 	// Update turn flag
 	flags ^= ONE;
@@ -128,8 +129,8 @@ void Board::MakeMove(const move &move)
 
 void Board::MakeSimpleMove(const move &move)
 {
-	int startIndex = move & 0x003F; //StartIndex(move);
-	int targetIndex =(move & 0x0FC0) >> 6;// TargetIndex(move);
+	int startIndex = move & 0x003F;			// StartIndex(move);
+	int targetIndex = (move & 0x0FC0) >> 6; // TargetIndex(move);
 	bitboard start = ONE << startIndex;
 	bitboard target = ONE << targetIndex;
 
@@ -145,7 +146,7 @@ void Board::MakeSimpleMove(const move &move)
 		{
 			startPiece = i + colorIndex;
 			pieceBoards[startPiece] ^= start | target;
-			colorBoards[!color] ^= start|target;
+			colorBoards[!color] ^= start | target;
 			break;
 		}
 	}
@@ -158,7 +159,7 @@ void Board::MakeSimpleMove(const move &move)
 		{
 			targetPiece = i + otherColorIndex;
 			pieceBoards[targetPiece] ^= target;
-			colorBoards[color] ^=target;
+			colorBoards[color] ^= target;
 			break;
 		}
 	}
@@ -180,13 +181,13 @@ void Board::MakeSimpleMove(const move &move)
 	}
 
 	// Update King coords
-	kingIndices[!color] = (startPiece==(5+colorIndex))?targetIndex:kingIndices[!color];
+	kingIndices[!color] = (startPiece == (5 + colorIndex)) ? targetIndex : kingIndices[!color];
 
 	// Update turn flag
 	flags ^= ONE;
 }
 
-void Board::UpdateColorBoards()
+void Board::InitialiseColorBoards()
 {
 	colorBoards[0] = 0;
 	colorBoards[1] = 0;
@@ -202,12 +203,10 @@ void Board::InitialiseKingIndices()
 	kingIndices[0] = BitScanForwards(pieceBoards[5]) - 1;
 	kingIndices[1] = BitScanForwards(pieceBoards[11]) - 1;
 }
+// --------------------------------------------
 
-void Board::UpdateKingIndices(const int &startIndex, const int &targetIndex)
-{
-	kingIndices[!((flags & 1) == 1)] = kingIndices[!((flags & 1) == 1)] == startIndex ? targetIndex : kingIndices[!((flags & 1) == 1)];
-}
-
+// Visualization tool
+// --------------------------------------------
 std::string Board::ShowBoard()
 {
 	std::string boardVisual = "";
@@ -237,3 +236,4 @@ std::string Board::ShowBoard()
 	}
 	return boardVisual;
 }
+// --------------------------------------------
