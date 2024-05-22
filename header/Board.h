@@ -30,5 +30,5 @@ public:
 	// Visualization tool
 	// --------------------------------------------
 	std::string ShowBoard(); // Returns a string visual of the current board
-							 // --------------------------------------------
+	// --------------------------------------------
 };

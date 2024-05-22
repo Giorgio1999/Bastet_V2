@@ -28,7 +28,7 @@ int PopLsb(bitboard &value)
 
 int NumberOfSetBits(bitboard &value)
 {
-	// Implementation of __ algorithm
+	// Implementation of Brian Kernighan’s Algorithm
 	int count = 0;
 	while (value > 0)
 	{

@@ -5,6 +5,8 @@
 #include <string>
 #include <cstdint>
 
+// Fen parsing
+// -------------------------------------------------------------------
 Board Fen2Position()
 {
 	return Fen2Position(startingPosition);
@@ -13,6 +15,7 @@ Board Fen2Position()
 Board Fen2Position(const std::string &fen)
 {
 	Board board;
+	// Piece positions
 	std::string position = fen.substr(0, fen.find_first_of(' '));
 	auto increment = 0;
 	for (uint i = 0; i < position.length(); i++)
@@ -98,6 +101,8 @@ Board Fen2Position(const std::string &fen)
 			}
 		}
 	}
+
+	// Player to move
 	std::string rights = fen.substr(fen.find_first_of(' ') + 1, fen.length() - 1);
 	char current = rights[0];
 	switch (current)
@@ -107,6 +112,7 @@ Board Fen2Position(const std::string &fen)
 		break;
 	}
 
+	// Castling rights
 	std::string castling = rights.substr(2, rights.length() - 1);
 	castling = castling.substr(0, castling.find_first_of(' '));
 	for (uint i = 0; i < castling.length(); i++)
@@ -127,6 +133,8 @@ Board Fen2Position(const std::string &fen)
 			break;
 		}
 	}
+
+	// Enpassant
 	std::string enPassant = rights.substr(castling.length() + 3, rights.length() - 1);
 	enPassant = enPassant.substr(0, enPassant.find_first_of(' '));
 	if (enPassant != "-")
@@ -134,5 +142,7 @@ Board Fen2Position(const std::string &fen)
 		Coord ghostPosition = Str2Coord(enPassant);
 		SetBit(board.ghostBoard, ghostPosition.x, ghostPosition.y);
 	}
+
 	return board;
 }
+// -------------------------------------------------------------------

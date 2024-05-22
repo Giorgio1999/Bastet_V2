@@ -1,16 +1,22 @@
 #include "Engine.h"
 #include "Evaluation.h"
+#include "Board.h"
+#include "BitBoardUtility.h"
 #include <iostream>
 
+// External Functions
+// -------------------------------------------------------------------
 int Evaluation::StaticEvaluation(Engine &engine)
 {
-    int evaluation = 0;
-    auto color = (engine.gameHistory[engine.gameHistoryIndex].flags & 1) == 1;
+    Board& currentBoard = engine.CurrentBoard();
+    auto color = (currentBoard.flags & 1) == 1;
     auto colorMultiplier = color ? 1 : -1;
 
+    int evaluation = 0;
     for(auto i=0;i<5;i++){
-        evaluation += pieceValues[i]*colorMultiplier*(NumberOfSetBits(engine.gameHistory[engine.gameHistoryIndex].pieceBoards[i])-NumberOfSetBits(engine.gameHistory[engine.gameHistoryIndex].pieceBoards[i+6]));
+        evaluation += pieceValues[i]*colorMultiplier*(NumberOfSetBits(currentBoard.pieceBoards[i])-NumberOfSetBits(currentBoard.pieceBoards[i+6])); // Count pieces multiplied with piece Values
     }
-    // std::cout << evaluation << std::endl;
+
     return evaluation;
 }
+// -------------------------------------------------------------------

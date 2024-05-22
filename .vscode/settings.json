@@ -65,6 +65,8 @@
         "fstream": "cpp",
         "terminal.external.linuxExec": "bin/bash",
         "map": "cpp",
-        "cstring": "cpp"
+        "cstring": "cpp",
+        "bitset": "cpp",
+        "regex": "cpp"
     }
 }

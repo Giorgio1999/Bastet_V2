@@ -1,9 +1,11 @@
 #include "BoardUtility.h"
 #include "BitBoardUtility.h"
 #include <string>
-#include <cmath>
 #include <vector>
+#include <regex>
 
+// Datastruct for Squares
+// -----------------------------------------------------------
 Coord::Coord()
 {
 }
@@ -12,8 +14,11 @@ Coord::Coord(const int &_x, const int &_y)
 	x = _x;
 	y = _y;
 }
+// -----------------------------------------------------------
 
-Mover::Mover(){}
+// Different specialised constructors
+// -----------------------------------------------------------
+Mover::Mover() {}
 
 Mover::Mover(const int &start, const int &target)
 {
@@ -32,7 +37,10 @@ Mover::Mover(const int &i1, const int &j1, const int &i2, const int &j2)
 	startIndex = j1 * 8 + i1;
 	targetIndex = j2 * 8 + i2;
 }
+// -----------------------------------------------------------
 
+// Conversion functions
+// -----------------------------------------------------------
 std::string Coord2Str(const Coord &coord)
 {
 	std::string tmp = "";
@@ -91,48 +99,28 @@ Mover Str2Move(const std::string &moveString)
 std::vector<Mover> Str2Moves(std::string &movesString)
 {
 	std::vector<Mover> moves;
-	std::string currentMove = "";
-	while (movesString.length() > 0)
-	{
-		std::string currentMove = movesString.substr(0, movesString.find(' '));
-		moves.push_back(Str2Move(currentMove));
-		if (movesString.length() == currentMove.length())
-		{
-			break;
-		}
-		movesString = movesString.substr(currentMove.length() + 1, movesString.length());
+	// Courtesy of chatgbt
+	std::regex move_regex("\\S+");																// create regex for chain of non space characters
+	auto move_begin = std::sregex_iterator(movesString.begin(), movesString.end(), move_regex); // Get iterator of front
+	auto move_end = std::sregex_iterator();														// Get Iterator of back
+	for (std::sregex_iterator i = move_begin; i != move_end; i++)
+	{							// Loop over all matches
+		std::smatch match = *i; // ?
+		moves.push_back(Str2Move(match.str()));
 	}
 	return moves;
 }
 
-Mover Move2Mover(const move& move){
-	Mover mover = Mover(StartIndex(move),TargetIndex(move));
+Mover Move2Mover(const move &move)
+{
+	Mover mover = Mover(StartIndex(move), TargetIndex(move));
 	mover.convertTo = ConvertTo(move);
 	mover.promotion = (bool)Promotion(move);
 	return mover;
 }
 
-move Mover2Move(const Mover& mover){
-	return Move(mover.startIndex,mover.targetIndex,mover.convertTo,mover.promotion);
-}
-
-int Coord2Index(const Coord &coord)
+move Mover2Move(const Mover &mover)
 {
-	return coord.y * 8 + coord.x;
+	return Move(mover.startIndex, mover.targetIndex, mover.convertTo, mover.promotion);
 }
-
-bool operator==(const Coord &lhs, const Coord &rhs)
-{
-	return lhs.x == rhs.x && lhs.y == rhs.y;
-}
-
-bool operator!=(const Coord &lhs, const Coord &rhs)
-{
-
-	return lhs.x != rhs.x || lhs.y != rhs.y;
-}
-
-int operator-(const Coord &lhs, const Coord &rhs)
-{
-	return lhs.y - rhs.y;
-}
+// -----------------------------------------------------------

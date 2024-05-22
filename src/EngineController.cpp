@@ -3,15 +3,16 @@
 #include "FenParser.h"
 #include "BitBoardUtility.h"
 #include "Timer.h"
+#include "Data.h"
 #include <string>
-#include <list>
 #include <chrono>
 #include <iostream>
-#include <fstream>
 #include <array>
 
 EngineController::EngineController() {}
 
+// UCI
+// -------------------------------------------------------------------
 bool EngineController::BootEngine()
 {
 	engine = Engine();
@@ -59,8 +60,13 @@ void EngineController::MakeMoves(std::string &moveHistory)
 	std::vector<Mover> movers = Str2Moves(moveHistory);
 	for (const auto &mover : movers)
 	{
-		engine.MakeMove(Mover2Move(mover));
+		engine.MakePermanentMove(Mover2Move(mover));
 	}
+}
+
+void EngineController::TestReady()
+{
+	isReady = true;
 }
 
 bool EngineController::IsReady()
@@ -72,39 +78,19 @@ bool EngineController::IsReady()
 	return isReady;
 }
 
-std::string EngineController::ShowBoard()
-{
-	return engine.ShowBoard();
-}
-
-std::string EngineController::GetLegalMoves()
-{
-	std::array<move, 256> moveHolder;
-	uint moveHolderIndex = 0;
-	engine.GetLegalMoves(moveHolder, moveHolderIndex);
-	std::string movesString = "";
-	for (uint i = 0; i < moveHolderIndex; i++)
-	{
-		movesString += Move2Str(Move2Mover(moveHolder[i])) + " ";
-	}
-	return movesString;
-}
-
 std::string EngineController::Search(const int wTime, const int bTime)
 {
 	// Timer timer(wTime, bTime);
-	Timer timer(0,0);
+	Timer timer(0, 0);
 	return Move2Str(engine.GetBestMove(timer));
 }
+// -------------------------------------------------------------------
 
+// Non UCI
+// -------------------------------------------------------------------
 std::string EngineController::Perft(const int &depth)
 {
-	// auto start = std::chrono::high_resolution_clock::now();
 	bitboard numberOfLeafs = engine.Perft(depth);
-	// auto end = std::chrono::high_resolution_clock::now();
-	// float duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
-	// auto mnps = numberOfLeafs / duration / 1000000. * 1000.;
-	// std::string returnString = "Positions found: " + std::to_string(numberOfLeafs) + ", Speed = " + std::to_string(mnps) + "Mn/s";
 	std::string returnString = std::to_string(numberOfLeafs);
 	return returnString;
 }
@@ -135,16 +121,6 @@ std::string EngineController::SplitPerft(const int &depth)
 	return returnString;
 }
 
-void EngineController::UndoLastMove()
-{
-	engine.UndoLastMove();
-}
-
-void EngineController::TestReady()
-{
-	isReady = true;
-}
-
 void EngineController::FullPerftTest()
 {
 	if (!isReady)
@@ -152,11 +128,9 @@ void EngineController::FullPerftTest()
 		BootEngine();
 	}
 	auto fullStart = std::chrono::high_resolution_clock::now();
-	auto dataPath = "/home/giorgio/Bastet_V2/assets/perftTestSuit.txt";
-	std::fstream dataStream(dataPath, std::ios::in);
-	std::string line;
-	while (std::getline(dataStream, line) && !engine.stopFlag)
+	for (uint i = 0; i < fullPerftSuite.size(); i++)
 	{
+		std::string line = fullPerftSuite.at(i);
 		std::string fen = line.substr(0, line.find(','));
 		std::cout << "Position: " << fen << ":" << std::endl;
 		engine.SetBoard(Fen2Position(fen));
@@ -181,7 +155,6 @@ void EngineController::FullPerftTest()
 	auto fullEnd = std::chrono::high_resolution_clock::now();
 	float duration = std::chrono::duration_cast<std::chrono::seconds>(fullEnd - fullStart).count();
 	std::cout << "Done! Total time: " << duration << "s" << std::endl;
-	dataStream.close();
 }
 
 void EngineController::Bench()
@@ -211,12 +184,10 @@ void EngineController::Validate()
 		BootEngine();
 	}
 	auto start = std::chrono::steady_clock::now();
-	auto dataPath = "/home/giorgio/Bastet_V2/assets/perftTestSuit.txt";
-	std::fstream dataStream(dataPath, std::ios::in);
-	std::string line;
 	auto valid = true;
-	while (std::getline(dataStream, line) && valid)
+	for (uint i = 0; i < fullPerftSuite.size(); i++)
 	{
+		std::string line = fullPerftSuite.at(i);
 		std::string fen = line.substr(0, line.find(','));
 		engine.SetBoard(Fen2Position(fen));
 		line = line.substr(fen.size() + 1, line.size());
@@ -238,5 +209,31 @@ void EngineController::Validate()
 	auto end = std::chrono::steady_clock::now();
 	auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count() / 1000;
 	std::cout << (valid ? "Is valid, " : "Is not valid, ") << std::to_string(duration) << "s" << std::endl;
-	dataStream.close();
 }
+// -------------------------------------------------------------------
+
+// Debugging
+// -------------------------------------------------------------------
+std::string EngineController::GetLegalMoves()
+{
+	std::array<move, 256> moveHolder;
+	uint moveHolderIndex = 0;
+	engine.GetLegalMoves(moveHolder, moveHolderIndex);
+	std::string movesString = "";
+	for (uint i = 0; i < moveHolderIndex; i++)
+	{
+		movesString += Move2Str(Move2Mover(moveHolder[i])) + " ";
+	}
+	return movesString;
+}
+
+std::string EngineController::ShowBoard()
+{
+	return engine.ShowBoard();
+}
+
+void EngineController::UndoLastMove()
+{
+	engine.UndoLastMove();
+}
+// -------------------------------------------------------------------

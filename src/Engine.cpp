@@ -6,15 +6,15 @@
 #include "Timer.h"
 #include "Search.h"
 #include <string>
-#include <vector>
-#include <iostream>
 #include <cstring>
 
 // This is the engine class implementation
+// Initialising and accessing the engine
+// --------------------------------------------------------------------------------------------
 Engine::Engine()
 {
-	gameHistory[0] = Board();
 	gameHistoryIndex = 0;
+	CurrentBoard() = Board();
 	stopFlag = false;
 }
 
@@ -26,58 +26,70 @@ void Engine::Boot()
 
 void Engine::NewGame()
 {
-	gameHistory[0] = Board();
 	gameHistoryIndex = 0;
+	CurrentBoard() = Board();
 }
 
 void Engine::SetBoard(const Board &newBoard)
 {
-	gameHistory[0] = newBoard;
-	gameHistory[0].InitialiseColorBoards();
-	gameHistory[0].InitialiseKingIndices();
 	gameHistoryIndex = 0;
+	CurrentBoard() = newBoard;
+	CurrentBoard().InitialiseColorBoards();
+	CurrentBoard().InitialiseKingIndices();
 }
 
+Board &Engine::CurrentBoard()
+{
+	return gameHistory[gameHistoryIndex];
+}
+// --------------------------------------------------------------------------------------------
+
+// Core functionality
+// --------------------------------------------------------------------------------------------
 void Engine::MakeMove(const move &move)
 {
-	std::memcpy(&gameHistory[gameHistoryIndex+1],&gameHistory[gameHistoryIndex],sizeof(Board));
-	gameHistory[gameHistoryIndex + 1].MakeMove(move);
+	std::memcpy(&gameHistory[gameHistoryIndex + 1], &gameHistory[gameHistoryIndex], sizeof(Board));
 	gameHistoryIndex++;
+	CurrentBoard().MakeMove(move);
 }
 
 void Engine::MakeSimpleMove(const move &move)
 {
-	std::memcpy(&gameHistory[gameHistoryIndex+1],&gameHistory[gameHistoryIndex],sizeof(Board));
-	gameHistory[gameHistoryIndex + 1].MakeSimpleMove(move);
+	std::memcpy(&gameHistory[gameHistoryIndex + 1], &gameHistory[gameHistoryIndex], sizeof(Board));
 	gameHistoryIndex++;
+	CurrentBoard().MakeSimpleMove(move);
+}
+
+void Engine::MakePermanentMove(const move &move)
+{
+	CurrentBoard().MakeMove(move);
 }
 
 void Engine::UndoLastMove()
 {
 	gameHistoryIndex--;
 }
-
-std::string Engine::ShowBoard()
+void Engine::GetLegalMoves(std::array<move, 256> &moveHolder, uint &moveHolderIndex)
 {
-	return gameHistory[gameHistoryIndex].ShowBoard();
+	MoveGenerator::GetLegalMoves(*this, moveHolder, moveHolderIndex);
 }
+// --------------------------------------------------------------------------------------------
 
-
-Mover Engine::GetBestMove(const Timer&timer)
+// Search
+// --------------------------------------------------------------------------------------------
+Mover Engine::GetBestMove(const Timer &timer)
 {
-	return Move2Mover(Search::GetBestMove(*this,timer));
+	return Move2Mover(Search::GetBestMove(*this, timer));
 }
+// --------------------------------------------------------------------------------------------
 
-void Engine::GetLegalMoves(std::array<move,256>& moveHolder,uint& moveHolderIndex)
-{
-	MoveGenerator::GetLegalMoves(*this,moveHolder,moveHolderIndex);
-}
-
+// Performance evaluation
+// --------------------------------------------------------------------------------------------
 int Engine::Perft(const int &depth)
 {
-	std::array<move,256> moveHolder;
+	std::array<move, 256> moveHolder;
 	uint moveHolderIndex = 0;
-	GetLegalMoves(moveHolder,moveHolderIndex);
+	GetLegalMoves(moveHolder, moveHolderIndex);
 	if (depth == 1)
 	{
 		return moveHolderIndex;
@@ -87,7 +99,7 @@ int Engine::Perft(const int &depth)
 	// }
 	bitboard numberOfLeafs = 0;
 	int newDepth = depth - 1;
-	for (uint i=0;i<moveHolderIndex;i++)
+	for (uint i = 0; i < moveHolderIndex; i++)
 	{
 		MakeMove(moveHolder[i]);
 		if (!stopFlag)
@@ -98,3 +110,11 @@ int Engine::Perft(const int &depth)
 	}
 	return numberOfLeafs;
 }
+
+// Debugging
+// --------------------------------------------------------------------------------------------
+std::string Engine::ShowBoard()
+{
+	return CurrentBoard().ShowBoard();
+}
+// --------------------------------------------------------------------------------------------

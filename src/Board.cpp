@@ -1,5 +1,6 @@
 #include "Board.h"
 #include "BitBoardUtility.h"
+#include "BoardUtility.h"
 #include <string>
 #include <cstdint>
 
@@ -209,31 +210,33 @@ void Board::InitialiseKingIndices()
 // --------------------------------------------
 std::string Board::ShowBoard()
 {
-	std::string boardVisual = "";
-	for (const auto &piece : pieceBoards)
+	std::string boardVisual = "\n";
+	for (auto x = 0; x < 8; x++)
 	{
-		for (auto i = 0; i < 8; i++)
+		for (auto y = 0; y < 8; y++)
 		{
-			for (auto j = 0; j < 8; j++)
+			auto printSymbol = '-';
+			for (auto i = 0; i < 6; i++)
 			{
-				boardVisual += std::to_string(CheckBit(piece, j, i));
+				if (CheckBit(pieceBoards[i], y, x))
+				{
+					printSymbol = whiteTypes.at(i);
+				}
+				if (CheckBit(pieceBoards[i + 6], y, x))
+				{
+					printSymbol = blackTypes.at(i);
+				}
+				if (CheckBit(ghostBoard, y, x))
+				{
+					printSymbol = ((flags & 1) == 1) ? whiteTypes.at(6) : blackTypes.at(6);
+				}
 			}
-			boardVisual += "\n";
-		}
-		boardVisual += "\n";
-		boardVisual += "\n";
-	}
-	boardVisual += "Castling Rights: ";
-	boardVisual += std::to_string(flags) + " ";
-	boardVisual += "\nGhost Boards:\n";
-	for (auto i = 0; i < 8; i++)
-	{
-		for (auto j = 0; j < 8; j++)
-		{
-			boardVisual += std::to_string(CheckBit(ghostBoard, j, i));
+			boardVisual += printSymbol;
 		}
 		boardVisual += "\n";
 	}
+	boardVisual += "\nFlags: ";
+	boardVisual += std::to_string(flags) + " " + "\n";
 	return boardVisual;
 }
 // --------------------------------------------

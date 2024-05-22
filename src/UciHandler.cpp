@@ -3,8 +3,6 @@
 #include <iostream>
 #include <string>
 #include <thread>
-#include <atomic>
-#include <future>
 
 void Listen()
 {
