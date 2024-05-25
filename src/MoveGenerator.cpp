@@ -58,7 +58,7 @@ void MoveGenerator::GetLegalMoves(Engine &engine, std::array<move, 256> &moveHol
         to = PopLsb(pusher);
         move = Move(to - colorDirection, to);
         engine.MakeSimpleMove(move);
-        if (IsSquareAttacked(engine, currentBoard.kingIndices[!color], !color))
+        if (MoveGenerator::IsSquareAttacked(engine, currentBoard.kingIndices[!color], !color))
         {
             engine.UndoLastMove();
             continue;
@@ -83,7 +83,7 @@ void MoveGenerator::GetLegalMoves(Engine &engine, std::array<move, 256> &moveHol
         to = PopLsb(doublePusher);
         move = Move(to - 2 * colorDirection, to);
         engine.MakeSimpleMove(move);
-        if (IsSquareAttacked(engine, currentBoard.kingIndices[!color], !color))
+        if (MoveGenerator::IsSquareAttacked(engine, currentBoard.kingIndices[!color], !color))
         {
             engine.UndoLastMove();
             continue;
@@ -102,7 +102,7 @@ void MoveGenerator::GetLegalMoves(Engine &engine, std::array<move, 256> &moveHol
         {
             move = Move(from, PopLsb(attacks));
             engine.MakeSimpleMove(move);
-            if (!IsSquareAttacked(engine, currentBoard.kingIndices[!color], !color))
+            if (!MoveGenerator::IsSquareAttacked(engine, currentBoard.kingIndices[!color], !color))
             {
                 moveHolder[moveHolderIndex] = move;
                 moveHolderIndex++;
@@ -114,7 +114,7 @@ void MoveGenerator::GetLegalMoves(Engine &engine, std::array<move, 256> &moveHol
         {
             move = Move(from, PopLsb(attacks));
             engine.MakeSimpleMove(move);
-            if (IsSquareAttacked(engine, currentBoard.kingIndices[!color], !color))
+            if (MoveGenerator::IsSquareAttacked(engine, currentBoard.kingIndices[!color], !color))
             {
                 engine.UndoLastMove();
                 continue;
@@ -140,7 +140,7 @@ void MoveGenerator::GetLegalMoves(Engine &engine, std::array<move, 256> &moveHol
         to = PopLsb(promoter);
         move = Move(to - colorDirection, to);
         engine.MakeSimpleMove(move);
-        if (IsSquareAttacked(engine, currentBoard.kingIndices[!color], !color))
+        if (MoveGenerator::IsSquareAttacked(engine, currentBoard.kingIndices[!color], !color))
         {
             engine.UndoLastMove();
             continue;
@@ -162,7 +162,7 @@ void MoveGenerator::GetLegalMoves(Engine &engine, std::array<move, 256> &moveHol
         {
             move = Move(from, PopLsb(attacks));
             engine.MakeSimpleMove(move);
-            if (!IsSquareAttacked(engine, currentBoard.kingIndices[!color], !color))
+            if (!MoveGenerator::IsSquareAttacked(engine, currentBoard.kingIndices[!color], !color))
             {
                 for (uint8_t i = 1; i < 5; i++) // If move is valid loop over all possible promotions
                 {
@@ -177,7 +177,7 @@ void MoveGenerator::GetLegalMoves(Engine &engine, std::array<move, 256> &moveHol
         {
             move = Move(from, PopLsb(attacks));
             engine.MakeSimpleMove(move);
-            if (IsSquareAttacked(engine, currentBoard.kingIndices[!color], !color))
+            if (MoveGenerator::IsSquareAttacked(engine, currentBoard.kingIndices[!color], !color))
             {
                 engine.UndoLastMove();
                 continue;
@@ -204,7 +204,7 @@ void MoveGenerator::GetLegalMoves(Engine &engine, std::array<move, 256> &moveHol
             to = PopLsb(attacks);
             move = Move(from, to);
             engine.MakeSimpleMove(move);
-            if (IsSquareAttacked(engine, currentBoard.kingIndices[!color], !color))
+            if (MoveGenerator::IsSquareAttacked(engine, currentBoard.kingIndices[!color], !color))
             {
                 engine.UndoLastMove();
                 continue;
@@ -326,7 +326,7 @@ void MoveGenerator::GetLegalMoves(Engine &engine, std::array<move, 256> &moveHol
             to = PopLsb(attacks);
             move = Move(from, to);
             engine.MakeSimpleMove(move);
-            if (IsSquareAttacked(engine, currentBoard.kingIndices[!color], !color))
+            if (MoveGenerator::IsSquareAttacked(engine, currentBoard.kingIndices[!color], !color))
             {
                 engine.UndoLastMove();
                 continue;

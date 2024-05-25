@@ -78,7 +78,7 @@ bool EngineController::IsReady()
 	return isReady;
 }
 
-std::string EngineController::Search(const int wTime, const int bTime)
+std::string EngineController::Search(const int wTime, const int bTime, const int winc, const int binc)
 {
 	// Timer timer(wTime, bTime);
 	Timer timer(0, 0);
@@ -88,14 +88,14 @@ std::string EngineController::Search(const int wTime, const int bTime)
 
 // Non UCI
 // -------------------------------------------------------------------
-std::string EngineController::Perft(const int &depth)
+std::string EngineController::Perft(int depth)
 {
 	bitboard numberOfLeafs = engine.Perft(depth);
 	std::string returnString = std::to_string(numberOfLeafs);
 	return returnString;
 }
 
-std::string EngineController::SplitPerft(const int &depth)
+std::string EngineController::SplitPerft(int depth)
 {
 	std::array<move, 256> moveHolder;
 	uint moveHolderIndex = 0;
