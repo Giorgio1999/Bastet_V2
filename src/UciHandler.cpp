@@ -3,84 +3,179 @@
 #include <iostream>
 #include <string>
 #include <thread>
+#include <regex>
 
 void Listen()
 {
 	EngineController engineController;
 	std::string instruction = "";
+	std::regex format("\\S+");
+	std::smatch match;
 	while (std::getline(std::cin, instruction))
 	{
-		std::string key = instruction.substr(0, instruction.find(' '));
-		if (instruction == "")
+		std::regex_iterator<std::string::iterator> rit(instruction.begin(), instruction.end(), format);
+		std::regex_iterator<std::string::iterator> rend;
+		// for(auto i=rit;i!=rend;i++){
+		// 	std::cout << i->str() << " ";
+		// }
+		// std::cout << std::endl;
+		if (rit == rend)
 		{
 			continue;
 		}
+		std::string key = rit->str();
 		if (key == "uci")
 		{
 			engineController.BootEngine();
 			std::cout << "id name Bastet\n";
 			std::cout << "id author G. Lovato\n";
 			std::cout << "uciok\n";
+			continue;
 		}
 		if (key == "isready")
 		{
-			if(engineController.IsReady()){
+			if (engineController.IsReady())
+			{
 				std::cout << "readyok\n";
 			}
+			continue;
 		}
 		if (key == "ucinewgame")
 		{
 			engineController.NewGame();
+			continue;
 		}
-		if (key == "position" && instruction.length() != key.length())
+		if (key == "position")
 		{
-			std::string arguments = instruction.substr(key.length() + 1, instruction.length());
-			std::string positionKey = arguments.substr(0, arguments.find(' '));
-			if (positionKey == "startpos")
+			rit++;
+			std::string arg1 = rit->str();
+			if (arg1 == "startpos")
 			{
 				engineController.SetPosition();
 			}
-			else
+			else if (arg1 == "fen")
 			{
-				std::string fenString = arguments.substr(0, arguments.find("m"));
-				engineController.SetPosition(fenString);
+				rit++;
+				std::string fen = rit->str() + " "; // pieces
+				rit++;
+				fen += rit->str() + " "; // Color to move
+				rit++;
+				fen += rit->str() + " "; // Castling
+				rit++;
+				fen += rit->str() + " "; // enpassant
+				rit++;
+				fen += rit->str() + " "; // ?
+				rit++;
+				fen += rit->str() + " "; // ?
+				engineController.SetPosition(fen);
 			}
-			if (instruction.find("moves") < instruction.length())
+			else if (arg1 != "")
 			{
-				std::string moveHistory = instruction.substr(instruction.find("moves ") + 1 + 5, instruction.length());
+				std::string fen = rit->str() + " "; // pieces
+				rit++;
+				fen += rit->str() + " "; // Color to move
+				rit++;
+				fen += rit->str() + " "; // Castling
+				rit++;
+				fen += rit->str() + " "; // enpassant
+				rit++;
+				fen += rit->str() + " "; // ?
+				rit++;
+				fen += rit->str() + " "; // ?
+				engineController.SetPosition(fen);
+			}
+			rit++;
+			std::string arg2 = rit->str();
+			if (arg2 == "moves")
+			{
+				rit++;
+				std::string moveHistory = "";
+				for (auto i = rit; i != rend; i++)
+				{
+					moveHistory += i->str() + " ";
+				}
 				engineController.MakeMoves(moveHistory);
 			}
+			continue;
 		}
 		if (key == "go")
 		{
-			std::string wTimeString;
-			std::string bTimeString;
-			int wTime;
-			int bTime;
-			if (instruction.length() != key.length())
+			rit++;
+			// std::string searchmoves = "";
+			// auto ponder = false;
+			auto wtime = 0;
+			auto btime = 0;
+			auto winc = 0;
+			auto binc = 0;
+			// auto movestogo = 0;
+			// auto depth = 0;
+			// auto nodes = 0;
+			// auto mate = 0;
+			// auto movetime = 0;
+			// auto infinite = false;
+			while (rit != rend)
 			{
-				std::string options = instruction.substr(instruction.find(' ') + 1, instruction.length());
-				if (options.find("wtime") <= options.length())
+				std::string arg = rit->str();
+				if (arg == "searchmoves")
 				{
-					wTimeString = options.substr(options.find("wtime") + 6, options.length());
-					wTimeString = wTimeString.substr(0, wTimeString.find(' '));
+					std::cout << arg << " not supported" << std::endl;
 				}
-				if (options.find("btime") <= options.length())
+				if (arg == "ponder")
 				{
-					bTimeString = options.substr(options.find("btime") + 6, options.length());
-					bTimeString = bTimeString.substr(0, bTimeString.find(' '));
+					std::cout << arg << " not supported" << std::endl;
 				}
+				if (arg == "wtime")
+				{
+					rit++;
+					wtime = std::stoi(rit->str());
+				}
+				if (arg == "btime")
+				{
+					rit++;
+					btime = std::stoi(rit->str());
+				}
+				if (arg == "winc")
+				{
+					rit++;
+					winc = std::stoi(rit->str());
+				}
+				if (arg == "binc")
+				{
+					rit++;
+					binc = std::stoi(rit->str());
+				}
+				if (arg == "movestogo")
+				{
+					std::cout << arg << " not supported" << std::endl;
+				}
+				if (arg == "depth")
+				{
+					std::cout << arg << " not supported" << std::endl;
+				}
+				if (arg == "nodes")
+				{
+					std::cout << arg << " not supported" << std::endl;
+				}
+				if (arg == "mate")
+				{
+					std::cout << arg << " not supported" << std::endl;
+				}
+				if (arg == "movetime")
+				{
+					std::cout << arg << " not supported" << std::endl;
+				}
+				if (arg == "infinite")
+				{
+					std::cout << arg << " not supported" << std::endl;
+				}
+				rit++;
 			}
-			wTime = std::stoi(wTimeString);
-			bTime = std::stoi(bTimeString);
-			// TO DO: parse options and dispatch engine search, once finished return here and
-			std::thread([&engineController,&wTime,&bTime]
-						{std::string result =  "bestmove " + engineController.Search(wTime,bTime);
-						std::cout << result << std::endl;
-						engineController.SetStopFlag(false); })
+			std::thread([&engineController, wtime, btime, winc, binc]
+						{std::string result =  "bestmove " + engineController.Search(wtime,btime,winc,binc);
+									std::cout << result << std::endl;
+									engineController.SetStopFlag(false); })
 				.detach();
-			// std::string result = "bestmove " + engineController.Search();
-			// std::cout << result << "\n";
+			continue;
 		}
 		if (key == "stop")
 		{
@@ -91,52 +186,56 @@ void Listen()
 		{
 			return;
 		}
-		// Custom keys from here on
 		if (key == "showboard")
 		{
 			std::cout << engineController.ShowBoard();
+			continue;
 		}
 		if (key == "legalmoves")
 		{
 			std::cout << engineController.GetLegalMoves() << std::endl;
+			continue;
 		}
 		if (key == "perft")
 		{
-			std::string args = instruction.substr(instruction.find(' ') + 1, instruction.length());
-			auto depth = std::stoi(args.substr(0, args.find_first_of(' ')));
-			std::cout << args.find_first_of(' ');
-			if(args.find_first_of(' ')<args.length()-1){
-				std::string fen = args.substr(args.find_first_of(' ')+1,args.length());
+			rit++;
+			auto depth = std::stoi(rit->str());
+			rit++;
+			std::string arg = rit->str();
+			if (arg != "")
+			{
+				std::string fen = rit->str() + " "; // pieces
+				rit++;
+				fen += rit->str() + " "; // Color to move
+				rit++;
+				fen += rit->str() + " "; // Castling
+				rit++;
+				fen += rit->str() + " "; // enpassant
+				rit++;
+				fen += rit->str() + " "; // ?
+				rit++;
+				fen += rit->str() + " "; // ?
 				engineController.SetPosition(fen);
 			}
 			std::thread([&engineController, depth]
 						{
 				std::string result = engineController.Perft(depth);
-				std::cout << result << "\n";
+				std::cout << result << std::endl;
 				engineController.SetStopFlag(false); })
 				.detach();
+			continue;
 		}
 		if (key == "splitperft")
 		{
-			auto depth = std::stoi(instruction.substr(instruction.find(' ') + 1, instruction.length()));
-			std::thread([&engineController, &depth]
+			rit++;
+			auto depth = std::stoi(rit->str());
+			std::thread([&engineController, depth]
 						{
 				std::string result = engineController.SplitPerft(depth);
-				std::cout << result << "\n"; 
+				std::cout << result << std::endl;
 				engineController.SetStopFlag(false); })
 				.detach();
-		}
-		if (key == "fullperft")
-		{
-			std::thread([&engineController]
-						{
-				engineController.FullPerftTest();
-				engineController.SetStopFlag(false); })
-				.detach();
-		}
-		if (key == "undolastmove")
-		{
-			engineController.UndoLastMove();
+			continue;
 		}
 	}
 }

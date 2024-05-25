@@ -85,12 +85,12 @@ Mover Engine::GetBestMove(const Timer &timer)
 
 // Performance evaluation
 // --------------------------------------------------------------------------------------------
-int Engine::Perft(const int &depth)
+bitboard Engine::Perft(int depth)
 {
 	std::array<move, 256> moveHolder;
 	uint moveHolderIndex = 0;
 	GetLegalMoves(moveHolder, moveHolderIndex);
-	if (depth == 1)
+	if (depth <= 1)
 	{
 		return moveHolderIndex;
 	}
@@ -98,13 +98,13 @@ int Engine::Perft(const int &depth)
 	// 	return 1;
 	// }
 	bitboard numberOfLeafs = 0;
-	int newDepth = depth - 1;
+	// int newDepth = depth - 1;
 	for (uint i = 0; i < moveHolderIndex; i++)
 	{
 		MakeMove(moveHolder[i]);
 		if (!stopFlag)
 		{
-			numberOfLeafs += Perft(newDepth);
+			numberOfLeafs += Perft(depth - 1);
 		}
 		UndoLastMove();
 	}

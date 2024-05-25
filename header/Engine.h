@@ -12,9 +12,9 @@
 class Engine
 {
 public:
-	int maxDepth = 4;		   // Maximal depth
+	int maxDepth = 5;		   // Maximal depth
 	bool stopFlag;			   // Flag that can be set from the controller to stop the engine
-	Board gameHistory[11];	   // History of the game, consisting of boards.
+	Board gameHistory[100];	   // History of the game, consisting of boards.
 	uint gameHistoryIndex = 0; // Index to the current board
 
 	// Initialising and accessing the engine
@@ -42,7 +42,7 @@ public:
 
 	// Performance evaluation
 	// --------------------------------------------------------------------------------------------
-	int Perft(const int &depth); // Counts all leafs up to fixed depth of the current board
+	bitboard Perft(int depth); // Counts all leafs up to fixed depth of the current board
 	// --------------------------------------------------------------------------------------------
 
 	// Debugging
