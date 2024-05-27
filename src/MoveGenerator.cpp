@@ -301,7 +301,7 @@ void MoveGenerator::GetLegalMoves(Engine &engine, std::array<move, 256> &moveHol
             to = PopLsb(attacks);
             move = Move(from, to);
             engine.MakeSimpleMove(move);
-            if (IsSquareAttacked(engine, currentBoard.kingIndices[!color], !color))
+            if (MoveGenerator::IsSquareAttacked(engine, currentBoard.kingIndices[!color], !color))
             {
                 engine.UndoLastMove();
                 continue;

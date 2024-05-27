@@ -11,6 +11,7 @@ const int pieceValues[5] = {1, 3, 3, 5, 9}; // Piece Values pawn,knight,bishop,r
 // -------------------------------------------------------------------
 namespace Evaluation
 {
-    int StaticEvaluation(Engine &engine); // Evaluates a position
+    int StaticEvaluation(Engine &engine);                        // Evaluates a position relative to player to move
+    int StaticEvaluation(Engine &engine, bool maximizingPlayer); // Evaluates a position relative to player to maximizing player
 }
 // -------------------------------------------------------------------
