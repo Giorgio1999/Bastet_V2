@@ -19,16 +19,16 @@ public:
 
 	// Updating the board
 	// --------------------------------------------
-	Board();							   // Default constructor
-	void Clear();						   // Reset board to empty state
-	void MakeMove(const move &move);	   // makes move and updates board
-	void MakeSimpleMove(const move &move); // makes simple move which is expected to not be king move
-	void InitialiseColorBoards();		   // Computes colorboards from initial position
-	void InitialiseKingIndices();		   // finds the initial king coords
+	Board();											   // Default constructor
+	void Clear();										   // Reset board to empty state
+	void MakeMove(const move &move, bitboard &zobristKey); // makes move and updates board
+	void MakeSimpleMove(const move &move);				   // makes simple move which is expected to not be king move
+	void InitialiseColorBoards();						   // Computes colorboards from initial position
+	void InitialiseKingIndices();						   // finds the initial king coords
 	// --------------------------------------------
 
 	// Visualization tool
 	// --------------------------------------------
 	std::string ShowBoard(); // Returns a string visual of the current board
-	// --------------------------------------------
+							 // --------------------------------------------
 };

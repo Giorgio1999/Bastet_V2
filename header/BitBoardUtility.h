@@ -23,6 +23,7 @@ extern bitboard rankMasks[8];
 extern bitboard diagonalAttackMasks[64];
 extern bitboard antiDiagonalAttackMasks[64];
 extern bitboard rankAttackMasks[64];
+extern bitboard hashes[12 * 64 + 1 + 4 + 8];  // Hash table for: pieces*square + black to move + castling rights + enpassant file
 // -----------------------------------------
 
 // Bit manipulation functions

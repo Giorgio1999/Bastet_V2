@@ -5,6 +5,7 @@
 #include "Timer.h"
 #include <string>
 #include <array>
+#include <vector>
 
 // This will include the core functionality
 // Engine class
@@ -12,10 +13,13 @@
 class Engine
 {
 public:
-	int maxDepth = 4;		   // Maximal depth
-	bool stopFlag;			   // Flag that can be set from the controller to stop the engine
-	Board gameHistory[11];	   // History of the game, consisting of boards.
-	uint gameHistoryIndex = 0; // Index to the current board
+	int maxDepth = 4;					   // Maximal depth
+	bool stopFlag;						   // Flag that can be set from the controller to stop the engine
+	Board gameHistory[11];				   // History of the game, consisting of boards.
+	uint gameHistoryIndex = 0;			   // Index to the current board
+	bitboard hashes[12 * 64 + 1 + 4 + 8];  // Hash table for: pieces*square + black to move + castling rights + enpassant file
+	std::vector<bitboard> repetitionTable; // Table of zobrist hashes to check for repetitions
+	bitboard currentZobristKey;			   // Zobrist key of the current position
 
 	// Initialising and accessing the engine
 	// --------------------------------------------------------------------------------------------
@@ -48,6 +52,6 @@ public:
 	// Debugging
 	// --------------------------------------------------------------------------------------------
 	std::string ShowBoard(); // Debug tool to display current board in console
-	// --------------------------------------------------------------------------------------------
+							 // --------------------------------------------------------------------------------------------
 };
 // ------------------------------------------------------------

@@ -10,6 +10,7 @@ bitboard rankMasks[8];
 bitboard diagonalAttackMasks[64];
 bitboard antiDiagonalAttackMasks[64];
 bitboard rankAttackMasks[64];
+bitboard hashes[12 * 64 + 1 + 4 + 8];
 // -----------------------------------------
 
 // Bit manipulation functions
