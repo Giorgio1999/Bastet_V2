@@ -74,14 +74,12 @@ std::string Move2Str(const Mover &move)
 
 Mover Str2Move(const std::string &moveString)
 {
-	Mover move = Mover(Str2Coord(moveString.substr(0, 2)), Str2Coord(moveString.substr(2, 4)));
+	Mover move = Mover(Str2Coord(moveString.substr(0, 2)), Str2Coord(moveString.substr(2, 2)));
 	if (moveString.length() == 5)
 	{
+		move.promotion = true;
 		switch (moveString[moveString.length() - 1])
 		{
-		case 'q':
-			move.convertTo = 4;
-			break;
 		case 'n':
 			move.convertTo = 1;
 			break;
@@ -90,6 +88,9 @@ Mover Str2Move(const std::string &moveString)
 			break;
 		case 'r':
 			move.convertTo = 3;
+			break;
+		case 'q':
+			move.convertTo = 4;
 			break;
 		}
 	}
