@@ -2,6 +2,8 @@
 #include "Timer.h"
 #include "Engine.h"
 #include "Evaluation.h"
+#include <algorithm>
+#include <vector>
 
 // External Functions
 // --------------------------------------------------------
@@ -16,7 +18,7 @@ move Search::GetBestMove(Engine &engine, const Timer &timer)
     for (uint i = 0; (i < moveHolderIndex) && !engine.stopFlag; i++)
     {
         engine.MakeMove(moveHolder[i]);
-        int tmpScore = Min(engine, engine.maxDepth-1, maximizingPlayer);
+        int tmpScore = Min(engine, engine.maxDepth - 1, maximizingPlayer);
         engine.UndoLastMove();
         if (tmpScore >= bestScore)
         {
@@ -35,6 +37,10 @@ int Min(Engine &engine, int depthRemaining, bool maximizingPlayer)
     if (depthRemaining == 0)
     {
         return Evaluation::StaticEvaluation(engine, maximizingPlayer);
+    }
+    if (std::count(engine.repetitionTable.begin(), engine.repetitionTable.end(), engine.currentZobristKey) == 2)
+    {
+        return 0;
     }
     std::array<move, 256> moveHolder;
     uint moveHolderIndex = 0;
@@ -57,6 +63,10 @@ int Max(Engine &engine, int depthRemaining, bool maximizingPlayer)
     if (depthRemaining == 0)
     {
         return Evaluation::StaticEvaluation(engine, maximizingPlayer);
+    }
+    if (std::count(engine.repetitionTable.begin(), engine.repetitionTable.end(), engine.currentZobristKey) == 2)
+    {
+        return 0;
     }
     std::array<move, 256> moveHolder;
     uint moveHolderIndex = 0;
