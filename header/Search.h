@@ -12,5 +12,8 @@ namespace Search
 
 // Internal Functions
 // --------------------------------------------------------
-int FixedDepthSearch(Engine &engine, int depth); // Perform negamax search to a fixed depth
-// --------------------------------------------------------
+int Min(Engine &engine, int depthRemaining, bool maximizingPlayer);  // Min part of MinMax
+int Max(Engine &engine, int depthRemaining, bool maximizingPlayer);  // Max part of MinMax
+int FixedDepthSearch(Engine &engine, int depth);                     // Perform negamax search to a fixed depth
+int AlphaBetaSearch(Engine &engine, int alpha, int beta, int depth); // AlphaBeta search to a fixed depth
+                                                                     // --------------------------------------------------------

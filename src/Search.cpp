@@ -7,25 +7,21 @@
 // --------------------------------------------------------
 move Search::GetBestMove(Engine &engine, const Timer &timer)
 {
+    bool maximizingPlayer = (engine.CurrentBoard().flags & 1) == 1;
     std::array<move, 256> moveHolder;
     uint moveHolderIndex = 0;
     engine.GetLegalMoves(moveHolder, moveHolderIndex);
-    std::array<int, 256> scores;
-    for (uint i = 0; (i < moveHolderIndex) && (!engine.stopFlag); i++)  // Loop over all legal moves, play them on the board and perform a fixed depth search 
-    {
-        engine.MakeMove(moveHolder[i]);
-        scores[i] = -FixedDepthSearch(engine, 1);   // Save all obtained scores via negamax search
-        engine.UndoLastMove();
-    }
-
     move bestMove = moveHolder[0];
     int bestScore = -INT32_MAX;
-    for (uint i = 0; i < moveHolderIndex; i++)  // Loop over all scored moves and return the move with the highest evaluation
+    for (uint i = 0; (i < moveHolderIndex) && !engine.stopFlag; i++)
     {
-        if (scores[i] >= bestScore)
+        engine.MakeMove(moveHolder[i]);
+        int tmpScore = Min(engine, engine.maxDepth-1, maximizingPlayer);
+        engine.UndoLastMove();
+        if (tmpScore >= bestScore)
         {
-            bestScore = scores[i];
             bestMove = moveHolder[i];
+            bestScore = tmpScore;
         }
     }
     return bestMove;
@@ -34,9 +30,53 @@ move Search::GetBestMove(Engine &engine, const Timer &timer)
 
 // Internal Functions
 // --------------------------------------------------------
+int Min(Engine &engine, int depthRemaining, bool maximizingPlayer)
+{
+    if (depthRemaining == 0)
+    {
+        return Evaluation::StaticEvaluation(engine, maximizingPlayer);
+    }
+    std::array<move, 256> moveHolder;
+    uint moveHolderIndex = 0;
+    engine.GetLegalMoves(moveHolder, moveHolderIndex);
+    int bestScore = INT16_MAX;
+    for (uint i = 0; i < moveHolderIndex; i++)
+    {
+        engine.MakeMove(moveHolder[i]);
+        int tmpScore = Max(engine, depthRemaining - 1, maximizingPlayer);
+        engine.UndoLastMove();
+        if (tmpScore <= bestScore)
+        {
+            bestScore = tmpScore;
+        }
+    }
+    return bestScore;
+}
+int Max(Engine &engine, int depthRemaining, bool maximizingPlayer)
+{
+    if (depthRemaining == 0)
+    {
+        return Evaluation::StaticEvaluation(engine, maximizingPlayer);
+    }
+    std::array<move, 256> moveHolder;
+    uint moveHolderIndex = 0;
+    engine.GetLegalMoves(moveHolder, moveHolderIndex);
+    int bestScore = -INT16_MAX;
+    for (uint i = 0; i < moveHolderIndex; i++)
+    {
+        engine.MakeMove(moveHolder[i]);
+        int tmpScore = Min(engine, depthRemaining - 1, maximizingPlayer);
+        engine.UndoLastMove();
+        if (tmpScore >= bestScore)
+        {
+            bestScore = tmpScore;
+        }
+    }
+    return bestScore;
+}
 int FixedDepthSearch(Engine &engine, int depth)
 {
-    if (depth == engine.maxDepth || engine.stopFlag)    // If max depth is reached or search is stopped return static evaluation
+    if (depth == engine.maxDepth || engine.stopFlag) // If max depth is reached or search is stopped return static evaluation
     {
         return Evaluation::StaticEvaluation(engine);
     }
@@ -44,13 +84,39 @@ int FixedDepthSearch(Engine &engine, int depth)
     uint moveHolderIndex = 0;
     engine.GetLegalMoves(moveHolder, moveHolderIndex);
     int score = -INT32_MAX;
-    for (uint i = 0; (i < moveHolderIndex) && (!engine.stopFlag); i++)  // Loop over all legal moves and perform fixed depth-1 negamax search
+    for (uint i = 0; (i < moveHolderIndex) && (!engine.stopFlag); i++) // Loop over all legal moves and perform fixed depth-1 negamax search
     {
         engine.MakeMove(moveHolder[i]);
         int tempScore = -FixedDepthSearch(engine, depth + 1);
         engine.UndoLastMove();
-        score = tempScore > score ? tempScore : score;  // Only keep highest score
+        score = tempScore > score ? tempScore : score; // Only keep highest score
     }
     return score;
+}
+
+int AlphaBetaSearch(Engine &engine, int alpha, int beta, int depth)
+{
+    if (depth == engine.maxDepth || engine.stopFlag)
+    {
+        return Evaluation::StaticEvaluation(engine);
+    }
+    std::array<move, 256> moveHolder;
+    uint moveHolderIndex = 0;
+    engine.GetLegalMoves(moveHolder, moveHolderIndex);
+    for (uint i = 0; (i < moveHolderIndex) && (!engine.stopFlag); i++)
+    {
+        engine.MakeMove(moveHolder[i]);
+        int tmpScore = -AlphaBetaSearch(engine, -beta, -alpha, depth + 1);
+        engine.UndoLastMove();
+        if (tmpScore >= beta)
+        {
+            return beta;
+        }
+        if (tmpScore > alpha)
+        {
+            alpha = tmpScore;
+        }
+    }
+    return alpha;
 }
 // --------------------------------------------------------
