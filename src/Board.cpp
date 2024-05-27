@@ -107,7 +107,7 @@ void Board::MakeMove(const move &move)
 	}
 
 	// Promotions
-	if (((move & 0x8000) >> 15) == 1)
+	if (((move & 0x800) >> 11) == 1)
 	{
 		pieceBoards[colorIndex] ^= target;
 		colorBoards[!color] ^= target;

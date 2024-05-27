@@ -16,7 +16,7 @@ move Search::GetBestMove(Engine &engine, const Timer &timer)
     for (uint i = 0; (i < moveHolderIndex) && !engine.stopFlag; i++)
     {
         engine.MakeMove(moveHolder[i]);
-        int tmpScore = Min(engine, engine.maxDepth, maximizingPlayer);
+        int tmpScore = Min(engine, engine.maxDepth-1, maximizingPlayer);
         engine.UndoLastMove();
         if (tmpScore >= bestScore)
         {
@@ -54,7 +54,7 @@ int Min(Engine &engine, int depthRemaining, bool maximizingPlayer)
 }
 int Max(Engine &engine, int depthRemaining, bool maximizingPlayer)
 {
-        if (depthRemaining == 0)
+    if (depthRemaining == 0)
     {
         return Evaluation::StaticEvaluation(engine, maximizingPlayer);
     }
@@ -65,7 +65,7 @@ int Max(Engine &engine, int depthRemaining, bool maximizingPlayer)
     for (uint i = 0; i < moveHolderIndex; i++)
     {
         engine.MakeMove(moveHolder[i]);
-        int tmpScore = Max(engine, depthRemaining - 1, maximizingPlayer);
+        int tmpScore = Min(engine, depthRemaining - 1, maximizingPlayer);
         engine.UndoLastMove();
         if (tmpScore >= bestScore)
         {
