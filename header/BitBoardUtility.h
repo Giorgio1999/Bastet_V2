@@ -3,11 +3,11 @@
 
 // Declaration of helpful types
 // ----------------------------------------
-using bitboard = uint64_t;  // 64 bits representing the squares of a chessboard
-using line = uint8_t;   // 8 bits representing one line of the board
-using move = uint16_t;  // 16 bits for representing moves (promotion:1,convertTo:3,targetIndex:6,startIndex:6)
-using flag = uint8_t;   // 8 bits for bundling together different booleans 
-using square = uint_fast8_t;    // 8 bits for representing a specific square
+using bitboard = uint64_t;   // 64 bits representing the squares of a chessboard
+using line = uint8_t;        // 8 bits representing one line of the board
+using move = uint16_t;       // 16 bits for representing moves (promotion:1,convertTo:3,targetIndex:6,startIndex:6)
+using flag = uint8_t;        // 8 bits for bundling together different booleans
+using square = uint_fast8_t; // 8 bits for representing a specific square
 // -----------------------------------------
 
 // Definiton of helpful constants
@@ -23,7 +23,7 @@ extern bitboard rankMasks[8];
 extern bitboard diagonalAttackMasks[64];
 extern bitboard antiDiagonalAttackMasks[64];
 extern bitboard rankAttackMasks[64];
-extern bitboard hashes[12 * 64 + 1 + 4 + 8];  // Hash table for: pieces*square + black to move + castling rights + enpassant file
+extern bitboard hashes[781]; // Hash table for: pieces*square + black to move + castling rights + enpassant file
 // -----------------------------------------
 
 // Bit manipulation functions
@@ -64,6 +64,6 @@ void PrintBitBoard(const bitboard &value); // Prints Bitboard to std::cout
 
 // Initialisation Functions for lookup tables
 // -----------------------------------------
-void ComputeMasks(); // Precomputes all relevant masks
+void ComputeMasks();  // Precomputes all relevant masks
+void ComputeHashes(); // Precompute hashes
 // -----------------------------------------
-

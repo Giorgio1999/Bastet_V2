@@ -42,7 +42,8 @@ void Board::MakeMove(const move &move, bitboard &zobristKey)
 			startPiece = i + colorIndex;
 			pieceBoards[startPiece] ^= start | target;
 			colorBoards[!color] ^= start | target;
-			zobristKey ^= hashes[startPiece * startIndex] | hashes[startPiece * targetIndex];
+			zobristKey ^= hashes[startPiece * startIndex];
+			zobristKey ^= hashes[startPiece * targetIndex];
 			break;
 		}
 	}
@@ -85,13 +86,13 @@ void Board::MakeMove(const move &move, bitboard &zobristKey)
 		{
 			pieceBoards[otherColorIndex] &= ~(target << 8);
 			colorBoards[color] &= ~(target << 8);
-			zobristKey ^= hashes[otherColorIndex * (targetIndex + 8)];
+			zobristKey &= ~hashes[otherColorIndex * (targetIndex + 8)];
 		}
 		else
 		{
 			pieceBoards[otherColorIndex] &= ~(target >> 8);
 			colorBoards[color] &= ~(target >> 8);
-			zobristKey ^= hashes[otherColorIndex * (targetIndex - 8)];
+			zobristKey &= ~hashes[otherColorIndex * (targetIndex - 8)];
 		}
 	}
 
@@ -103,14 +104,16 @@ void Board::MakeMove(const move &move, bitboard &zobristKey)
 		{
 			pieceBoards[3 + colorIndex] ^= target >> 1 | target << 1;
 			colorBoards[!color] ^= target >> 1 | target << 1;
-			zobristKey ^= hashes[(3 + colorIndex) * (targetIndex - 1)] | hashes[(3 + colorIndex) * (targetIndex + 1)];
+			zobristKey ^= hashes[(3 + colorIndex) * (targetIndex - 1)];
+			zobristKey ^= hashes[(3 + colorIndex) * (targetIndex + 1)];
 		}
 		castleTarget = color ? 58 : 2;
 		if (targetIndex == castleTarget)
 		{
 			pieceBoards[3 + colorIndex] ^= target << 1 | target >> 2;
 			colorBoards[!color] ^= target << 1 | target >> 2;
-			zobristKey ^= hashes[(3 + colorIndex) * (targetIndex + 1)] | hashes[(3 + colorIndex) * (targetIndex - 2)];
+			zobristKey ^= hashes[(3 + colorIndex) * (targetIndex + 1)];
+			zobristKey ^= hashes[(3 + colorIndex) * (targetIndex - 2)];
 		}
 	}
 
@@ -121,7 +124,8 @@ void Board::MakeMove(const move &move, bitboard &zobristKey)
 		colorBoards[!color] ^= target;
 		pieceBoards[colorIndex + ((move & 0x7000) >> 12)] ^= target;
 		colorBoards[!color] ^= target;
-		zobristKey ^= hashes[(colorIndex + ((move & 0x7000) >> 12)) * targetIndex] | hashes[colorIndex * targetIndex];
+		zobristKey ^= hashes[(colorIndex + ((move & 0x7000) >> 12)) * targetIndex];
+		zobristKey ^= hashes[colorIndex * targetIndex];
 	}
 
 	// Update castling flags
@@ -129,10 +133,10 @@ void Board::MakeMove(const move &move, bitboard &zobristKey)
 	flags &= (startIndex == 56 || targetIndex == 56 || startIndex == 60) ? 0b00011011 : flags;
 	flags &= (startIndex == 7 || targetIndex == 7 || startIndex == 4) ? 0b00010111 : flags;
 	flags &= (startIndex == 0 || targetIndex == 0 || startIndex == 4) ? 0b00001111 : flags;
-	zobristKey ^= (startIndex == 63 || targetIndex == 63 || startIndex == 60) ? hashes[12*64+1] : ONE;
-	zobristKey ^= (startIndex == 56 || targetIndex == 56 || startIndex == 60) ? hashes[12*64+2] : ONE;
-	zobristKey^= (startIndex == 7 || targetIndex == 7 || startIndex == 4) ? hashes[12*64+3] : ONE;
-	zobristKey ^= (startIndex == 0 || targetIndex == 0 || startIndex == 4) ? hashes[12*64+4] : ONE;
+	zobristKey ^= (startIndex == 63 || targetIndex == 63 || startIndex == 60) ? hashes[12*64+1] : ZERO;
+	zobristKey ^= (startIndex == 56 || targetIndex == 56 || startIndex == 60) ? hashes[12*64+2] : ZERO;
+	zobristKey^= (startIndex == 7 || targetIndex == 7 || startIndex == 4) ? hashes[12*64+3] : ZERO;
+	zobristKey ^= (startIndex == 0 || targetIndex == 0 || startIndex == 4) ? hashes[12*64+4] : ZERO;
 
 	// Update King coords
 	kingIndices[!color] = (startPiece == (5 + colorIndex)) ? targetIndex : kingIndices[!color];

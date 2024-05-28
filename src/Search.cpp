@@ -4,6 +4,7 @@
 #include "Evaluation.h"
 #include <algorithm>
 #include <vector>
+#include <iostream>
 
 // External Functions
 // --------------------------------------------------------
@@ -26,6 +27,7 @@ move Search::GetBestMove(Engine &engine, const Timer &timer)
             bestScore = tmpScore;
         }
     }
+    std::cout << "info eval " << bestScore << std::endl;
     return bestMove;
 }
 // --------------------------------------------------------
@@ -38,8 +40,9 @@ int Min(Engine &engine, int depthRemaining, bool maximizingPlayer)
     {
         return Evaluation::StaticEvaluation(engine, maximizingPlayer);
     }
-    if (std::count(engine.repetitionTable.begin(), engine.repetitionTable.end(), engine.currentZobristKey) == 2)
+    if (std::count(engine.repetitionTable.begin(), engine.repetitionTable.end(), engine.currentZobristKey) >= 2)
     {
+        std::cout << "info draw detected" << std::endl;
         return 0;
     }
     std::array<move, 256> moveHolder;
@@ -64,8 +67,9 @@ int Max(Engine &engine, int depthRemaining, bool maximizingPlayer)
     {
         return Evaluation::StaticEvaluation(engine, maximizingPlayer);
     }
-    if (std::count(engine.repetitionTable.begin(), engine.repetitionTable.end(), engine.currentZobristKey) == 2)
+    if (std::count(engine.repetitionTable.begin(), engine.repetitionTable.end(), engine.currentZobristKey) >= 2)
     {
+        std::cout << "info draw detected" << std::endl;
         return 0;
     }
     std::array<move, 256> moveHolder;

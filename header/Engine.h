@@ -17,7 +17,6 @@ public:
 	bool stopFlag;						   // Flag that can be set from the controller to stop the engine
 	Board gameHistory[11];				   // History of the game, consisting of boards.
 	uint gameHistoryIndex = 0;			   // Index to the current board
-	bitboard hashes[12 * 64 + 1 + 4 + 8];  // Hash table for: pieces*square + black to move + castling rights + enpassant file
 	std::vector<bitboard> repetitionTable; // Table of zobrist hashes to check for repetitions
 	bitboard currentZobristKey;			   // Zobrist key of the current position
 
@@ -36,6 +35,7 @@ public:
 	void MakeSimpleMove(const move &move);										  // Make a simple move
 	void MakePermanentMove(const move &move);									  // Make a move that can not be undone
 	void UndoLastMove();														  // Revert to previous position
+	void UndoLastSimpleMove();													  // Undo a simple move
 	void GetLegalMoves(std::array<move, 256> &moveHolder, uint &moveHolderIndex); // Gets legalMoves
 	// --------------------------------------------------------------------------------------------
 

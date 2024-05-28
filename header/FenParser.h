@@ -8,6 +8,7 @@
 // Starting positions
 // -------------------------------------------------------------------
 const std::string startingPosition = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"; // hardcoded starting position
+// const std::string startingPosition = "2b5/1p4k1/p2R2P1/4Np2/1P3Pp1/1r6/5K2/8 w - - 0 1"; // hardcoded starting position
 // const std::string startingPosition = "8/k7/8/8/8/8/3B3p/3K24 b - - 0 1"; // illegal move d2c3
 // const std::string startingPosition = "8/3k1p2/p1pP4/1p2P3/1P6/P7/3B3b/3K3q";
 // const std::string startingPosition = "r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - 0 1"; //temporary testing
