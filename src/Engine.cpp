@@ -5,8 +5,10 @@
 #include "BitBoardUtility.h"
 #include "Timer.h"
 #include "Search.h"
+#include "MathUtility.h"
 #include <string>
 #include <cstring>
+#include <iostream>
 
 // This is the engine class implementation
 // Initialising and accessing the engine
@@ -22,6 +24,7 @@ void Engine::Boot()
 {
 	ComputeMasks();
 	MoveGenerator::PreComputeMoves();
+	ComputeHashes();
 }
 
 void Engine::NewGame()
@@ -36,6 +39,41 @@ void Engine::SetBoard(const Board &newBoard)
 	CurrentBoard() = newBoard;
 	CurrentBoard().InitialiseColorBoards();
 	CurrentBoard().InitialiseKingIndices();
+	currentZobristKey = 0;
+	for (uint i = 0; i < 12; i++)
+	{
+		bitboard pieceBoard = newBoard.pieceBoards[i];
+		while (pieceBoard > 0)
+		{
+			square location = PopLsb(pieceBoard);
+			currentZobristKey ^= hashes[i * location];
+		}
+	}
+	if ((newBoard.flags & 1) == 1)
+	{
+		currentZobristKey ^= hashes[12 * 16];
+	}
+	if ((newBoard.flags & 0b00000010) > 0)
+	{
+		currentZobristKey ^= hashes[12 * 16 + 1];
+	}
+	if ((newBoard.flags & 0b00000100) > 0)
+	{
+		currentZobristKey ^= hashes[12 * 16 + 2];
+	}
+	if ((newBoard.flags & 0b00001000) > 0)
+	{
+		currentZobristKey ^= hashes[12 * 16 + 3];
+	}
+	if ((newBoard.flags & 0b00010000) > 0)
+	{
+		currentZobristKey ^= hashes[12 * 16 + 4];
+	}
+	bitboard ghostBoard = newBoard.ghostBoard;
+	if(ghostBoard>0){
+		square location = PopLsb(ghostBoard);
+		currentZobristKey ^= hashes[12 * 16 + 1 + 4 + (location >> 3)];
+	}
 }
 
 Board &Engine::CurrentBoard()
@@ -50,7 +88,8 @@ void Engine::MakeMove(const move &move)
 {
 	std::memcpy(&gameHistory[gameHistoryIndex + 1], &gameHistory[gameHistoryIndex], sizeof(Board));
 	gameHistoryIndex++;
-	CurrentBoard().MakeMove(move);
+	repetitionTable.push_back(currentZobristKey);
+	CurrentBoard().MakeMove(move, currentZobristKey);
 }
 
 void Engine::MakeSimpleMove(const move &move)
@@ -62,13 +101,22 @@ void Engine::MakeSimpleMove(const move &move)
 
 void Engine::MakePermanentMove(const move &move)
 {
-	CurrentBoard().MakeMove(move);
+	repetitionTable.push_back(currentZobristKey);
+	CurrentBoard().MakeMove(move, currentZobristKey);
 }
 
 void Engine::UndoLastMove()
 {
 	gameHistoryIndex--;
+	currentZobristKey = repetitionTable.back();
+	repetitionTable.pop_back();
 }
+
+void Engine::UndoLastSimpleMove()
+{
+	gameHistoryIndex--;
+}
+
 void Engine::GetLegalMoves(std::array<move, 256> &moveHolder, uint &moveHolderIndex)
 {
 	MoveGenerator::GetLegalMoves(*this, moveHolder, moveHolderIndex);
@@ -115,6 +163,6 @@ bitboard Engine::Perft(int depth)
 // --------------------------------------------------------------------------------------------
 std::string Engine::ShowBoard()
 {
-	return CurrentBoard().ShowBoard();
+	return CurrentBoard().ShowBoard() + "\n" + std::to_string(currentZobristKey) + "\n";
 }
 // --------------------------------------------------------------------------------------------

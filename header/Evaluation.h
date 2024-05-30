@@ -4,7 +4,8 @@
 // Evaluation framework
 // Evaluation parameters
 // -------------------------------------------------------------------
-const int pieceValues[5] = {1, 3, 3, 5, 9}; // Piece Values pawn,knight,bishop,rook,queen
+const int pieceValues[5] = {100, 300, 300, 500, 900}; // Piece Values pawn,knight,bishop,rook,queen
+const int whiteBonus = 50;                            // Bonus for white to consider first move advantage
 // -------------------------------------------------------------------
 
 //  External Functions

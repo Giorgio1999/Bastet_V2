@@ -2,6 +2,9 @@
 #include "Timer.h"
 #include "Engine.h"
 #include "Evaluation.h"
+#include <algorithm>
+#include <vector>
+#include <iostream>
 
 // External Functions
 // --------------------------------------------------------
@@ -16,7 +19,7 @@ move Search::GetBestMove(Engine &engine, const Timer &timer)
     for (uint i = 0; (i < moveHolderIndex) && !engine.stopFlag; i++)
     {
         engine.MakeMove(moveHolder[i]);
-        int tmpScore = Min(engine, engine.maxDepth-1, maximizingPlayer);
+        int tmpScore = Min(engine, engine.maxDepth - 1, maximizingPlayer);
         engine.UndoLastMove();
         if (tmpScore >= bestScore)
         {
@@ -24,6 +27,7 @@ move Search::GetBestMove(Engine &engine, const Timer &timer)
             bestScore = tmpScore;
         }
     }
+    std::cout << "info eval " << bestScore*(maximizingPlayer?1:-1) << std::endl;
     return bestMove;
 }
 // --------------------------------------------------------
@@ -35,6 +39,11 @@ int Min(Engine &engine, int depthRemaining, bool maximizingPlayer)
     if (depthRemaining == 0)
     {
         return Evaluation::StaticEvaluation(engine, maximizingPlayer);
+    }
+    if (std::count(engine.repetitionTable.begin(), engine.repetitionTable.end(), engine.currentZobristKey) >= 2)
+    {
+        // std::cout << "info draw detected" << std::endl;
+        return 0;
     }
     std::array<move, 256> moveHolder;
     uint moveHolderIndex = 0;
@@ -57,6 +66,11 @@ int Max(Engine &engine, int depthRemaining, bool maximizingPlayer)
     if (depthRemaining == 0)
     {
         return Evaluation::StaticEvaluation(engine, maximizingPlayer);
+    }
+    if (std::count(engine.repetitionTable.begin(), engine.repetitionTable.end(), engine.currentZobristKey) >= 2)
+    {
+        // std::cout << "info draw detected" << std::endl;
+        return 0;
     }
     std::array<move, 256> moveHolder;
     uint moveHolderIndex = 0;
