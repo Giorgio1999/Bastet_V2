@@ -12,7 +12,7 @@ const int whiteBonus = 50;                            // Bonus for white to cons
 // -------------------------------------------------------------------
 namespace Evaluation
 {
-    int StaticEvaluation(Engine &engine);                        // Evaluates a position relative to player to move
-    int StaticEvaluation(Engine &engine, bool maximizingPlayer); // Evaluates a position relative to player to maximizing player
+    // int StaticEvaluation(Engine &engine);                        // Evaluates a position relative to player to move
+    int StaticEvaluation(Engine &engine); // Evaluates a position relative to player to maximizing player
 }
 // -------------------------------------------------------------------
