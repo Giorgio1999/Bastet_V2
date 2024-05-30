@@ -14,20 +14,21 @@ move Search::GetBestMove(Engine &engine, const Timer &timer)
     uint moveHolderIndex = 0;
     engine.GetLegalMoves(moveHolder, moveHolderIndex);
     move bestMove = moveHolder[0];
-    int bestScore = -INT32_MAX;
+    int alpha = -INT32_MAX;                                          // Assume worst possible lower bound
+    int beta = INT32_MAX;                                            // Assume best possible higher bound
     for (uint i = 0; (i < moveHolderIndex) && !engine.stopFlag; i++) // I search for the moves which brings me the highest score. To do so i play every move i have and evaluate the position
     {
         engine.MakeMove(moveHolder[i]);
-        int tmpScore = Max(engine, engine.maxDepth - 1);
+        int tmpScore = AlphaBetaMax(engine, alpha, beta, engine.maxDepth - 1);
         engine.UndoLastMove();
 
-        if (tmpScore >= bestScore)
+        if (tmpScore > alpha)
         {
+            alpha = tmpScore;
             bestMove = moveHolder[i];
-            bestScore = tmpScore;
         }
     }
-    std::cout << "info eval " << bestScore << std::endl;
+    std::cout << "info eval " << alpha << std::endl;
     return bestMove;
 }
 // --------------------------------------------------------
@@ -117,12 +118,11 @@ int AlphaBetaMin(Engine &engine, int alpha, int beta, int depthRemaining)
         int tmpScore = AlphaBetaMax(engine, alpha, beta, depthRemaining - 1);
         engine.UndoLastMove();
 
-        if (tmpScore >= beta) // Beta represents a lower bound to my opponent. If the score after my move is even higher, my opponent will not go into this position
-        {
+        if(tmpScore >= beta){
             return beta;
         }
-        if (tmpScore < alpha)
-        { // Alpha represents the highest possible score my opponent can achieve. If he finds an even better score, he updates alpha accordingly
+
+        if(tmpScore > alpha){
             alpha = tmpScore;
         }
     }
@@ -151,12 +151,13 @@ int AlphaBetaMax(Engine &engine, int alpha, int beta, int depthRemaining)
         int tmpScore = AlphaBetaMin(engine, alpha, beta, depthRemaining - 1);
         engine.UndoLastMove();
 
-        if (tmpScore <= alpha) // Alpha represents a lower bound to my score. If the score after the opponents move is even lower, the current move being investigated does not matter, since i am guaranteed at least alpha elsewhere
+        if (tmpScore <= alpha)
         {
             return alpha;
         }
-        if (tmpScore > beta)
-        { // Beta represents the higes possible score I can achieve. If I find an even better score, i update beta accordingly
+
+        if (tmpScore < beta)
+        {
             beta = tmpScore;
         }
     }
