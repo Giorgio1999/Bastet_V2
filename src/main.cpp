@@ -41,9 +41,17 @@ int main(int argc, char *argv[])
 			std::fstream out(path, std::ios::out);
 			while (true)
 			{
-				out << prng.Next() << std::endl;
+				out << prng.Next(2,4) << std::endl;
 			}
 			out.close();
+		}
+		if(command == "timertest"){
+			Timer timer(0,0);
+			std::string dummy = "";
+			std::cout << "key+enter to stop" << std::endl;
+			std::cin >> dummy;
+			auto elapsed = timer.TimeElapsed();
+			std::cout << "Time elapsed: " << elapsed << "ms" << std::endl;
 		}
 	}
 	else
