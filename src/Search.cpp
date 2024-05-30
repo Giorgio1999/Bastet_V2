@@ -22,7 +22,7 @@ move Search::GetBestMove(Engine &engine, const Timer &timer)
         int tmpScore = AlphaBetaMax(engine, alpha, beta, engine.maxDepth - 1);
         engine.UndoLastMove();
 
-        if (tmpScore > alpha)
+        if (tmpScore > alpha) // The best move is the move with the highest lower bound
         {
             alpha = tmpScore;
             bestMove = moveHolder[i];
@@ -118,11 +118,13 @@ int AlphaBetaMin(Engine &engine, int alpha, int beta, int depthRemaining)
         int tmpScore = AlphaBetaMax(engine, alpha, beta, depthRemaining - 1);
         engine.UndoLastMove();
 
-        if(tmpScore >= beta){
+        if (tmpScore >= beta)   // If the move is higher than the upper bound the opponent will not allow us to play it
+        {
             return beta;
         }
 
-        if(tmpScore > alpha){
+        if (tmpScore > alpha)   // I will choose the move that will increase the lower bound the most
+        {
             alpha = tmpScore;
         }
     }
@@ -151,12 +153,12 @@ int AlphaBetaMax(Engine &engine, int alpha, int beta, int depthRemaining)
         int tmpScore = AlphaBetaMin(engine, alpha, beta, depthRemaining - 1);
         engine.UndoLastMove();
 
-        if (tmpScore <= alpha)
+        if (tmpScore <= alpha)  // If the score is less or equal to the current lower bound, a different move will be better
         {
             return alpha;
         }
 
-        if (tmpScore < beta)
+        if (tmpScore < beta)    // Opponent will choose that move that decreases the upper bound the most
         {
             beta = tmpScore;
         }
