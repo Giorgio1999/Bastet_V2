@@ -13,9 +13,9 @@
 class Engine
 {
 public:
-	int maxDepth = 5;					   // Maximal depth
+	int maxDepth = 4;					   // Maximal depth
 	bool stopFlag;						   // Flag that can be set from the controller to stop the engine
-	Board gameHistory[11];				   // History of the game, consisting of boards.
+	Board gameHistory[200];				   // History of the game, consisting of boards.
 	uint gameHistoryIndex = 0;			   // Index to the current board
 	std::vector<bitboard> repetitionTable; // Table of zobrist hashes to check for repetitions
 	bitboard currentZobristKey;			   // Zobrist key of the current position
@@ -31,12 +31,12 @@ public:
 
 	// Core functionality
 	// --------------------------------------------------------------------------------------------
-	void MakeMove(const move &move);											  // Make a move
-	void MakeSimpleMove(const move &move);										  // Make a simple move
-	void MakePermanentMove(const move &move);									  // Make a move that can not be undone
-	void UndoLastMove();														  // Revert to previous position
-	void UndoLastSimpleMove();													  // Undo a simple move
-	void GetLegalMoves(std::array<move, 256> &moveHolder, uint &moveHolderIndex); // Gets legalMoves
+	void MakeMove(const move &move);																 // Make a move
+	void MakeSimpleMove(const move &move);															 // Make a simple move
+	void MakePermanentMove(const move &move);														 // Make a move that can not be undone
+	void UndoLastMove();																			 // Revert to previous position
+	void UndoLastSimpleMove();																		 // Undo a simple move
+	void GetLegalMoves(std::array<move, 256> &moveHolder, uint &moveHolderIndex, bool capturesOnly); // Gets legalMoves, if capturesOnly get legal captures
 	// --------------------------------------------------------------------------------------------
 
 	// Search

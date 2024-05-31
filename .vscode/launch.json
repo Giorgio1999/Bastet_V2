@@ -11,7 +11,7 @@
             "cwd": "${workspaceFolder}",
             "stopAtEntry": false,
             "environment": [],
-            "externalConsole": true,
+            "externalConsole": false,
             "MIMode": "gdb",
             "miDebuggerPath": "/usr/bin/gdb",
             "setupCommands": [

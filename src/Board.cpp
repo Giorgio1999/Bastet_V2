@@ -139,7 +139,7 @@ void Board::MakeMove(const move &move, bitboard &zobristKey)
 	zobristKey ^= (startIndex == 0 || targetIndex == 0 || startIndex == 4) ? hashes[12*64+4] : ZERO;
 
 	// Update King coords
-	kingIndices[!color] = (startPiece == (5 + colorIndex)) ? targetIndex : kingIndices[!color];
+	// kingIndices[!color] = (startPiece == (5 + colorIndex)) ? targetIndex : kingIndices[!color];
 
 	// Update turn flag
 	flags ^= ONE;
@@ -200,7 +200,7 @@ void Board::MakeSimpleMove(const move &move)
 	}
 
 	// Update King coords
-	kingIndices[!color] = (startPiece == (5 + colorIndex)) ? targetIndex : kingIndices[!color];
+	// kingIndices[!color] = (startPiece == (5 + colorIndex)) ? targetIndex : kingIndices[!color];
 
 	// Update turn flag
 	flags ^= ONE;
@@ -215,12 +215,6 @@ void Board::InitialiseColorBoards()
 		colorBoards[0] |= pieceBoards[i];
 		colorBoards[1] |= pieceBoards[i + 6];
 	}
-}
-
-void Board::InitialiseKingIndices()
-{
-	kingIndices[0] = BitScanForwards(pieceBoards[5]) - 1;
-	kingIndices[1] = BitScanForwards(pieceBoards[11]) - 1;
 }
 // --------------------------------------------
 

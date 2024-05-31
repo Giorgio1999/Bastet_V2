@@ -193,7 +193,9 @@ void Listen()
 		}
 		if (key == "legalmoves")
 		{
-			std::cout << engineController.GetLegalMoves() << std::endl;
+			rit++;
+			bool capturesOnly = rit->str() == "captures";
+			std::cout << engineController.GetLegalMoves(capturesOnly) << std::endl;
 			continue;
 		}
 		if (key == "perft")

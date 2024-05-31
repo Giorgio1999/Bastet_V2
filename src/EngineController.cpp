@@ -99,7 +99,7 @@ std::string EngineController::SplitPerft(int depth)
 {
 	std::array<move, 256> moveHolder;
 	uint moveHolderIndex = 0;
-	engine.GetLegalMoves(moveHolder, moveHolderIndex);
+	engine.GetLegalMoves(moveHolder, moveHolderIndex, false);
 	std::string returnString = "";
 	for (uint i = 0; i < moveHolderIndex; i++)
 	{
@@ -214,11 +214,11 @@ void EngineController::Validate()
 
 // Debugging
 // -------------------------------------------------------------------
-std::string EngineController::GetLegalMoves()
+std::string EngineController::GetLegalMoves(bool capturesOnly)
 {
 	std::array<move, 256> moveHolder;
 	uint moveHolderIndex = 0;
-	engine.GetLegalMoves(moveHolder, moveHolderIndex);
+	engine.GetLegalMoves(moveHolder, moveHolderIndex, capturesOnly);
 	std::string movesString = "";
 	for (uint i = 0; i < moveHolderIndex; i++)
 	{

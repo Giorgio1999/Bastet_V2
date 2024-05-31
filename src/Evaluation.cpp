@@ -29,7 +29,7 @@ int Evaluation::StaticEvaluation(Engine &engine)
     auto colorMultiplier = (currentBoard.flags & 1) == 1 ? -1 : 1; // If white is maximizing player, then after a white move it is blacks turn. So the score will be #white-#black. If black is maximizing then its whites turn and #black-#white
 
     int evaluation = 0;
-    for (auto i = 0; i < 5; i++)
+    for (auto i = 0; i < 6; i++)
     {
         evaluation += pieceValues[i] * colorMultiplier * (NumberOfSetBits(currentBoard.pieceBoards[i]) - NumberOfSetBits(currentBoard.pieceBoards[i + 6])); // Count pieces multiplied with piece Values
     }

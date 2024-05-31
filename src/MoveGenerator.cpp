@@ -18,9 +18,15 @@ bitboard aFileAttacks[8][64];
 void MoveGenerator::GetLegalMoves(Engine &engine, std::array<move, 256> &moveHolder, uint &moveHolderIndex)
 {
     // Initialisation of some helpful quantities shared by all pieces
-    Board &currentBoard = engine.CurrentBoard();                                                  // Reference to current board
-    auto color = (currentBoard.flags & 1) == 1;                                                   // Bool stating who is to move: true white, false black
-    auto colorIndex = color ? 0 : 6;                                                              // Index offset into piece boards depending on color
+    Board &currentBoard = engine.CurrentBoard();                                   // Reference to current board
+    auto color = (currentBoard.flags & 1) == 1;                                    // Bool stating who is to move: true white, false black
+    auto colorIndex = color ? 0 : 6;                                               // Index offset into piece boards depending on color
+    int kingIndex = BitScanForwards(currentBoard.pieceBoards[5 + colorIndex]) - 1; // Square of friendly king, if there is no friendly king (-1), there are no legal moves
+    if (kingIndex < 0)
+    {
+        moveHolderIndex = 0;
+        return;
+    }
     auto colorDirection = color ? -8 : 8;                                                         // Direction of pawn moves depending on color
     auto startRank = color ? 1 : 6;                                                               // Start rank of pawns depending on color
     auto promoterRank = color ? 6 : 1;                                                            // Promotion rank of pawns depending on color
@@ -58,7 +64,7 @@ void MoveGenerator::GetLegalMoves(Engine &engine, std::array<move, 256> &moveHol
         to = PopLsb(pusher);
         move = Move(to - colorDirection, to);
         engine.MakeSimpleMove(move);
-        if (MoveGenerator::IsSquareAttacked(engine, currentBoard.kingIndices[!color], !color))
+        if (MoveGenerator::IsSquareAttacked(engine, kingIndex, !color))
         {
             engine.UndoLastSimpleMove();
             continue;
@@ -83,7 +89,7 @@ void MoveGenerator::GetLegalMoves(Engine &engine, std::array<move, 256> &moveHol
         to = PopLsb(doublePusher);
         move = Move(to - 2 * colorDirection, to);
         engine.MakeSimpleMove(move);
-        if (MoveGenerator::IsSquareAttacked(engine, currentBoard.kingIndices[!color], !color))
+        if (MoveGenerator::IsSquareAttacked(engine, kingIndex, !color))
         {
             engine.UndoLastSimpleMove();
             continue;
@@ -102,7 +108,7 @@ void MoveGenerator::GetLegalMoves(Engine &engine, std::array<move, 256> &moveHol
         {
             move = Move(from, PopLsb(attacks));
             engine.MakeSimpleMove(move);
-            if (!MoveGenerator::IsSquareAttacked(engine, currentBoard.kingIndices[!color], !color))
+            if (!MoveGenerator::IsSquareAttacked(engine, kingIndex, !color))
             {
                 moveHolder[moveHolderIndex] = move;
                 moveHolderIndex++;
@@ -114,7 +120,7 @@ void MoveGenerator::GetLegalMoves(Engine &engine, std::array<move, 256> &moveHol
         {
             move = Move(from, PopLsb(attacks));
             engine.MakeSimpleMove(move);
-            if (MoveGenerator::IsSquareAttacked(engine, currentBoard.kingIndices[!color], !color))
+            if (MoveGenerator::IsSquareAttacked(engine, kingIndex, !color))
             {
                 engine.UndoLastSimpleMove();
                 continue;
@@ -140,7 +146,7 @@ void MoveGenerator::GetLegalMoves(Engine &engine, std::array<move, 256> &moveHol
         to = PopLsb(promoter);
         move = Move(to - colorDirection, to);
         engine.MakeSimpleMove(move);
-        if (MoveGenerator::IsSquareAttacked(engine, currentBoard.kingIndices[!color], !color))
+        if (MoveGenerator::IsSquareAttacked(engine, kingIndex, !color))
         {
             engine.UndoLastSimpleMove();
             continue;
@@ -162,7 +168,7 @@ void MoveGenerator::GetLegalMoves(Engine &engine, std::array<move, 256> &moveHol
         {
             move = Move(from, PopLsb(attacks));
             engine.MakeSimpleMove(move);
-            if (!MoveGenerator::IsSquareAttacked(engine, currentBoard.kingIndices[!color], !color))
+            if (!MoveGenerator::IsSquareAttacked(engine, kingIndex, !color))
             {
                 for (uint8_t i = 1; i < 5; i++) // If move is valid loop over all possible promotions
                 {
@@ -177,7 +183,7 @@ void MoveGenerator::GetLegalMoves(Engine &engine, std::array<move, 256> &moveHol
         {
             move = Move(from, PopLsb(attacks));
             engine.MakeSimpleMove(move);
-            if (MoveGenerator::IsSquareAttacked(engine, currentBoard.kingIndices[!color], !color))
+            if (MoveGenerator::IsSquareAttacked(engine, kingIndex, !color))
             {
                 engine.UndoLastSimpleMove();
                 continue;
@@ -204,7 +210,7 @@ void MoveGenerator::GetLegalMoves(Engine &engine, std::array<move, 256> &moveHol
             to = PopLsb(attacks);
             move = Move(from, to);
             engine.MakeSimpleMove(move);
-            if (MoveGenerator::IsSquareAttacked(engine, currentBoard.kingIndices[!color], !color))
+            if (MoveGenerator::IsSquareAttacked(engine, kingIndex, !color))
             {
                 engine.UndoLastSimpleMove();
                 continue;
@@ -218,8 +224,6 @@ void MoveGenerator::GetLegalMoves(Engine &engine, std::array<move, 256> &moveHol
 
     // King
     //  ----------------------------------------------------------------------------------------------------------------------------------
-    int kingIndex = currentBoard.kingIndices[!color]; // Square of friendly king
-
     // normal king moves
     attacks = kingMoves[kingIndex] & notThisBoard; // Get king moves that do not land on friendly pieces
     while (attacks > 0)                            // Loop over all possibles moves and add to legalmoves if move does not put player in check
@@ -301,7 +305,7 @@ void MoveGenerator::GetLegalMoves(Engine &engine, std::array<move, 256> &moveHol
             to = PopLsb(attacks);
             move = Move(from, to);
             engine.MakeSimpleMove(move);
-            if (MoveGenerator::IsSquareAttacked(engine, currentBoard.kingIndices[!color], !color))
+            if (MoveGenerator::IsSquareAttacked(engine, kingIndex, !color))
             {
                 engine.UndoLastSimpleMove();
                 continue;
@@ -326,7 +330,206 @@ void MoveGenerator::GetLegalMoves(Engine &engine, std::array<move, 256> &moveHol
             to = PopLsb(attacks);
             move = Move(from, to);
             engine.MakeSimpleMove(move);
-            if (MoveGenerator::IsSquareAttacked(engine, currentBoard.kingIndices[!color], !color))
+            if (MoveGenerator::IsSquareAttacked(engine, kingIndex, !color))
+            {
+                engine.UndoLastSimpleMove();
+                continue;
+            }
+            engine.UndoLastSimpleMove();
+            moveHolder[moveHolderIndex] = move;
+            moveHolderIndex++;
+        }
+    }
+    // -----------------------------------------------------------------------------------------------------------------------
+}
+
+void MoveGenerator::GetLegalCaptures(Engine &engine, std::array<move, 256> &moveHolder, uint &moveHolderIndex)
+{
+    // Initialisation of some helpful quantities shared by all pieces
+    Board &currentBoard = engine.CurrentBoard();                                   // Reference to current board
+    auto color = (currentBoard.flags & 1) == 1;                                    // Bool stating who is to move: true white, false black
+    auto colorIndex = color ? 0 : 6;                                               // Index offset into piece boards depending on color
+    int kingIndex = BitScanForwards(currentBoard.pieceBoards[5 + colorIndex]) - 1; // Square of friendly king, if there is no friendly king (-1), then there are no legal moves
+    if (kingIndex < 0)
+    {
+        moveHolderIndex = 0;
+        return;
+    }
+    auto colorDirection = color ? -8 : 8;                                                         // Direction of pawn moves depending on color
+    auto startRank = color ? 1 : 6;                                                               // Start rank of pawns depending on color
+    auto promoterRank = color ? 6 : 1;                                                            // Promotion rank of pawns depending on color
+    bitboard combinedColors = currentBoard.colorBoards[color] | currentBoard.colorBoards[!color]; // All pieces
+    bitboard notCombinedColors = ~combinedColors;                                                 // ~combined colors
+    bitboard notThisBoard = ~currentBoard.colorBoards[!color];                                    //  ~friendly blockers
+    bitboard otherBoard = currentBoard.colorBoards[color];                                        // Enemy pieces
+
+    // Predeclaration to save time in main function
+    square from;
+    square to;
+    bitboard attacks;
+    move move;
+
+    // Pawns
+    //----------------------------------------------------------------------------------
+    bitboard capturer = currentBoard.pieceBoards[colorIndex] & ~rankMasks[promoterRank];         // Pawns which will capture and not promote
+    bitboard promotionCapturer = currentBoard.pieceBoards[colorIndex] & rankMasks[promoterRank]; // Pawn which will capture and promote
+
+    // Captures without promotion
+    while (capturer > 0) // Add all caputes to legalmoves if the moves does not put player in check
+    {
+        from = PopLsb(capturer);
+        attacks = pawnAttacks[!color][0][from] & (otherBoard | currentBoard.ghostBoard); // Test if captures enemy piece or ghost
+        if (attacks > 0)
+        {
+            move = Move(from, PopLsb(attacks));
+            engine.MakeSimpleMove(move);
+            if (!MoveGenerator::IsSquareAttacked(engine, kingIndex, !color))
+            {
+                moveHolder[moveHolderIndex] = move;
+                moveHolderIndex++;
+            }
+            engine.UndoLastSimpleMove();
+        }
+        attacks = pawnAttacks[!color][1][from] & (otherBoard | currentBoard.ghostBoard);
+        if (attacks > 0)
+        {
+            move = Move(from, PopLsb(attacks));
+            engine.MakeSimpleMove(move);
+            if (MoveGenerator::IsSquareAttacked(engine, kingIndex, !color))
+            {
+                engine.UndoLastSimpleMove();
+                continue;
+            }
+            engine.UndoLastSimpleMove();
+            moveHolder[moveHolderIndex] = move;
+            moveHolderIndex++;
+        }
+    }
+
+    // Capture with promotion
+    while (promotionCapturer > 0) // Add all captures that land on promotions squares to legalmoves if the move does not put the player in check
+    {
+        from = PopLsb(promotionCapturer);
+        attacks = pawnAttacks[!color][0][from] & otherBoard;
+        if (attacks > 0)
+        {
+            move = Move(from, PopLsb(attacks));
+            engine.MakeSimpleMove(move);
+            if (!MoveGenerator::IsSquareAttacked(engine, kingIndex, !color))
+            {
+                for (uint8_t i = 1; i < 5; i++) // If move is valid loop over all possible promotions
+                {
+                    moveHolder[moveHolderIndex] = Move(move, i, 1);
+                    moveHolderIndex++;
+                }
+            }
+            engine.UndoLastSimpleMove();
+        }
+        attacks = pawnAttacks[!color][1][from] & otherBoard;
+        if (attacks > 0)
+        {
+            move = Move(from, PopLsb(attacks));
+            engine.MakeSimpleMove(move);
+            if (MoveGenerator::IsSquareAttacked(engine, kingIndex, !color))
+            {
+                engine.UndoLastSimpleMove();
+                continue;
+            }
+            engine.UndoLastSimpleMove();
+            for (uint8_t i = 1; i < 5; i++) // If move is valid loop over all possible promotions
+            {
+                moveHolder[moveHolderIndex] = Move(move, i, 1);
+                moveHolderIndex++;
+            }
+        }
+    }
+    // ---------------------------------------------------------------------------------------------------------------------------
+
+    // Knights
+    // --------------------------------------------------------------------------------------------------------------------------
+    bitboard knights = currentBoard.pieceBoards[1 + colorIndex]; // Knight bitboard
+    while (knights > 0)                                          // Loop over all knights
+    {
+        from = PopLsb(knights);
+        attacks = knightMoves[from] & notThisBoard & otherBoard; // Get knight moves that do not land on friendly pieces and caputre an enemy piece
+        while (attacks > 0)                                      // Loop over all possible moves and add move to legalmoves if it does not put the player in check
+        {
+            to = PopLsb(attacks);
+            move = Move(from, to);
+            engine.MakeSimpleMove(move);
+            if (MoveGenerator::IsSquareAttacked(engine, kingIndex, !color))
+            {
+                engine.UndoLastSimpleMove();
+                continue;
+            }
+            engine.UndoLastSimpleMove();
+            moveHolder[moveHolderIndex] = move;
+            moveHolderIndex++;
+        }
+    }
+    // -----------------------------------------------------------------------------------------------------------------------------
+
+    // King
+    //  ----------------------------------------------------------------------------------------------------------------------------------
+
+    // normal king moves
+    attacks = kingMoves[kingIndex] & notThisBoard & otherBoard; // Get king moves that do not land on friendly pieces and capture an enemy piece
+    while (attacks > 0)                                         // Loop over all possibles moves and add to legalmoves if move does not put player in check
+    {
+        to = PopLsb(attacks);
+        move = Move(kingIndex, to);
+        engine.MakeSimpleMove(move);
+        if (IsSquareAttacked(engine, to, !color))
+        {
+            engine.UndoLastSimpleMove();
+            continue;
+        }
+        engine.UndoLastSimpleMove();
+        moveHolder[moveHolderIndex] = move;
+        moveHolderIndex++;
+    }
+    // ---------------------------------------------------------------------------------------------
+
+    // Rooks
+    // -------------------------------------------------------------------------------------------------
+    bitboard rookBoard = currentBoard.pieceBoards[3 + colorIndex] | currentBoard.pieceBoards[4 + colorIndex]; // Horizontal and vertical slider board (rook + queen)
+
+    while (rookBoard > 0) // Loop over all horizontal and vertical sliders
+    {
+        from = PopLsb(rookBoard);
+
+        attacks = (GetFileAttacks(from, combinedColors) | GetRankAttacks(from, combinedColors)) & notThisBoard & otherBoard; // Fetch kindergarten file attacks and removed friendly blockers, since attacks do not descriminate by color, only consider moves that capture a piece
+        while (attacks > 0)                                                                                                  // loop over all possible moves and add to legalmoves if move does not put player in check
+        {
+            to = PopLsb(attacks);
+            move = Move(from, to);
+            engine.MakeSimpleMove(move);
+            if (MoveGenerator::IsSquareAttacked(engine, kingIndex, !color))
+            {
+                engine.UndoLastSimpleMove();
+                continue;
+            }
+            engine.UndoLastSimpleMove();
+            moveHolder[moveHolderIndex] = move;
+            moveHolderIndex++;
+        }
+    }
+    // -------------------------------------------------------------------------------------------------------------------
+
+    // Bishops
+    // ---------------------------------------------------------------------------------------------------------------------
+    bitboard bishopBoard = currentBoard.pieceBoards[2 + colorIndex] | currentBoard.pieceBoards[4 + colorIndex]; // Diagonal slider board (bishop + queen)
+
+    while (bishopBoard > 0) // Loop over all diagonal sliders
+    {
+        from = PopLsb(bishopBoard);
+        attacks = (GetDiagonalAttacks(from, combinedColors) | GetAntiDiagonalAttacks(from, combinedColors)) & notThisBoard & otherBoard; // Fetch kindergarten attacks on diagonal and anti diagonal, only consider moves that capture an enemy piece
+        while (attacks > 0)                                                                                                              // loop over all possible moves and add to legalmoves if move does not put player in check
+        {
+            to = PopLsb(attacks);
+            move = Move(from, to);
+            engine.MakeSimpleMove(move);
+            if (MoveGenerator::IsSquareAttacked(engine, kingIndex, !color))
             {
                 engine.UndoLastSimpleMove();
                 continue;
@@ -353,17 +556,23 @@ bool MoveGenerator::IsSquareAttacked(Engine &engine, const int &index, const boo
     bitboard horAndVertBlockerBoard = (engine.gameHistory[engine.gameHistoryIndex].colorBoards[!attackingColor] & ~engine.gameHistory[engine.gameHistoryIndex].pieceBoards[3 + colorIndex] & ~engine.gameHistory[engine.gameHistoryIndex].pieceBoards[4 + colorIndex]) | engine.CurrentBoard().colorBoards[attackingColor];
     bitboard diagonalBlockerBoard = (engine.gameHistory[engine.gameHistoryIndex].colorBoards[!attackingColor] & ~engine.gameHistory[engine.gameHistoryIndex].pieceBoards[2 + colorIndex] & ~engine.gameHistory[engine.gameHistoryIndex].pieceBoards[4 + colorIndex]) | engine.CurrentBoard().colorBoards[attackingColor];
 
-    // Knights: can the piece on index attack a attackingcolor knight like a knight
-    bitboard attacks = knightMoves[index] & currentBoard.pieceBoards[1 + colorIndex];
+    // Diagonal sliders: can the piece on index attack a attackingcolor diagonal slider like a diagonal slider
+    bitboard attacks = (GetDiagonalAttacks(index, diagonalBlockerBoard) | GetAntiDiagonalAttacks(index, diagonalBlockerBoard)) & diagonalSliderBoard;
     if (attacks > 0)
     {
         return true;
     }
 
-    // King: is the piece on index attacked by the attackingcolor king
-    int attackingKingIndex = currentBoard.kingIndices[!attackingColor];
-    attacks = kingMoves[attackingKingIndex];
-    if ((attacks & (ONE << index)) > 0)
+    // Knights: can the piece on index attack a attackingcolor knight like a knight
+    attacks = knightMoves[index] & currentBoard.pieceBoards[1 + colorIndex];
+    if (attacks > 0)
+    {
+        return true;
+    }
+
+    // Horizontal and vertical sliders: can the piece on index attack a attacking color hor and vert slider like a hor and vert slider
+    attacks = (GetFileAttacks(index, horAndVertBlockerBoard) | GetRankAttacks(index, horAndVertBlockerBoard)) & horAndVertSliderBoard;
+    if (attacks > 0)
     {
         return true;
     }
@@ -375,15 +584,8 @@ bool MoveGenerator::IsSquareAttacked(Engine &engine, const int &index, const boo
         return true;
     }
 
-    // Diagonal sliders: can the piece on index attack a attackingcolor diagonal slider like a diagonal slider
-    attacks = (GetDiagonalAttacks(index, diagonalBlockerBoard) | GetAntiDiagonalAttacks(index, diagonalBlockerBoard)) & diagonalSliderBoard;
-    if (attacks > 0)
-    {
-        return true;
-    }
-
-    // Horizontal and vertical sliders: can the piece on index attack a attacking color hor and vert slider like a hor and vert slider
-    attacks = (GetFileAttacks(index, horAndVertBlockerBoard) | GetRankAttacks(index, horAndVertBlockerBoard)) & horAndVertSliderBoard;
+    // King: can the piece on index attack a attackingcolor king like a king
+    attacks = kingMoves[index] & currentBoard.pieceBoards[5 + colorIndex];
     if (attacks > 0)
     {
         return true;

@@ -38,7 +38,6 @@ void Engine::SetBoard(const Board &newBoard)
 	gameHistoryIndex = 0;
 	CurrentBoard() = newBoard;
 	CurrentBoard().InitialiseColorBoards();
-	CurrentBoard().InitialiseKingIndices();
 	currentZobristKey = 0;
 	for (uint i = 0; i < 12; i++)
 	{
@@ -70,7 +69,8 @@ void Engine::SetBoard(const Board &newBoard)
 		currentZobristKey ^= hashes[12 * 16 + 4];
 	}
 	bitboard ghostBoard = newBoard.ghostBoard;
-	if(ghostBoard>0){
+	if (ghostBoard > 0)
+	{
 		square location = PopLsb(ghostBoard);
 		currentZobristKey ^= hashes[12 * 16 + 1 + 4 + (location >> 3)];
 	}
@@ -117,9 +117,16 @@ void Engine::UndoLastSimpleMove()
 	gameHistoryIndex--;
 }
 
-void Engine::GetLegalMoves(std::array<move, 256> &moveHolder, uint &moveHolderIndex)
+void Engine::GetLegalMoves(std::array<move, 256> &moveHolder, uint &moveHolderIndex, bool capturesOnly)
 {
-	MoveGenerator::GetLegalMoves(*this, moveHolder, moveHolderIndex);
+	if (capturesOnly)
+	{
+		MoveGenerator::GetLegalCaptures(*this, moveHolder, moveHolderIndex);
+	}
+	else
+	{
+		MoveGenerator::GetLegalMoves(*this, moveHolder, moveHolderIndex);
+	}
 }
 // --------------------------------------------------------------------------------------------
 
@@ -137,7 +144,7 @@ bitboard Engine::Perft(int depth)
 {
 	std::array<move, 256> moveHolder;
 	uint moveHolderIndex = 0;
-	GetLegalMoves(moveHolder, moveHolderIndex);
+	GetLegalMoves(moveHolder, moveHolderIndex, false);
 	if (depth <= 1)
 	{
 		return moveHolderIndex;

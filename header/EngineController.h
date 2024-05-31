@@ -41,9 +41,9 @@ public:
 
 	// Debugging
 	// -------------------------------------------------------------------
-	std::string GetLegalMoves(); // Get legalmoves
-	std::string ShowBoard();	 // Debug tool to display board in console
-	void UndoLastMove();		 // Debug to test functionality
-								 // -------------------------------------------------------------------
+	std::string GetLegalMoves(bool capturesOnly); // Get legalmoves
+	std::string ShowBoard();					  // Debug tool to display board in console
+	void UndoLastMove();						  // Debug to test functionality
+												  // -------------------------------------------------------------------
 };
 // -------------------------------------------------------------------
