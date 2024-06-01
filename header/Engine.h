@@ -37,6 +37,7 @@ public:
 	void UndoLastMove();																			 // Revert to previous position
 	void UndoLastSimpleMove();																		 // Undo a simple move
 	void GetLegalMoves(std::array<move, 256> &moveHolder, uint &moveHolderIndex, bool capturesOnly); // Gets legalMoves, if capturesOnly get legal captures
+	bool IsCheck();																					 // Return wheter player to move is in check
 	// --------------------------------------------------------------------------------------------
 
 	// Search

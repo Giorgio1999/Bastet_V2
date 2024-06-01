@@ -113,6 +113,11 @@ int AlphaBetaMin(Engine &engine, int alpha, int beta, int depthRemaining)
     uint moveHolderIndex = 0;
     engine.GetLegalMoves(moveHolder, moveHolderIndex, false);
 
+    if (!engine.IsCheck() && moveHolderIndex == 0)
+    {
+        return 0;
+    }
+
     for (uint i = 0; i < moveHolderIndex; i++) // If the depth limit is not reached, I look for the highest score I can achieve from this position
     {
         engine.MakeMove(moveHolder[i]);
@@ -148,6 +153,11 @@ int AlphaBetaMax(Engine &engine, int alpha, int beta, int depthRemaining)
     std::array<move, 256> moveHolder;
     uint moveHolderIndex = 0;
     engine.GetLegalMoves(moveHolder, moveHolderIndex, false);
+
+    if (!engine.IsCheck() && moveHolderIndex == 0)
+    {
+        return 0;
+    }
 
     for (uint i = 0; i < moveHolderIndex; i++) // If the depth limit is not reached, I look for the bestmove of my opponent, meaning the lowest score from my perspective in the given position
     {
