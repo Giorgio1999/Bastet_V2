@@ -542,6 +542,9 @@ void MoveGenerator::GetLegalCaptures(Engine &engine, std::array<move, 256> &move
 
 bool MoveGenerator::IsSquareAttacked(Engine &engine, const int &index, const bool &attackingColor)
 {
+    if(index<0){
+        return false;
+    }
     // Initialisation of some helpful quantities shared by all pieces
     Board &currentBoard = engine.CurrentBoard(); // Reference to current board
     auto colorIndex = attackingColor ? 0 : 6;    // Index offset into piece boards depending on attacking color

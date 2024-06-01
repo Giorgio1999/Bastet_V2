@@ -21,6 +21,9 @@ void Board::Clear()
 
 void Board::MakeMove(const move &move, bitboard &zobristKey)
 {
+	// Update nonreversible moves
+	nonReversibleMoves++;
+
 	// Clear ghosts
 	ghostBoard = ZERO;
 
@@ -48,6 +51,11 @@ void Board::MakeMove(const move &move, bitboard &zobristKey)
 		}
 	}
 
+	if (startPiece == colorIndex)
+	{
+		nonReversibleMoves = 0;
+	}
+
 	// Find Piece at target and remove it
 	int targetPiece = -1;
 	for (int i = 0; i < 6; i++)
@@ -58,6 +66,7 @@ void Board::MakeMove(const move &move, bitboard &zobristKey)
 			pieceBoards[targetPiece] ^= target;
 			colorBoards[color] ^= target;
 			zobristKey ^= hashes[targetPiece * targetIndex];
+			nonReversibleMoves = 0;
 			break;
 		}
 	}
@@ -115,6 +124,7 @@ void Board::MakeMove(const move &move, bitboard &zobristKey)
 			zobristKey ^= hashes[(3 + colorIndex) * (targetIndex + 1)];
 			zobristKey ^= hashes[(3 + colorIndex) * (targetIndex - 2)];
 		}
+		nonReversibleMoves = 0;
 	}
 
 	// Promotions
@@ -133,17 +143,17 @@ void Board::MakeMove(const move &move, bitboard &zobristKey)
 	flags &= (startIndex == 56 || targetIndex == 56 || startIndex == 60) ? 0b00011011 : flags;
 	flags &= (startIndex == 7 || targetIndex == 7 || startIndex == 4) ? 0b00010111 : flags;
 	flags &= (startIndex == 0 || targetIndex == 0 || startIndex == 4) ? 0b00001111 : flags;
-	zobristKey ^= (startIndex == 63 || targetIndex == 63 || startIndex == 60) ? hashes[12*64+1] : ZERO;
-	zobristKey ^= (startIndex == 56 || targetIndex == 56 || startIndex == 60) ? hashes[12*64+2] : ZERO;
-	zobristKey^= (startIndex == 7 || targetIndex == 7 || startIndex == 4) ? hashes[12*64+3] : ZERO;
-	zobristKey ^= (startIndex == 0 || targetIndex == 0 || startIndex == 4) ? hashes[12*64+4] : ZERO;
+	zobristKey ^= (startIndex == 63 || targetIndex == 63 || startIndex == 60) ? hashes[12 * 64 + 1] : ZERO;
+	zobristKey ^= (startIndex == 56 || targetIndex == 56 || startIndex == 60) ? hashes[12 * 64 + 2] : ZERO;
+	zobristKey ^= (startIndex == 7 || targetIndex == 7 || startIndex == 4) ? hashes[12 * 64 + 3] : ZERO;
+	zobristKey ^= (startIndex == 0 || targetIndex == 0 || startIndex == 4) ? hashes[12 * 64 + 4] : ZERO;
 
 	// Update King coords
 	// kingIndices[!color] = (startPiece == (5 + colorIndex)) ? targetIndex : kingIndices[!color];
 
 	// Update turn flag
 	flags ^= ONE;
-	zobristKey ^= hashes[12*64];
+	zobristKey ^= hashes[12 * 64];
 }
 
 void Board::MakeSimpleMove(const move &move)

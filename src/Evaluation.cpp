@@ -19,7 +19,7 @@ int Evaluation::StaticEvaluation(Engine &engine)
     {
         evaluation += pieceValues[i] * colorMultiplier * (NumberOfSetBits(currentBoard.pieceBoards[i]) - NumberOfSetBits(currentBoard.pieceBoards[i + 6])); // Count pieces multiplied with piece Values
     }
-    evaluation -= colorMultiplier * whiteBonus; // If white is maximizing (black to play in the current position) then add tempo bonus to the evaluation. If black is maximizing subtract tempo
+    evaluation += colorMultiplier * whiteBonus; // If white is maximizing (black to play in the current position) then add tempo bonus to the evaluation. If black is maximizing subtract tempo
     evaluation += prng.Next(0, 100);            // Always add a random jiggle to the evaluation, which emulates mobility scores
     return evaluation;
 }

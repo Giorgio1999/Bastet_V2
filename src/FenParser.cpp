@@ -143,6 +143,11 @@ Board Fen2Position(const std::string &fen)
 		SetBit(board.ghostBoard, ghostPosition.x, ghostPosition.y);
 	}
 
+	// Number of nonreversible moves
+	std::string nonReversibleMoves = rights.substr(castling.length() + enPassant.length() + 4,rights.length()-1);
+	nonReversibleMoves = nonReversibleMoves.substr(0,nonReversibleMoves.find_first_of(' '));
+	board.nonReversibleMoves = std::stoi(nonReversibleMoves);
+
 	return board;
 }
 // -------------------------------------------------------------------

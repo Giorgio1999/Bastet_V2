@@ -133,7 +133,7 @@ bool Engine::IsCheck(){
 	Board currentBoard = CurrentBoard();
 	auto color = (currentBoard.flags&1)==1;
 	auto colorIndex = color?0:6;
-	square kingIndex = BitScanForwards(currentBoard.pieceBoards[5+colorIndex])-1;
+	int kingIndex = BitScanForwards(currentBoard.pieceBoards[5+colorIndex])-1;
 	return MoveGenerator::IsSquareAttacked(*this,kingIndex,!color);
 }
 // --------------------------------------------------------------------------------------------

@@ -79,9 +79,9 @@ void Listen()
 				rit++;
 				fen += rit->str() + " "; // enpassant
 				rit++;
-				fen += rit->str() + " "; // ?
+				fen += rit->str() + " "; // Number of nonreversible moves
 				rit++;
-				fen += rit->str() + " "; // ?
+				fen += rit->str() + " "; // Move number
 				engineController.SetPosition(fen);
 			}
 			rit++;

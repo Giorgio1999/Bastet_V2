@@ -13,6 +13,7 @@ public:
 	bitboard ghostBoard = 0;										 // Board containing enpassant ghosts
 	bitboard colorBoards[2] = {0, 0};								 // Board containing all pieces of one color: 0 white, 1 black
 	flag flags = 0;													 // keeps track of castling rights and player to move: 000qkQKm, potetial space for other stuff
+	uint nonReversibleMoves = 0;									 // Variable to keep track of fifty move rule
 	// --------------------------------------------
 
 	// Updating the board
