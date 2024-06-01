@@ -31,8 +31,6 @@ move Search::GetBestMove(Engine &engine, Timer &timer)
     std::array<int, 256> scores;
 
     auto localDepth = 1;
-    move bestMove = moveHolder[0];
-    auto bestScore = -INT32_MAX;
 
     while (allowedTime > timer.TimeElapsed() && localDepth < engine.maxDepth)
     {
@@ -50,21 +48,21 @@ move Search::GetBestMove(Engine &engine, Timer &timer)
             }
             scores[i] = alpha; // Store scores for next iteration
 
-            if (allowedTime < timer.TimeElapsed())  // Is the allowed time is up during an iteration, look at the moves searched so far and choose the best one
+            if (allowedTime < timer.TimeElapsed()) // Is the allowed time is up during an iteration, look at the moves searched so far and choose the best one
             {
-                MathUtility::Sort<move,int,256>(moveHolder,scores,i+1,true);
-                
-                std::cout << "info eval " << colorMultipliyer * scores[0] << std::endl;
+                MathUtility::Sort<move, int, 256>(moveHolder, scores, i + 1, true);
+
+                std::cout << "info eval " << colorMultipliyer * scores[0] / (float)pieceValues[0] << std::endl;
                 return moveHolder[0];
             }
         }
 
-        MathUtility::Sort<move, int, 256>(moveHolder, scores, moveHolderIndex, true);   // Sort moves (and scores) so that the best move is at index 0; the next iteration will start then with the best move
-        
-        std::cout << "info bestmove " << Move2Str(Move2Mover(moveHolder[0])) << " eval " << colorMultipliyer * scores[0] << " depth " << localDepth << std::endl;
+        MathUtility::Sort<move, int, 256>(moveHolder, scores, moveHolderIndex, true); // Sort moves (and scores) so that the best move is at index 0; the next iteration will start then with the best move
+
+        std::cout << "info bestmove " << Move2Str(Move2Mover(moveHolder[0])) << " eval " << colorMultipliyer * scores[0] / (float)pieceValues[0] << " depth " << localDepth << std::endl;
         localDepth++;
     }
-    std::cout << "info eval " << colorMultipliyer * scores[0] << std::endl;
+    std::cout << "info eval " << colorMultipliyer * scores[0] / (float)pieceValues[0] << std::endl;
     return moveHolder[0];
 }
 // --------------------------------------------------------
