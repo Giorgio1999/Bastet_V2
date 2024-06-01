@@ -22,7 +22,7 @@ move Search::GetBestMove(Engine &engine, Timer &timer)
     {
         allowedTime += timer.bTime + timer.binc;
     }
-    allowedTime /= 100.;
+    allowedTime /= 50.;
 
     std::array<move, 256> moveHolder;
     uint moveHolderIndex = 0;
