@@ -6,7 +6,7 @@
 // --------------------------------------------------------
 namespace Search
 {
-    move GetBestMove(Engine &engine, const Timer &timer); // Return best moves
+    move GetBestMove(Engine &engine, Timer &timer); // Return best moves
 }
 // --------------------------------------------------------
 

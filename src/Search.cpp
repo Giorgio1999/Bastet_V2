@@ -2,34 +2,70 @@
 #include "Timer.h"
 #include "Engine.h"
 #include "Evaluation.h"
+#include "MathUtility.h"
 #include <algorithm>
 #include <vector>
 #include <iostream>
 
 // External Functions
 // --------------------------------------------------------
-move Search::GetBestMove(Engine &engine, const Timer &timer)
+move Search::GetBestMove(Engine &engine, Timer &timer)
 {
+    auto color = (engine.CurrentBoard().flags & 1) == 1;
+    auto colorMultipliyer = color ? 1 : -1;
+    auto allowedTime = 0;
+    if (color)
+    {
+        allowedTime += timer.wTime + timer.winc;
+    }
+    else
+    {
+        allowedTime += timer.bTime + timer.binc;
+    }
+    allowedTime /= 100.;
+
     std::array<move, 256> moveHolder;
     uint moveHolderIndex = 0;
     engine.GetLegalMoves(moveHolder, moveHolderIndex, false);
-    move bestMove = moveHolder[0];
-    int alpha = -INT32_MAX;                                          // Assume worst possible lower bound
-    int beta = INT32_MAX;                                            // Assume best possible higher bound
-    for (uint i = 0; (i < moveHolderIndex) && !engine.stopFlag; i++) // I search for the moves which brings me the highest score. To do so i play every move i have and evaluate the position
-    {
-        engine.MakeMove(moveHolder[i]);
-        int tmpScore = AlphaBetaMax(engine, alpha, beta, engine.maxDepth - 1);
-        engine.UndoLastMove();
 
-        if (tmpScore > alpha) // The best move is the move with the highest lower bound
+    std::array<int, 256> scores;
+
+    auto localDepth = 1;
+    move bestMove = moveHolder[0];
+    auto bestScore = -INT32_MAX;
+
+    while (allowedTime > timer.TimeElapsed() && localDepth < engine.maxDepth)
+    {
+        int alpha = -INT32_MAX;                                          // Assume worst possible lower bound
+        int beta = INT32_MAX;                                            // Assume best possible higher bound
+        for (uint i = 0; (i < moveHolderIndex) && !engine.stopFlag; i++) // I search for the moves which brings me the highest score. To do so i play every move i have and evaluate the position
         {
-            alpha = tmpScore;
-            bestMove = moveHolder[i];
+            engine.MakeMove(moveHolder[i]);
+            int tmpScore = AlphaBetaMax(engine, alpha, beta, localDepth - 1);
+            engine.UndoLastMove();
+
+            if (tmpScore > alpha) // The best move is the move with the highest lower bound
+            {
+                alpha = tmpScore;
+            }
+            scores[i] = alpha; // Store scores for next iteration
+
+            if (allowedTime < timer.TimeElapsed())  // Is the allowed time is up during an iteration, look at the moves searched so far and choose the best one
+            {
+                MathUtility::Sort<move,int,256>(moveHolder,scores,i+1,true);
+                
+                std::cout << "info eval " << colorMultipliyer * scores[0] << std::endl;
+                return moveHolder[0];
+            }
         }
+
+        MathUtility::Sort<move, int, 256>(moveHolder, scores, moveHolderIndex, true);   // Sort moves (and scores) so that the best move is at index 0; the next iteration will start then with the best move
+        
+        std::cout << "info bestmove " << Move2Str(Move2Mover(moveHolder[0])) << " eval " << colorMultipliyer * scores[0] << " depth " << localDepth << std::endl;
+        localDepth++;
     }
-    std::cout << "info eval " << alpha << std::endl;
-    return bestMove;
+    std::cout << "info eval " << colorMultipliyer * scores[0] << std::endl;
+    return moveHolder[0];
 }
 // --------------------------------------------------------
 
@@ -100,7 +136,6 @@ int AlphaBetaMin(Engine &engine, int alpha, int beta, int depthRemaining)
 {
     if (depthRemaining == 0) // If the depth limit is reached I evaluate the position. However, since it is my opponents turn to move and the evaluation is from his perspective, I flip the sign
     {
-        // return -Evaluation::StaticEvaluation(engine);
         return QuiescenceMax(engine, alpha, beta);
     }
 
@@ -141,7 +176,6 @@ int AlphaBetaMax(Engine &engine, int alpha, int beta, int depthRemaining)
 {
     if (depthRemaining == 0) // If the depth limit is reached I evaluate the position from my perspective
     {
-        // return Evaluation::StaticEvaluation(engine);
         return QuiescenceMin(engine, alpha, beta);
     }
 

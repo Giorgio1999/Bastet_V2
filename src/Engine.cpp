@@ -140,7 +140,7 @@ bool Engine::IsCheck(){
 
 // Search
 // --------------------------------------------------------------------------------------------
-Mover Engine::GetBestMove(const Timer &timer)
+Mover Engine::GetBestMove(Timer &timer)
 {
 	return Move2Mover(Search::GetBestMove(*this, timer));
 }

@@ -355,11 +355,9 @@ void MoveGenerator::GetLegalCaptures(Engine &engine, std::array<move, 256> &move
         moveHolderIndex = 0;
         return;
     }
-    auto colorDirection = color ? -8 : 8;                                                         // Direction of pawn moves depending on color
-    auto startRank = color ? 1 : 6;                                                               // Start rank of pawns depending on color
+
     auto promoterRank = color ? 6 : 1;                                                            // Promotion rank of pawns depending on color
     bitboard combinedColors = currentBoard.colorBoards[color] | currentBoard.colorBoards[!color]; // All pieces
-    bitboard notCombinedColors = ~combinedColors;                                                 // ~combined colors
     bitboard notThisBoard = ~currentBoard.colorBoards[!color];                                    //  ~friendly blockers
     bitboard otherBoard = currentBoard.colorBoards[color];                                        // Enemy pieces
 

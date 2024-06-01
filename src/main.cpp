@@ -53,6 +53,22 @@ int main(int argc, char *argv[])
 			auto elapsed = timer.TimeElapsed();
 			std::cout << "Time elapsed: " << elapsed << "ms" << std::endl;
 		}
+		if(command=="sorttest"){
+			std::array<std::string,8> target = {"minus-eins","sechs","minus-vier","drei","minus-zwei","eins","-","-"};
+			std::array<int,8> comparer = {-1,6,-4,3,-2,1,238523,245478};
+			std::cout << "Target ";
+			for(uint i=0;i<8;i++){
+				std::cout << target[i] << " ";
+			}
+			std::cout << std::endl;
+
+			MathUtility::Sort<std::string,int,8>(target,comparer,6,true);
+			std::cout << "Result ";
+			for(uint i=0;i<8;i++){
+				std::cout << target[i] << " ";
+			}
+			std::cout << std::endl;
+		}
 	}
 	else
 	{
