@@ -72,14 +72,15 @@ move Search::GetBestMove(Engine &engine, Timer &timer)
 
 int AlphaBetaMin(Engine &engine, int alpha, int beta, int depthRemaining)
 {
+
+    if (std::count(engine.repetitionTable.begin(), engine.repetitionTable.end(), engine.currentZobristKey) >= 2 || engine.CurrentBoard().nonReversibleMoves >= 50)
+    {
+        return 0;
+    }
+
     if (depthRemaining == 0) // If the depth limit is reached I evaluate the position. However, since it is my opponents turn to move and the evaluation is from his perspective, I flip the sign
     {
         return QuiescenceMax(engine, alpha, beta);
-    }
-
-    if (std::count(engine.repetitionTable.begin(), engine.repetitionTable.end(), engine.currentZobristKey) >= 2)
-    {
-        return 0;
     }
 
     std::array<move, 256> moveHolder;
@@ -112,15 +113,17 @@ int AlphaBetaMin(Engine &engine, int alpha, int beta, int depthRemaining)
 
 int AlphaBetaMax(Engine &engine, int alpha, int beta, int depthRemaining)
 {
+
+    if (std::count(engine.repetitionTable.begin(), engine.repetitionTable.end(), engine.currentZobristKey) >= 2 || engine.CurrentBoard().nonReversibleMoves >= 50)
+    {
+        return 0;
+    }
+
     if (depthRemaining == 0) // If the depth limit is reached I evaluate the position from my perspective
     {
         return QuiescenceMin(engine, alpha, beta);
     }
 
-    if (std::count(engine.repetitionTable.begin(), engine.repetitionTable.end(), engine.currentZobristKey) >= 2)
-    {
-        return 0;
-    }
 
     std::array<move, 256> moveHolder;
     uint moveHolderIndex = 0;
@@ -166,7 +169,7 @@ int QuiescenceMin(Engine &engine, int alpha, int beta)
 
     std::array<move, 256> moveHolder;
     uint moveHolderIndex = 0;
-    engine.GetLegalMoves(moveHolder, moveHolderIndex, true);
+    engine.GetLegalMoves(moveHolder, moveHolderIndex,true);
 
     for (uint i = 0; i < moveHolderIndex; i++) // If the depth limit is not reached, I look for the highest score I can achieve from this position
     {
