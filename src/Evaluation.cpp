@@ -8,7 +8,6 @@
 // External Functions
 // -------------------------------------------------------------------
 
-
 int Evaluation::StaticEvaluation(Engine &engine)
 {
     MathUtility::Random<bitboard> prng(engine.currentZobristKey);
