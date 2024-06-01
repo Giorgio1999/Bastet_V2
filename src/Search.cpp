@@ -170,7 +170,7 @@ int AlphaBetaMax(Engine &engine, int alpha, int beta, int depthRemaining)
 
 int QuiescenceMin(Engine &engine, int alpha, int beta)
 {
-    int standPat = -Evaluation::StaticEvaluation(engine); // Evaluation of the current position, will serve as a lower bound
+    int standPat = Evaluation::StaticEvaluation(engine); // Evaluation of the current position, will serve as a lower bound
 
     if (standPat >= beta) // If the move is higher than the upper bound the opponent will not allow us to play it
     {
@@ -207,7 +207,7 @@ int QuiescenceMin(Engine &engine, int alpha, int beta)
 
 int QuiescenceMax(Engine &engine, int alpha, int beta)
 {
-    int standPat = Evaluation::StaticEvaluation(engine);
+    int standPat = -Evaluation::StaticEvaluation(engine);
 
     if (standPat <= alpha) // If the score is less or equal to the current lower bound, a different move will be better
     {
