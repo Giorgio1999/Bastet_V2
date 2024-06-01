@@ -80,8 +80,7 @@ bool EngineController::IsReady()
 
 std::string EngineController::Search(const int wTime, const int bTime, const int winc, const int binc)
 {
-	// Timer timer(wTime, bTime);
-	Timer timer(0, 0);
+	Timer timer(wTime, bTime, winc, binc);
 	return Move2Str(engine.GetBestMove(timer));
 }
 // -------------------------------------------------------------------

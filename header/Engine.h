@@ -13,7 +13,7 @@
 class Engine
 {
 public:
-	int maxDepth = 5;					   // Maximal depth
+	int maxDepth = 200;					   // Maximal depth
 	bool stopFlag;						   // Flag that can be set from the controller to stop the engine
 	Board gameHistory[200];				   // History of the game, consisting of boards.
 	uint gameHistoryIndex = 0;			   // Index to the current board
@@ -42,7 +42,7 @@ public:
 
 	// Search
 	// --------------------------------------------------------------------------------------------
-	Mover GetBestMove(const Timer &timer); // Searches for the best move
+	Mover GetBestMove(Timer &timer); // Searches for the best move
 	// --------------------------------------------------------------------------------------------
 
 	// Performance evaluation
