@@ -239,5 +239,9 @@ void Listen()
 				.detach();
 			continue;
 		}
+		if(key=="evaluate"){
+			std::cout << engineController.Evaluate() << std::endl;
+			continue;
+		}
 	}
 }

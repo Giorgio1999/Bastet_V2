@@ -81,6 +81,7 @@ int AlphaBetaMin(Engine &engine, int alpha, int beta, int depthRemaining)
     if (depthRemaining == 0) // If the depth limit is reached I evaluate the position. However, since it is my opponents turn to move and the evaluation is from his perspective, I flip the sign
     {
         return QuiescenceMax(engine, alpha, beta);
+        // return Evaluation::StaticEvaluation(engine);
     }
 
     std::array<move, 256> moveHolder;
@@ -124,6 +125,7 @@ int AlphaBetaMax(Engine &engine, int alpha, int beta, int depthRemaining)
     if (depthRemaining == 0) // If the depth limit is reached I evaluate the position from my perspective
     {
         return QuiescenceMin(engine, alpha, beta);
+        // return Evaluation::StaticEvaluation(engine);
     }
 
     std::array<move, 256> moveHolder;
@@ -137,12 +139,10 @@ int AlphaBetaMax(Engine &engine, int alpha, int beta, int depthRemaining)
         return 0;
     }
 
-    auto newDepth = depthRemaining;
-
     for (uint i = 0; i < moveHolderIndex; i++) // If the depth limit is not reached, I look for the bestmove of my opponent, meaning the lowest score from my perspective in the given position
     {
         engine.MakeMove(moveHolder[i]);
-        int tmpScore = AlphaBetaMin(engine, alpha, beta, newDepth - 1);
+        int tmpScore = AlphaBetaMin(engine, alpha, beta, depthRemaining - 1);
         engine.UndoLastMove();
 
         if (tmpScore <= alpha) // If the score is less or equal to the current lower bound, a different move will be better

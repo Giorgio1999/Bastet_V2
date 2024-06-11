@@ -6,6 +6,7 @@
 #include "Timer.h"
 #include "Search.h"
 #include "MathUtility.h"
+#include "Evaluation.h"
 #include <string>
 #include <cstring>
 #include <iostream>
@@ -18,6 +19,7 @@ Engine::Engine()
 	gameHistoryIndex = 0;
 	CurrentBoard() = Board();
 	stopFlag = false;
+	prng = new MathUtility::Random<int>(2350927498);
 }
 
 void Engine::Boot()
@@ -129,12 +131,13 @@ void Engine::GetLegalMoves(std::array<move, 256> &moveHolder, uint &moveHolderIn
 	}
 }
 
-bool Engine::IsCheck(){
+bool Engine::IsCheck()
+{
 	Board currentBoard = CurrentBoard();
-	auto color = (currentBoard.flags&1)==1;
-	auto colorIndex = color?0:6;
-	int kingIndex = BitScanForwards(currentBoard.pieceBoards[5+colorIndex])-1;
-	return MoveGenerator::IsSquareAttacked(*this,kingIndex,!color);
+	auto color = (currentBoard.flags & 1) == 1;
+	auto colorIndex = color ? 0 : 6;
+	int kingIndex = BitScanForwards(currentBoard.pieceBoards[5 + colorIndex]) - 1;
+	return MoveGenerator::IsSquareAttacked(*this, kingIndex, !color);
 }
 // --------------------------------------------------------------------------------------------
 
@@ -179,5 +182,12 @@ bitboard Engine::Perft(int depth)
 std::string Engine::ShowBoard()
 {
 	return CurrentBoard().ShowBoard() + "\n" + std::to_string(currentZobristKey) + "\n";
+}
+
+float Engine::Evaluate()
+{
+	auto color = (CurrentBoard().flags & 1) == 1;
+	auto colorMultipliyer = color ? 1 : -1;
+	return colorMultipliyer * Evaluation::StaticEvaluation(*this)/(float)pieceValues[0];
 }
 // --------------------------------------------------------------------------------------------
