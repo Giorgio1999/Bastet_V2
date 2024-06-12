@@ -11,58 +11,48 @@
 // --------------------------------------------------------
 move Search::GetBestMove(Engine &engine, Timer &timer)
 {
-    auto color = (engine.CurrentBoard().flags & 1) == 1;
-    auto colorMultipliyer = color ? 1 : -1;
-    auto allowedTime = 0;
-    if (color)
-    {
-        allowedTime += timer.wTime + timer.winc;
-    }
-    else
-    {
-        allowedTime += timer.bTime + timer.binc;
-    }
-    allowedTime /= 50.;
+    Board &currentBoard = engine.CurrentBoard();
+    auto color = (currentBoard.flags & 1) == 1;
 
-    std::array<move, 256> moveHolder;
     uint moveHolderIndex = 0;
+    std::array<move, 256> moveHolder;
     engine.GetLegalMoves(moveHolder, moveHolderIndex, false);
 
     std::array<int, 256> scores;
-
-    auto localDepth = 1;
-
-    while (allowedTime > timer.TimeElapsed() && localDepth < engine.maxDepth)
+    // int alpha = -INT32_MAX; // Initial lower bound
+    // int beta = INT32_MAX;   // Initial upper bound
+    if (color)
     {
-        int alpha = -INT32_MAX;                                          // Assume worst possible lower bound
-        int beta = INT32_MAX;                                            // Assume best possible higher bound
-        for (uint i = 0; (i < moveHolderIndex) && !engine.stopFlag; i++) // I search for the moves which brings me the highest score. To do so i play every move i have and evaluate the position
+        for (uint i = 0; i < moveHolderIndex; i++)
         {
             engine.MakeMove(moveHolder[i]);
-            int tmpScore = AlphaBetaMax(engine, alpha, beta, localDepth - 1);
+            scores[i] = AlphaBetaMin(engine, 0, 0, 4);
             engine.UndoLastMove();
 
-            if (tmpScore > alpha) // The best move is the move with the highest lower bound
-            {
-                alpha = tmpScore;
-            }
-            scores[i] = tmpScore; // Store scores for next iteration
-
-            if (allowedTime < timer.TimeElapsed()) // Is the allowed time is up during an iteration, look at the moves searched so far and choose the best one
-            {
-                MathUtility::Sort<move, int, 256>(moveHolder, scores, i + 1, true);
-
-                std::cout << "info eval " << colorMultipliyer * scores[0] / (float)pieceValues[0] << std::endl;
-                return moveHolder[0];
-            }
+            // if (scores[i] > alpha) // If the obtained score is higher than the lower bound, we can update the lower bound to reflect the fact that we are guaranteed this score by making this move
+            // {
+            //     alpha = scores[i];
+            // }
         }
-
-        MathUtility::Sort<move, int, 256>(moveHolder, scores, moveHolderIndex, true); // Sort moves (and scores) so that the best move is at index 0; the next iteration will start then with the best move
-
-        std::cout << "info bestmove " << Move2Str(Move2Mover(moveHolder[0])) << " eval " << colorMultipliyer * scores[0] / (float)pieceValues[0] << " depth " << localDepth << std::endl;
-        localDepth++;
     }
-    std::cout << "info eval " << colorMultipliyer * scores[0] / (float)pieceValues[0] << std::endl;
+    else
+    {
+        for (uint i = 0; i < moveHolderIndex; i++)
+        {
+            engine.MakeMove(moveHolder[i]);
+            scores[i] = AlphaBetaMax(engine, 0, 0, 4);
+            engine.UndoLastMove();
+
+            // if (scores[i] < beta)   // Black will try to lower the upper bound of the score; so if the current move results in a lower score than the current upper bound, update it
+            // {
+            //     beta = scores[i];
+            // }
+        }
+    }
+
+    MathUtility::Sort<move, int, 256>(moveHolder, scores, moveHolderIndex, color);
+    std::cout << "info eval " << scores[0] / (float)pieceValues[0] << std::endl;
+
     return moveHolder[0];
 }
 // --------------------------------------------------------
@@ -72,163 +62,88 @@ move Search::GetBestMove(Engine &engine, Timer &timer)
 
 int AlphaBetaMin(Engine &engine, int alpha, int beta, int depthRemaining)
 {
-
-    if (std::count(engine.repetitionTable.begin(), engine.repetitionTable.end(), engine.currentZobristKey) >= 2 || engine.CurrentBoard().nonReversibleMoves >= 50)
+    if (std::count(engine.repetitionTable.begin(), engine.repetitionTable.end(), engine.currentZobristKey) >= 2 || engine.CurrentBoard().nonReversibleMoves >= 50) // Repetition or fifty move rule -> return 0
     {
         return 0;
     }
 
-    if (depthRemaining == 0) // If the depth limit is reached I evaluate the position. However, since it is my opponents turn to move and the evaluation is from his perspective, I flip the sign
+    if (depthRemaining == 0) // If target depth is reached, return static evaluation of the position
     {
-        return QuiescenceMax(engine, alpha, beta);
-        // return Evaluation::StaticEvaluation(engine);
+        return Evaluation::StaticEvaluation(engine);
     }
 
-    std::array<move, 256> moveHolder;
+    // Get Legal moves
     uint moveHolderIndex = 0;
+    std::array<move, 256> moveHolder;
     engine.GetLegalMoves(moveHolder, moveHolderIndex, false);
 
-    auto isCheck = engine.IsCheck();
-
-    if (!isCheck && moveHolderIndex == 0)
-    {
+    if (!engine.IsCheck() && moveHolderIndex == 0)
+    { // Stalemate -> return 0
+        std::cout << std::endl;
         return 0;
     }
 
-    for (uint i = 0; i < moveHolderIndex; i++) // If the depth limit is not reached, I look for the highest score I can achieve from this position
+    int bestScore = INT32_MAX;                 // Worst possible score for the minimizing player
+    for (uint i = 0; i < moveHolderIndex; i++) // Check every move i can make and see if i can improve the score
     {
         engine.MakeMove(moveHolder[i]);
-        int tmpScore = AlphaBetaMax(engine, alpha, beta, depthRemaining - 1);
+        int tmpScore = AlphaBetaMax(engine, 0, 0, depthRemaining - 1);
         engine.UndoLastMove();
 
-        if (tmpScore >= beta) // If the move is higher than the upper bound the opponent will not allow us to play it
+        if (tmpScore < bestScore) // Find the best move i can make in this position
         {
-            return beta;
-        }
-
-        if (tmpScore > alpha) // I will choose the move that will increase the lower bound the most
-        {
-            alpha = tmpScore;
+            bestScore = tmpScore;
         }
     }
-    return alpha;
+    return bestScore;
 }
 
 int AlphaBetaMax(Engine &engine, int alpha, int beta, int depthRemaining)
 {
-
-    if (std::count(engine.repetitionTable.begin(), engine.repetitionTable.end(), engine.currentZobristKey) >= 2 || engine.CurrentBoard().nonReversibleMoves >= 50)
+    if (std::count(engine.repetitionTable.begin(), engine.repetitionTable.end(), engine.currentZobristKey) >= 2 || engine.CurrentBoard().nonReversibleMoves >= 50) // Repetition or fifty move rule -> return 0
     {
         return 0;
     }
 
-    if (depthRemaining == 0) // If the depth limit is reached I evaluate the position from my perspective
+    if (depthRemaining == 0) // If target depth is reached, return static evaluation of the position
     {
-        return QuiescenceMin(engine, alpha, beta);
-        // return Evaluation::StaticEvaluation(engine);
+        return Evaluation::StaticEvaluation(engine);
     }
 
-    std::array<move, 256> moveHolder;
+    // Get Legal moves
     uint moveHolderIndex = 0;
+    std::array<move, 256> moveHolder;
     engine.GetLegalMoves(moveHolder, moveHolderIndex, false);
 
-    auto isCheck = engine.IsCheck();
-
-    if (!isCheck && moveHolderIndex == 0)
-    {
+    if (!engine.IsCheck() && moveHolderIndex == 0)
+    { // Stalemate -> return 0
         return 0;
     }
 
-    for (uint i = 0; i < moveHolderIndex; i++) // If the depth limit is not reached, I look for the bestmove of my opponent, meaning the lowest score from my perspective in the given position
+    int bestScore = -INT32_MAX;                // Worst possible score for the maximizing player
+    for (uint i = 0; i < moveHolderIndex; i++) // Check every move i can make and see if i can improve the score
     {
         engine.MakeMove(moveHolder[i]);
-        int tmpScore = AlphaBetaMin(engine, alpha, beta, depthRemaining - 1);
+        int tmpScore = AlphaBetaMin(engine, 0, 0, depthRemaining - 1);
         engine.UndoLastMove();
 
-        if (tmpScore <= alpha) // If the score is less or equal to the current lower bound, a different move will be better
+        if (tmpScore > bestScore) // Find the best move i can make in this position
         {
-            return alpha;
-        }
-
-        if (tmpScore < beta) // Opponent will choose that move that decreases the upper bound the most
-        {
-            beta = tmpScore;
+            bestScore = tmpScore;
         }
     }
-    return beta;
+    return bestScore;
 }
 
 int QuiescenceMin(Engine &engine, int alpha, int beta)
 {
-    int standPat = Evaluation::StaticEvaluation(engine); // Evaluation of the current position, will serve as a lower bound
 
-    if (standPat >= beta) // If the move is higher than the upper bound the opponent will not allow us to play it
-    {
-        return beta;
-    }
-
-    if (standPat > alpha) // I will choose the move that will increase the lower bound the most
-    {
-        alpha = standPat;
-    }
-
-    std::array<move, 256> moveHolder;
-    uint moveHolderIndex = 0;
-    engine.GetLegalMoves(moveHolder, moveHolderIndex, true);
-
-    for (uint i = 0; i < moveHolderIndex; i++) // If the depth limit is not reached, I look for the highest score I can achieve from this position
-    {
-        engine.MakeMove(moveHolder[i]);
-        int tmpScore = QuiescenceMax(engine, alpha, beta);
-        engine.UndoLastMove();
-
-        if (tmpScore >= beta) // If the move is higher than the upper bound the opponent will not allow us to play it
-        {
-            return beta;
-        }
-
-        if (tmpScore > alpha) // I will choose the move that will increase the lower bound the most
-        {
-            alpha = tmpScore;
-        }
-    }
     return alpha;
 }
 
 int QuiescenceMax(Engine &engine, int alpha, int beta)
 {
-    int standPat = -Evaluation::StaticEvaluation(engine);
 
-    if (standPat <= alpha) // If the score is less or equal to the current lower bound, a different move will be better
-    {
-        return alpha;
-    }
-
-    if (standPat < beta) // Opponent will choose that move that decreases the upper bound the most
-    {
-        beta = standPat;
-    }
-
-    std::array<move, 256> moveHolder;
-    uint moveHolderIndex = 0;
-    engine.GetLegalMoves(moveHolder, moveHolderIndex, true);
-
-    for (uint i = 0; i < moveHolderIndex; i++) // If the depth limit is not reached, I look for the bestmove of my opponent, meaning the lowest score from my perspective in the given position
-    {
-        engine.MakeMove(moveHolder[i]);
-        int tmpScore = QuiescenceMin(engine, alpha, beta);
-        engine.UndoLastMove();
-
-        if (tmpScore <= alpha) // If the score is less or equal to the current lower bound, a different move will be better
-        {
-            return alpha;
-        }
-
-        if (tmpScore < beta) // Opponent will choose that move that decreases the upper bound the most
-        {
-            beta = tmpScore;
-        }
-    }
     return beta;
 }
 
