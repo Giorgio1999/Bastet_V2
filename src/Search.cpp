@@ -26,7 +26,7 @@ move Search::GetBestMove(Engine &engine, Timer &timer)
         for (uint i = 0; i < moveHolderIndex; i++)
         {
             engine.MakeMove(moveHolder[i]);
-            scores[i] = AlphaBetaMin(engine, alpha, beta, 5);
+            scores[i] = AlphaBetaMin(engine, alpha, beta, 3);
             engine.UndoLastMove();
 
             if (scores[i] > alpha) // If the obtained score is higher than the lower bound, we can update the lower bound to reflect the fact that we are guaranteed this score by making this move
@@ -40,7 +40,7 @@ move Search::GetBestMove(Engine &engine, Timer &timer)
         for (uint i = 0; i < moveHolderIndex; i++)
         {
             engine.MakeMove(moveHolder[i]);
-            scores[i] = AlphaBetaMax(engine, alpha, beta, 5);
+            scores[i] = AlphaBetaMax(engine, alpha, beta, 3);
             engine.UndoLastMove();
 
             if (scores[i] < beta) // Black will try to lower the upper bound of the score; so if the current move results in a lower score than the current upper bound, update it
@@ -69,7 +69,8 @@ int AlphaBetaMin(Engine &engine, int alpha, int beta, int depthRemaining)
 
     if (depthRemaining == 0) // If target depth is reached, return static evaluation of the position
     {
-        return Evaluation::StaticEvaluation(engine);
+        // return Evaluation::StaticEvaluation(engine);
+        return QuiescenceMin(engine,0,0);
     }
 
     // Get Legal moves
@@ -111,7 +112,8 @@ int AlphaBetaMax(Engine &engine, int alpha, int beta, int depthRemaining)
 
     if (depthRemaining == 0) // If target depth is reached, return static evaluation of the position
     {
-        return Evaluation::StaticEvaluation(engine);
+        return QuiescenceMax(engine,0,0);
+        // return Evaluation::StaticEvaluation(engine);
     }
 
     // Get Legal moves
@@ -146,13 +148,53 @@ int AlphaBetaMax(Engine &engine, int alpha, int beta, int depthRemaining)
 int QuiescenceMin(Engine &engine, int alpha, int beta)
 {
 
-    return alpha;
+    uint moveHolderIndex = 0;
+    std::array<move, 256> moveHolder;
+    engine.GetLegalMoves(moveHolder, moveHolderIndex, true);
+
+    if (moveHolderIndex == 0)
+    {
+        return Evaluation::StaticEvaluation(engine);
+    }
+
+    int bestScore = INT32_MAX;
+    for (uint i = 0; i < moveHolderIndex; i++)
+    {
+        engine.MakeMove(moveHolder[i]);
+        auto tmpScore = QuiescenceMax(engine, 0, 0);
+        engine.UndoLastMove();
+        if (tmpScore < bestScore)
+        {
+            bestScore = tmpScore;
+        }
+    }
+    return bestScore;
 }
 
 int QuiescenceMax(Engine &engine, int alpha, int beta)
 {
 
-    return beta;
+    uint moveHolderIndex = 0;
+    std::array<move, 256> moveHolder;
+    engine.GetLegalMoves(moveHolder, moveHolderIndex, true);
+
+    if (moveHolderIndex == 0)
+    {
+        return Evaluation::StaticEvaluation(engine);
+    }
+
+    int bestScore = -INT32_MAX;
+    for (uint i = 0; i < moveHolderIndex; i++)
+    {
+        engine.MakeMove(moveHolder[i]);
+        auto tmpScore = QuiescenceMin(engine, 0, 0);
+        engine.UndoLastMove();
+        if (tmpScore > bestScore)
+        {
+            bestScore = tmpScore;
+        }
+    }
+    return bestScore;
 }
 
 // --------------------------------------------------------
