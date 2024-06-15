@@ -12,7 +12,6 @@
 move Search::GetBestMove(Engine &engine, Timer &timer)
 {
     float allowedTimeFraction = 50.;
-    float timeOffset = 0.;
 
     Board &currentBoard = engine.CurrentBoard();
     auto color = (currentBoard.flags & 1) == 1;
@@ -25,7 +24,7 @@ move Search::GetBestMove(Engine &engine, Timer &timer)
     int maxdepth = 20;
     if (color)
     {
-        float allowedTime = (timer.wTime + timer.winc) / allowedTimeFraction - timeOffset;
+        float allowedTime = (timer.wTime + timer.winc) / allowedTimeFraction;
         int currentDepth = 0;
         while (allowedTime > timer.TimeElapsed() && currentDepth <= maxdepth)
         {
@@ -63,7 +62,7 @@ move Search::GetBestMove(Engine &engine, Timer &timer)
     }
     else
     {
-        float allowedTime = (timer.bTime + timer.binc) / allowedTimeFraction - timeOffset;
+        float allowedTime = (timer.bTime + timer.binc) / allowedTimeFraction;
         int currentDepth = 0;
         while (allowedTime > timer.TimeElapsed() && currentDepth <= maxdepth)
         {
