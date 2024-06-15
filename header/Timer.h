@@ -17,5 +17,5 @@ class Timer
     Timer(const int _wTime, const int _bTime);
     Timer(const int _wTime, const int _bTime, const int _winc, const int _binc);
 
-    int TimeElapsed();
+    float TimeElapsed();
 };

@@ -11,8 +11,8 @@
 // --------------------------------------------------------
 move Search::GetBestMove(Engine &engine, Timer &timer)
 {
-    float allowedTimeFraction = 10.;
-    float timeOffset = 10.;
+    float allowedTimeFraction = 50.;
+    float timeOffset = 0.;
 
     Board &currentBoard = engine.CurrentBoard();
     auto color = (currentBoard.flags & 1) == 1;
@@ -22,18 +22,27 @@ move Search::GetBestMove(Engine &engine, Timer &timer)
     engine.GetLegalMoves(moveHolder, moveHolderIndex, false);
 
     std::array<int, 256> scores;
-    int maxdepth = 3;
+    int maxdepth = 20;
     if (color)
     {
-        float allowedTime = (timer.wTime + timer.winc - timeOffset) / allowedTimeFraction;
+        float allowedTime = (timer.wTime + timer.winc) / allowedTimeFraction - timeOffset;
         int currentDepth = 0;
         while (allowedTime > timer.TimeElapsed() && currentDepth <= maxdepth)
         {
             int alpha = -INT32_MAX; // Initial lower bound
             int beta = INT32_MAX;   // Initial upper bound
 
+            float estimatedTimeConsumption = 0;
             for (uint i = 0; i < moveHolderIndex; i++)
             {
+                if (allowedTime + estimatedTimeConsumption < timer.TimeElapsed())
+                {
+                    moveHolderIndex = i;
+                    break;
+                }
+
+                estimatedTimeConsumption = -timer.TimeElapsed();
+
                 engine.MakeMove(moveHolder[i]);
                 scores[i] = AlphaBetaMin(engine, alpha, beta, currentDepth);
                 engine.UndoLastMove();
@@ -43,11 +52,7 @@ move Search::GetBestMove(Engine &engine, Timer &timer)
                     alpha = scores[i];
                 }
 
-                if (allowedTime < timer.TimeElapsed())
-                {
-                    moveHolderIndex = i + 1;
-                    break;
-                }
+                estimatedTimeConsumption += timer.TimeElapsed();
             }
 
             MathUtility::Sort<move, int, 256>(moveHolder, scores, moveHolderIndex, color);
@@ -58,15 +63,25 @@ move Search::GetBestMove(Engine &engine, Timer &timer)
     }
     else
     {
-        float allowedTime = (timer.bTime + timer.binc - timeOffset) / allowedTimeFraction;
+        float allowedTime = (timer.bTime + timer.binc) / allowedTimeFraction - timeOffset;
         int currentDepth = 0;
         while (allowedTime > timer.TimeElapsed() && currentDepth <= maxdepth)
         {
             int alpha = -INT32_MAX; // Initial lower bound
             int beta = INT32_MAX;   // Initial upper bound
 
+            float estimatedTimeConsumption = 0;
+
             for (uint i = 0; i < moveHolderIndex; i++)
             {
+                if (allowedTime + estimatedTimeConsumption < timer.TimeElapsed())
+                {
+                    moveHolderIndex = i;
+                    break;
+                }
+
+                estimatedTimeConsumption = -timer.TimeElapsed();
+
                 engine.MakeMove(moveHolder[i]);
                 scores[i] = AlphaBetaMax(engine, alpha, beta, currentDepth);
                 engine.UndoLastMove();
@@ -76,16 +91,13 @@ move Search::GetBestMove(Engine &engine, Timer &timer)
                     beta = scores[i];
                 }
 
-                if (allowedTime < timer.TimeElapsed())
-                {
-                    moveHolderIndex = i + 1;
-                    break;
-                }
+                estimatedTimeConsumption += timer.TimeElapsed();
+
             }
 
             MathUtility::Sort<move, int, 256>(moveHolder, scores, moveHolderIndex, color);
             std::cout << "info currbestmove " << Move2Str(Move2Mover(moveHolder[0])) << " eval " << scores[0] / (float)pieceValues[0] << " depth " << currentDepth << std::endl;
-            
+
             currentDepth++;
         }
     }
