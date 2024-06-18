@@ -118,6 +118,12 @@ int AlphaBetaMin(Engine &engine, int alpha, int beta, int depthRemaining)
         return 0;
     }
 
+    auto isCheck = engine.IsCheck();
+    
+    if(isCheck){
+        depthRemaining++;
+    }
+
     if (depthRemaining == 0) // If target depth is reached, return static evaluation of the position
     {
         // return Evaluation::StaticEvaluation(engine);
@@ -129,7 +135,8 @@ int AlphaBetaMin(Engine &engine, int alpha, int beta, int depthRemaining)
     std::array<move, 256> moveHolder;
     engine.GetLegalMoves(moveHolder, moveHolderIndex, false);
 
-    if (!engine.IsCheck() && moveHolderIndex == 0)
+
+    if (!isCheck && moveHolderIndex == 0)
     { // Stalemate -> return 0
         std::cout << std::endl;
         return 0;
@@ -161,6 +168,12 @@ int AlphaBetaMax(Engine &engine, int alpha, int beta, int depthRemaining)
         return 0;
     }
 
+    auto isCheck = engine.IsCheck();
+
+    if(isCheck){
+        depthRemaining++;
+    }
+
     if (depthRemaining == 0) // If target depth is reached, return static evaluation of the position
     {
         return QuiescenceMax(engine, alpha, beta);
@@ -172,8 +185,10 @@ int AlphaBetaMax(Engine &engine, int alpha, int beta, int depthRemaining)
     std::array<move, 256> moveHolder;
     engine.GetLegalMoves(moveHolder, moveHolderIndex, false);
 
-    if (!engine.IsCheck() && moveHolderIndex == 0)
+
+    if (!isCheck && moveHolderIndex == 0)
     { // Stalemate -> return 0
+        std::cout << std::endl;
         return 0;
     }
 
