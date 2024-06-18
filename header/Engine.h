@@ -3,6 +3,7 @@
 #include "Board.h"
 #include "BoardUtility.h"
 #include "Timer.h"
+#include "MathUtility.h"
 #include <string>
 #include <array>
 #include <vector>
@@ -13,12 +14,13 @@
 class Engine
 {
 public:
-	int maxDepth = 200;					   // Maximal depth
-	bool stopFlag;						   // Flag that can be set from the controller to stop the engine
-	Board gameHistory[200];				   // History of the game, consisting of boards.
-	uint gameHistoryIndex = 0;			   // Index to the current board
-	std::vector<bitboard> repetitionTable; // Table of zobrist hashes to check for repetitions
-	bitboard currentZobristKey;			   // Zobrist key of the current position
+	int maxDepth = 200;						  // Maximal depth
+	bool stopFlag;							  // Flag that can be set from the controller to stop the engine
+	Board gameHistory[200];					  // History of the game, consisting of boards.
+	uint gameHistoryIndex = 0;				  // Index to the current board
+	std::vector<bitboard> repetitionTable;	  // Table of zobrist hashes to check for repetitions
+	bitboard currentZobristKey;				  // Zobrist key of the current position
+	MathUtility::Random<int> *prng = nullptr; // PseudoNumberGenerator
 
 	// Initialising and accessing the engine
 	// --------------------------------------------------------------------------------------------
@@ -53,6 +55,7 @@ public:
 	// Debugging
 	// --------------------------------------------------------------------------------------------
 	std::string ShowBoard(); // Debug tool to display current board in console
+	float Evaluate();		 // Debug tool to return static evaluation of current position
 							 // --------------------------------------------------------------------------------------------
 };
 // ------------------------------------------------------------

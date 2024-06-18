@@ -209,6 +209,14 @@ void EngineController::Validate()
 	auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count() / 1000;
 	std::cout << (valid ? "Is valid, " : "Is not valid, ") << std::to_string(duration) << "s" << std::endl;
 }
+
+std::string EngineController::Evaluate(){
+	if(!isReady){
+		BootEngine();
+	}
+	std::string result = std::to_string(engine.Evaluate());
+	return result;
+}
 // -------------------------------------------------------------------
 
 // Debugging

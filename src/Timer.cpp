@@ -16,8 +16,8 @@ Timer::Timer(const int _wTime, const int _bTimer, const int _winc, const int _bi
     now = std::chrono::steady_clock::now();
 }
 
-int Timer::TimeElapsed(){
+float Timer::TimeElapsed(){
     auto current = std::chrono::steady_clock::now();
-    auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(current-now).count();
+    float elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(current-now).count();
     return elapsed;
 }

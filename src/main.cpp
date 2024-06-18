@@ -35,13 +35,13 @@ int main(int argc, char *argv[])
 		}
 		if (command == "prngtest")
 		{
-			MathUtility::Random<bitboard> prng((bitboard)2938472947865982);
+			MathUtility::Random<int> prng((int)2938472947865982);
 			std::string path = argv[2];
 			std::cout << path;
 			std::fstream out(path, std::ios::out);
 			while (true)
 			{
-				out << prng.Next(2,4) << std::endl;
+				out << prng.Next(-100,100) << std::endl;
 			}
 			out.close();
 		}
