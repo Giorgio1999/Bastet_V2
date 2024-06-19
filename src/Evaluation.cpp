@@ -13,25 +13,21 @@ int Evaluation::StaticEvaluation(Engine &engine)
     Board &currentBoard = engine.CurrentBoard();
 
     int evaluation = 0;
-    bitboard countBoard = currentBoard.pieceBoards[5] | currentBoard.pieceBoards[10];
-    auto queensThere = countBoard > 0;
+    bitboard countBoard = ZERO;
     for (auto i = 0; i < 6; i++)
     {
-        if (queensThere)
+        countBoard = currentBoard.pieceBoards[i];
+        while (countBoard > 0)
         {
-            countBoard = currentBoard.pieceBoards[i];
-            while (countBoard > 0)
-            {
-                square square = PopLsb(countBoard);
-                evaluation += pieceSquareTables[0][i][square];
-            }
+            square square = PopLsb(countBoard);
+            evaluation += pieceSquareTables[0][i][square];
+        }
 
-            countBoard = currentBoard.pieceBoards[i + 6];
-            while (countBoard > 0)
-            {
-                square square = PopLsb(countBoard);
-                evaluation -= pieceSquareTables[1][i][square];
-            }
+        countBoard = currentBoard.pieceBoards[i + 6];
+        while (countBoard > 0)
+        {
+            square square = PopLsb(countBoard);
+            evaluation -= pieceSquareTables[1][i][square];
         }
 
         evaluation += pieceValues[i] * (NumberOfSetBits(currentBoard.pieceBoards[i]) - NumberOfSetBits(currentBoard.pieceBoards[i + 6])); // Count pieces multiplied with piece Values
