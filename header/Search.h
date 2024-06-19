@@ -12,8 +12,8 @@ namespace Search
 
 // Internal Functions
 // --------------------------------------------------------
-int AlphaBetaMin(Engine &engine, int alpha, int beta, int depthRemaining); // Alpha Beta min search
-int AlphaBetaMax(Engine &engine, int alpha, int beta, int depthRemaining); // Alpha Beta max search
-int QuiescenceMin(Engine &engine, int alpha, int beta);                    // Alpha Beta min, but only captures
-int QuiescenceMax(Engine &engine, int alpha, int beta);                    // Alpha Beta max but only captures
-                                                                           // --------------------------------------------------------
+int AlphaBetaMin(Engine &engine, int alpha, int beta, int depthRemaining, bitboard &nodes); // Alpha Beta min search
+int AlphaBetaMax(Engine &engine, int alpha, int beta, int depthRemaining, bitboard &nodes); // Alpha Beta max search
+int QuiescenceMin(Engine &engine, int alpha, int beta, bitboard &nodes);                    // Alpha Beta min, but only captures
+int QuiescenceMax(Engine &engine, int alpha, int beta, bitboard &nodes);                    // Alpha Beta max but only captures
+                                                                                            // --------------------------------------------------------
