@@ -83,6 +83,18 @@ std::string EngineController::Search(const int wTime, const int bTime, const int
 	Timer timer(wTime, bTime, winc, binc);
 	return Move2Str(engine.GetBestMove(timer));
 }
+
+std::string EngineController::Options()
+{
+	std::string res = "option name Hash type spin default " + std::to_string(engine.ttSize) + " min 0 max 128";
+	return res;
+}
+
+void EngineController::SetOptions(int _ttSize)
+{
+	engine.ttSize = _ttSize;
+	BootEngine();
+}
 // -------------------------------------------------------------------
 
 // Non UCI
@@ -210,8 +222,10 @@ void EngineController::Validate()
 	std::cout << (valid ? "Is valid, " : "Is not valid, ") << std::to_string(duration) << "s" << std::endl;
 }
 
-std::string EngineController::Evaluate(){
-	if(!isReady){
+std::string EngineController::Evaluate()
+{
+	if (!isReady)
+	{
 		BootEngine();
 	}
 	std::string result = std::to_string(engine.Evaluate());

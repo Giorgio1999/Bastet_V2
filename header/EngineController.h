@@ -28,6 +28,8 @@ public:
 	bool IsReady();																		  // return ready flag
 	void TestReady();																	  // Test wheter engine is ready
 	std::string Search(const int wTime, const int bTime, const int winc, const int binc); // Search routine
+	std::string Options();																  // Prints out options
+	void SetOptions(int _ttSize);														  // Sets options (ttSize)
 	// -------------------------------------------------------------------
 
 	// Non UCI

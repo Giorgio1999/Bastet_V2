@@ -4,6 +4,7 @@
 #include "BoardUtility.h"
 #include "Timer.h"
 #include "MathUtility.h"
+#include "TranspositionTable.h"
 #include <string>
 #include <array>
 #include <vector>
@@ -21,6 +22,8 @@ public:
 	std::vector<bitboard> repetitionTable;	  // Table of zobrist hashes to check for repetitions
 	bitboard currentZobristKey;				  // Zobrist key of the current position
 	MathUtility::Random<int> *prng = nullptr; // PseudoNumberGenerator
+	int ttSize = 64;						  // Transposition table size in MB
+	transposition::Tt tt;					  // Transposition table
 
 	// Initialising and accessing the engine
 	// --------------------------------------------------------------------------------------------

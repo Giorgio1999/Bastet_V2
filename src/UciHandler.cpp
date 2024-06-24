@@ -27,16 +27,29 @@ void Listen()
 		if (key == "uci")
 		{
 			engineController.BootEngine();
-			std::cout << "id name Bastet\n";
-			std::cout << "id author G. Lovato\n";
-			std::cout << "uciok\n";
+			std::cout << "id name Bastet" << std::endl;
+			std::cout << "id author G. Lovato" << std::endl;
+			std::cout << engineController.Options() << std::endl;
+			std::cout << "uciok" << std::endl;
 			continue;
+		}
+		if (key == "setoption")
+		{
+			rit++;
+			rit++;
+			std::string name = rit->str();
+			if (name == "Hash")
+			{
+				rit++;
+				rit++;
+				engineController.SetOptions(std::stoi(rit->str()));
+			}
 		}
 		if (key == "isready")
 		{
 			if (engineController.IsReady())
 			{
-				std::cout << "readyok\n";
+				std::cout << "readyok" << std::endl;
 			}
 			continue;
 		}
@@ -239,7 +252,8 @@ void Listen()
 				.detach();
 			continue;
 		}
-		if(key=="evaluate"){
+		if (key == "evaluate")
+		{
 			std::cout << engineController.Evaluate() << std::endl;
 			continue;
 		}

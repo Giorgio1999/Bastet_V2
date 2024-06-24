@@ -7,6 +7,7 @@
 #include "Search.h"
 #include "MathUtility.h"
 #include "Evaluation.h"
+#include "TranspositionTable.h"
 #include <string>
 #include <cstring>
 #include <iostream>
@@ -27,6 +28,7 @@ void Engine::Boot()
 	ComputeMasks();
 	MoveGenerator::PreComputeMoves();
 	ComputeHashes();
+	tt = transposition::Tt(ttSize);
 }
 
 void Engine::NewGame()
