@@ -273,7 +273,6 @@ int QuiescenceMin(Engine &engine, int alpha, int beta, bitboard &nodes)
     if (standPat <= alpha) // If the score is already lower than the lower bound, the maximizing player will choose a different path
     {
         nodes++;
-        engine.tt.Save(0, standPat, transposition::LOWER, engine.currentZobristKey);
         return alpha;
     }
 
@@ -289,17 +288,12 @@ int QuiescenceMin(Engine &engine, int alpha, int beta, bitboard &nodes)
     for (uint i = 0; i < moveHolderIndex; i++)
     {
         engine.MakeMove(moveHolder[i]);
-        int tmpScore = 0;
-        if (!engine.tt.Pull(tmpScore, 0, alpha, beta, engine.currentZobristKey))
-        {
-            tmpScore = QuiescenceMax(engine, alpha, beta, nodes);
-        }
+        int tmpScore = QuiescenceMax(engine, alpha, beta, nodes);
         engine.UndoLastMove();
 
         if (tmpScore <= alpha) // If the minimizing players move leads to a score lower than the lower bound, we can stop considering these branches, since the maximizing player will choose the path corresponding to the lower bound
         {
             nodes++;
-            engine.tt.Save(0, tmpScore, transposition::LOWER, engine.currentZobristKey);
             return alpha;
         }
 
@@ -309,7 +303,6 @@ int QuiescenceMin(Engine &engine, int alpha, int beta, bitboard &nodes)
         }
     }
     nodes++;
-    engine.tt.Save(0, beta, transposition::PV, engine.currentZobristKey);
     return beta;
 }
 
@@ -327,7 +320,6 @@ int QuiescenceMax(Engine &engine, int alpha, int beta, bitboard &nodes)
     if (standPat >= beta) // If the score is already higher than the upper bound, the minimizing player will choose a different path
     {
         nodes++;
-        engine.tt.Save(0, beta, transposition::UPPER, engine.currentZobristKey);
         return beta;
     }
 
@@ -343,17 +335,12 @@ int QuiescenceMax(Engine &engine, int alpha, int beta, bitboard &nodes)
     for (uint i = 0; i < moveHolderIndex; i++)
     {
         engine.MakeMove(moveHolder[i]);
-        int tmpScore = 0;
-        if (!engine.tt.Pull(tmpScore, 0, alpha, beta, engine.currentZobristKey))
-        {
-            tmpScore = QuiescenceMax(engine, alpha, beta, nodes);
-        }
+        int tmpScore = QuiescenceMax(engine, alpha, beta, nodes);
         engine.UndoLastMove();
 
         if (tmpScore >= beta) // If the maximizing players move leads to a score higher than the upper bound, we can stop considering these branches, since the minimizing player will choose the path corresponding to the upper bound
         {
             nodes++;
-            engine.tt.Save(0,tmpScore,transposition::UPPER,engine.currentZobristKey);
             return beta;
         }
 
@@ -363,7 +350,6 @@ int QuiescenceMax(Engine &engine, int alpha, int beta, bitboard &nodes)
         }
     }
     nodes++;
-    engine.tt.Save(0,alpha,transposition::PV,engine.currentZobristKey);
     return alpha;
 }
 
