@@ -1,30 +1,5 @@
 #pragma once
-#include <cstdint>
-
-// Declaration of helpful types
-// ----------------------------------------
-using bitboard = uint64_t;   // 64 bits representing the squares of a chessboard
-using line = uint8_t;        // 8 bits representing one line of the board
-using move = uint16_t;       // 16 bits for representing moves (promotion:1,convertTo:3,targetIndex:6,startIndex:6)
-using flag = uint8_t;        // 8 bits for bundling together different booleans
-using square = uint_fast8_t; // 8 bits for representing a specific square
-// -----------------------------------------
-
-// Definiton of helpful constants
-// -----------------------------------------
-const bitboard ONE = (bitboard)1;
-const bitboard ZERO = (bitboard)0;
-// -----------------------------------------
-
-// Declaration of lookup tables
-// -----------------------------------------
-extern bitboard fileMasks[8];
-extern bitboard rankMasks[8];
-extern bitboard diagonalAttackMasks[64];
-extern bitboard antiDiagonalAttackMasks[64];
-extern bitboard rankAttackMasks[64];
-extern bitboard hashes[781]; // Hash table for: pieces*square + black to move + castling rights + enpassant file
-// -----------------------------------------
+#include <TypeDefs.h>
 
 // Bit manipulation functions
 // -----------------------------------------

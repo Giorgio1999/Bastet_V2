@@ -206,7 +206,7 @@ void Engine::HashTest(int depth)
 	std::array<move, 256> moveHolder;
 	uint moveHolderIndex = 0;
 	GetLegalMoves(moveHolder, moveHolderIndex, false);
-	if (depth <= 1)
+	if (depth == 0)
 	{
 		return;
 	}

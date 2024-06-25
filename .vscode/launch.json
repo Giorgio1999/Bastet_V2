@@ -7,7 +7,7 @@
             "type": "cppdbg",
             "request": "launch",
             "program": "${workspaceFolder}/build/Bastet_Debug",
-            "args": ["hashtest","2"],
+            "args": ["hashtest","1"],
             "cwd": "${workspaceFolder}",
             "stopAtEntry": false,
             "environment": [],

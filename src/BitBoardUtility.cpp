@@ -1,18 +1,8 @@
 #include "BitBoardUtility.h"
 #include "MathUtility.h"
-#include <cstdint>
+#include "TypeDefs.h"
 #include <string>
 #include <iostream>
-
-// Declaration of lookup tables
-// -----------------------------------------
-bitboard fileMasks[8];
-bitboard rankMasks[8];
-bitboard diagonalAttackMasks[64];
-bitboard antiDiagonalAttackMasks[64];
-bitboard rankAttackMasks[64];
-bitboard hashes[781];
-// -----------------------------------------
 
 // Bit manipulation functions
 // -----------------------------------------
@@ -174,7 +164,8 @@ void ComputeMasks()
 		}
 	}
 }
-void ComputeHashes(){
+void ComputeHashes()
+{
 	MathUtility::Random<bitboard> prng((bitboard)2938472947865982);
 	for (uint i = 0; i < 781; i++)
 	{

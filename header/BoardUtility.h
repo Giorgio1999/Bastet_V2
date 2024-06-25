@@ -4,15 +4,6 @@
 #include <vector>
 
 // Logic for handling moves
-// Constants to convert between representation and human readable notation of squares and piecetypes
-// -----------------------------------------------------------
-const std::string rows = "87654321";	 // Hardcoded translations of the rows or y
-const std::string cols = "abcdefgh";	 // Hardcoded translations of the cols or x
-const std::string types = "-pnbrqk";	 // Hardcoded translations from int to piecetypes
-const std::string whiteTypes = "PNBRQKG"; // Fen representation
-const std::string blackTypes = "pnbrqkg";
-// -----------------------------------------------------------
-
 // Datastruct for Squares
 // -----------------------------------------------------------
 struct Coord
@@ -55,4 +46,4 @@ std::string Move2Str(const Mover &move);				// From move to string
 std::vector<Mover> Str2Moves(std::string &movesString); // From string of moves to vector of moves
 Mover Move2Mover(const move &move);						// From low level representation to high
 move Mover2Move(const Mover &mover);					// From high level representation to low
-// -----------------------------------------------------------
+														// -----------------------------------------------------------

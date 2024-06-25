@@ -25,26 +25,32 @@ void Board::MakeMove(const move &move, bitboard &zobristKey)
 	nonReversibleMoves++;
 
 	// Clear ghosts
+	if (ghostBoard > 0)
+	{
+		square location = PopLsb(ghostBoard);
+		zobristKey ^= hashes[12 * 16 + 1 + 4 + (location >> 3)];
+	}
 	ghostBoard = ZERO;
 
-	int startIndex = move & 0x003F;			// StartIndex(move);
-	int targetIndex = (move & 0x0FC0) >> 6; // TargetIndex(move);
+	int startIndex = move & START;			// StartIndex(move);
+	int targetIndex = (move & TARGET) >> 6; // TargetIndex(move);
 	bitboard start = ONE << startIndex;
 	bitboard target = ONE << targetIndex;
 
-	auto color = (flags & 1) == 1;
-	auto colorIndex = color ? 0 : 6;
-	auto otherColorIndex = color ? 6 : 0;
+	auto color = (flags & PTM) == 1;
+	auto ncolor = !color;
+	auto colorIndex = color ? WHITEPIECES : BLACKPIECES;
+	auto otherColorIndex = color ? BLACKPIECES : WHITEPIECES;
 
 	// Find Piece at start and move it to target
-	int startPiece = 0;
-	for (int i = 0; i < 6; i++)
+	int startPiece = NONE;
+	for (int i = PAWN; i <= KING; i++)
 	{
 		if ((pieceBoards[i + colorIndex] & start) > 0)
 		{
 			startPiece = i + colorIndex;
 			pieceBoards[startPiece] ^= start | target;
-			colorBoards[!color] ^= start | target;
+			colorBoards[ncolor] ^= start | target;
 			zobristKey ^= hashes[startPiece * startIndex];
 			zobristKey ^= hashes[startPiece * targetIndex];
 			break;
@@ -57,7 +63,7 @@ void Board::MakeMove(const move &move, bitboard &zobristKey)
 	}
 
 	// Find Piece at target and remove it
-	int targetPiece = -1;
+	int targetPiece = NONE;
 	for (int i = 0; i < 6; i++)
 	{
 		if ((pieceBoards[i + otherColorIndex] & target) > 0)
@@ -75,101 +81,109 @@ void Board::MakeMove(const move &move, bitboard &zobristKey)
 	if (startPiece == colorIndex)
 	{
 		auto diff = startIndex - targetIndex;
-		if (diff == 16)
+		if (diff == NONO)
 		{
-			ghostBoard |= start >> 8;
-			zobristKey ^= hashes[12 * 16 + 5 + ((startIndex - 8) >> 3)];
+			ghostBoard |= start >> NO;
+			zobristKey ^= hashes[12 * 16 + 5 + ((startIndex - NO) >> 3)];
 		}
-		else if (diff == -16)
+		else if (diff == -NONO)
 		{
-			ghostBoard |= start << 8;
-			zobristKey ^= hashes[12 * 16 + 5 + ((startIndex + 8) >> 3)];
+			ghostBoard |= start << NO;
+			zobristKey ^= hashes[12 * 16 + 5 + ((startIndex + NO) >> 3)];
 		}
 	}
 
 	// Enpassant: if pawn moves to unoccupied square, remove enemy pawn at one rank below(above) target. Will only affect en passant moves
-	if (startPiece == colorIndex && targetPiece < 0)
+	if (startPiece == colorIndex && targetPiece < A8)
 	{
-		// UnsetBit(pieceBoards[otherColorIndex], targetIndex - colorDirection * 8);
 		if (color)
 		{
-			pieceBoards[otherColorIndex] &= ~(target << 8);
-			colorBoards[color] &= ~(target << 8);
-			zobristKey &= ~hashes[otherColorIndex * (targetIndex + 8)];
+			pieceBoards[otherColorIndex] &= ~(target << NO);
+			colorBoards[color] &= ~(target << NO);
+			zobristKey &= ~hashes[otherColorIndex * (targetIndex + NO)];
 		}
 		else
 		{
-			pieceBoards[otherColorIndex] &= ~(target >> 8);
-			colorBoards[color] &= ~(target >> 8);
-			zobristKey &= ~hashes[otherColorIndex * (targetIndex - 8)];
+			pieceBoards[otherColorIndex] &= ~(target >> NO);
+			colorBoards[color] &= ~(target >> NO);
+			zobristKey &= ~hashes[otherColorIndex * (targetIndex - NO)];
 		}
 	}
 
 	// Castling (moving the rook)
-	if (startPiece == 5 + colorIndex && startIndex == (color ? 60 : 4) && std::abs(startIndex - targetIndex) > 1)
+	if (startPiece == KING + colorIndex && startIndex == (color ? E1 : E8) && std::abs(startIndex - targetIndex) > 1)
 	{
-		auto castleTarget = color ? 62 : 6;
+		int castleTarget = color ? G1 : G8;
 		if (targetIndex == castleTarget)
 		{
-			pieceBoards[3 + colorIndex] ^= target >> 1 | target << 1;
-			colorBoards[!color] ^= target >> 1 | target << 1;
-			zobristKey ^= hashes[(3 + colorIndex) * (targetIndex - 1)];
-			zobristKey ^= hashes[(3 + colorIndex) * (targetIndex + 1)];
+			pieceBoards[ROOK + colorIndex] ^= target >> EA | target << EA;
+			colorBoards[ncolor] ^= target >> EA | target << EA;
+			zobristKey ^= hashes[(3 + colorIndex) * (targetIndex - EA)];
+			zobristKey ^= hashes[(3 + colorIndex) * (targetIndex + EA)];
 		}
-		castleTarget = color ? 58 : 2;
+		castleTarget = color ? C1 : C8;
 		if (targetIndex == castleTarget)
 		{
-			pieceBoards[3 + colorIndex] ^= target << 1 | target >> 2;
-			colorBoards[!color] ^= target << 1 | target >> 2;
-			zobristKey ^= hashes[(3 + colorIndex) * (targetIndex + 1)];
-			zobristKey ^= hashes[(3 + colorIndex) * (targetIndex - 2)];
+			pieceBoards[ROOK + colorIndex] ^= target << EA | target >> EAEA;
+			colorBoards[ncolor] ^= target << EA | target >> EAEA;
+			zobristKey ^= hashes[(3 + colorIndex) * (targetIndex + EA)];
+			zobristKey ^= hashes[(3 + colorIndex) * (targetIndex - EAEA)];
 		}
 		nonReversibleMoves = 0;
 	}
 
 	// Promotions
-	if (((move & 0x8000) >> 15) == 1)
+	if (((move & PROMOTION) >> 15) == 1)
 	{
 		pieceBoards[colorIndex] ^= target;
-		colorBoards[!color] ^= target;
-		pieceBoards[colorIndex + ((move & 0x7000) >> 12)] ^= target;
-		colorBoards[!color] ^= target;
-		zobristKey ^= hashes[(colorIndex + ((move & 0x7000) >> 12)) * targetIndex];
+		colorBoards[ncolor] ^= target;
+		pieceBoards[colorIndex + ((move & CNVTO) >> 12)] ^= target;
+		colorBoards[ncolor] ^= target;
+		zobristKey ^= hashes[(colorIndex + ((move & CNVTO) >> 12)) * targetIndex];
 		zobristKey ^= hashes[colorIndex * targetIndex];
 	}
 
 	// Update castling flags
-	flags &= (startIndex == 63 || targetIndex == 63 || startIndex == 60) ? 0b00011101 : flags;
-	flags &= (startIndex == 56 || targetIndex == 56 || startIndex == 60) ? 0b00011011 : flags;
-	flags &= (startIndex == 7 || targetIndex == 7 || startIndex == 4) ? 0b00010111 : flags;
-	flags &= (startIndex == 0 || targetIndex == 0 || startIndex == 4) ? 0b00001111 : flags;
-	zobristKey ^= (startIndex == 63 || targetIndex == 63 || startIndex == 60) ? hashes[12 * 64 + 1] : ZERO;
-	zobristKey ^= (startIndex == 56 || targetIndex == 56 || startIndex == 60) ? hashes[12 * 64 + 2] : ZERO;
-	zobristKey ^= (startIndex == 7 || targetIndex == 7 || startIndex == 4) ? hashes[12 * 64 + 3] : ZERO;
-	zobristKey ^= (startIndex == 0 || targetIndex == 0 || startIndex == 4) ? hashes[12 * 64 + 4] : ZERO;
-
-	// Update King coords
-	// kingIndices[!color] = (startPiece == (5 + colorIndex)) ? targetIndex : kingIndices[!color];
+	if (startIndex == H1 || targetIndex == H1 || startIndex == E1)
+	{
+		flags &= nKCW;
+		zobristKey ^= hashes[12 * 64 + 1];
+	}
+	if (startIndex == A1 || targetIndex == A1 || startIndex == E1)
+	{
+		flags &= nQCW;
+		zobristKey ^= hashes[12 * 64 + 2];
+	}
+	if (startIndex == H8 || targetIndex == H8 || startIndex == E8)
+	{
+		flags &= nKCB;
+		zobristKey ^= hashes[12 * 64 + 3];
+	}
+	if (startIndex == A8 || targetIndex == A8 || startIndex == E8)
+	{
+		flags &= nQCB;
+		zobristKey ^= hashes[12 * 64 + 4];
+	}
 
 	// Update turn flag
-	flags ^= ONE;
+	flags ^= PTM;
 	zobristKey ^= hashes[12 * 64];
 }
 
 void Board::MakeSimpleMove(const move &move)
 {
-	int startIndex = move & 0x003F;			// StartIndex(move);
-	int targetIndex = (move & 0x0FC0) >> 6; // TargetIndex(move);
+	int startIndex = move & START;			// StartIndex(move);
+	int targetIndex = (move & TARGET) >> 6; // TargetIndex(move);
 	bitboard start = ONE << startIndex;
 	bitboard target = ONE << targetIndex;
 
-	auto color = (flags & 1) == 1;
-	auto colorIndex = color ? 0 : 6;
-	auto otherColorIndex = color ? 6 : 0;
+	auto color = (flags & PTM) == 1;
+	auto colorIndex = color ? WHITEPIECES : BLACKPIECES;
+	auto otherColorIndex = color ? BLACKPIECES : WHITEPIECES;
 
 	// Find Piece at start and move it to target
-	int startPiece = 0;
-	for (int i = 0; i < 6; i++)
+	int startPiece = NONE;
+	for (int i = PAWN; i <= KING; i++)
 	{
 		if ((pieceBoards[i + colorIndex] & start) > 0)
 		{
@@ -181,8 +195,8 @@ void Board::MakeSimpleMove(const move &move)
 	}
 
 	// Find Piece at target and remove it
-	int targetPiece = -1;
-	for (int i = 0; i < 6; i++)
+	int targetPiece = NONE;
+	for (int i = PAWN; i <= KING; i++)
 	{
 		if ((pieceBoards[i + otherColorIndex] & target) > 0)
 		{
@@ -194,23 +208,19 @@ void Board::MakeSimpleMove(const move &move)
 	}
 
 	// Enpassant: if pawn moves to unoccupied square, remove enemy pawn at one rank below(above) target. Will only affect en passant moves
-	if (startPiece == colorIndex && targetPiece < 0)
+	if (startPiece == colorIndex && targetPiece < A8)
 	{
-		// UnsetBit(pieceBoards[otherColorIndex], targetIndex - colorDirection * 8);
 		if (color)
 		{
-			pieceBoards[otherColorIndex] &= ~(target << 8);
-			colorBoards[color] &= ~(target << 8);
+			pieceBoards[otherColorIndex] &= ~(target << NO);
+			colorBoards[color] &= ~(target << NO);
 		}
 		else
 		{
-			pieceBoards[otherColorIndex] &= ~(target >> 8);
-			colorBoards[color] &= ~(target >> 8);
+			pieceBoards[otherColorIndex] &= ~(target >> NO);
+			colorBoards[color] &= ~(target >> NO);
 		}
 	}
-
-	// Update King coords
-	// kingIndices[!color] = (startPiece == (5 + colorIndex)) ? targetIndex : kingIndices[!color];
 
 	// Update turn flag
 	flags ^= ONE;
@@ -220,10 +230,10 @@ void Board::InitialiseColorBoards()
 {
 	colorBoards[0] = 0;
 	colorBoards[1] = 0;
-	for (auto i = 0; i < 6; i++)
+	for (int i = PAWN; i <= KING; i++)
 	{
 		colorBoards[0] |= pieceBoards[i];
-		colorBoards[1] |= pieceBoards[i + 6];
+		colorBoards[1] |= pieceBoards[i + BLACKPIECES];
 	}
 }
 // --------------------------------------------
@@ -250,7 +260,7 @@ std::string Board::ShowBoard()
 				}
 				if (CheckBit(ghostBoard, y, x))
 				{
-					printSymbol = ((flags & 1) == 1) ? whiteTypes.at(6) : blackTypes.at(6);
+					printSymbol = ((flags & PTM) == 1) ? whiteTypes.at(6) : blackTypes.at(6);
 				}
 			}
 			boardVisual += printSymbol;
