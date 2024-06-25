@@ -186,4 +186,14 @@ enum PieceTypes
     KING
 };
 
+enum HashOffsets
+{
+    PIECES,
+    BLACKTOMOVE = 768,
+    KCWHASH,
+    QCWHASH,
+    KCBHASH,
+    QCBHASH,
+    ENPASSANT
+};
 // -------------------------------------------------------------------

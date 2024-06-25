@@ -50,40 +50,40 @@ bitboard Engine::InitialiseZobristHash()
 {
 	Board newBoard = CurrentBoard();
 	bitboard zobrist = ZERO;
-	for (uint i = 0; i < 12; i++)
+	for (uint i = PAWN; i < BLACKPIECES + KING; i++)
 	{
 		bitboard pieceBoard = newBoard.pieceBoards[i];
 		while (pieceBoard > 0)
 		{
 			square location = PopLsb(pieceBoard);
-			zobrist ^= hashes[i * location];
+			zobrist ^= hashes[i * 64 + location];
 		}
 	}
-	if ((newBoard.flags & 1) == 1)
+	if ((newBoard.flags & PTM) == 0)
 	{
-		zobrist ^= hashes[12 * 16];
+		zobrist ^= hashes[BLACKTOMOVE];
 	}
-	if ((newBoard.flags & 0b00000010) > 0)
+	if ((newBoard.flags & KCW) > 0)
 	{
-		zobrist ^= hashes[12 * 16 + 1];
+		zobrist ^= hashes[KCWHASH];
 	}
-	if ((newBoard.flags & 0b00000100) > 0)
+	if ((newBoard.flags & QCW) > 0)
 	{
-		zobrist ^= hashes[12 * 16 + 2];
+		zobrist ^= hashes[QCWHASH];
 	}
-	if ((newBoard.flags & 0b00001000) > 0)
+	if ((newBoard.flags & KCB) > 0)
 	{
-		zobrist ^= hashes[12 * 16 + 3];
+		zobrist ^= hashes[KCBHASH];
 	}
-	if ((newBoard.flags & 0b00010000) > 0)
+	if ((newBoard.flags & QCW) > 0)
 	{
-		zobrist ^= hashes[12 * 16 + 4];
+		zobrist ^= hashes[QCBHASH];
 	}
 	bitboard ghostBoard = newBoard.ghostBoard;
 	if (ghostBoard > 0)
 	{
 		square location = PopLsb(ghostBoard);
-		zobrist ^= hashes[12 * 16 + 1 + 4 + (location >> 3)];
+		zobrist ^= hashes[ENPASSANT + (location >> 3)];
 	}
 	return zobrist;
 }
@@ -214,7 +214,7 @@ void Engine::HashTest(int depth)
 	{
 		MakeMove(moveHolder[i]);
 		bitboard newHash = InitialiseZobristHash();
-		assert(newHash==currentZobristKey);
+		assert(newHash == currentZobristKey);
 		if (!stopFlag)
 		{
 			HashTest(depth - 1);

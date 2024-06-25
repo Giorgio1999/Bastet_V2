@@ -24,14 +24,6 @@ void Board::MakeMove(const move &move, bitboard &zobristKey)
 	// Update nonreversible moves
 	nonReversibleMoves++;
 
-	// Clear ghosts
-	if (ghostBoard > 0)
-	{
-		square location = PopLsb(ghostBoard);
-		zobristKey ^= hashes[12 * 16 + 1 + 4 + (location >> 3)];
-	}
-	ghostBoard = ZERO;
-
 	int startIndex = move & START;			// StartIndex(move);
 	int targetIndex = (move & TARGET) >> 6; // TargetIndex(move);
 	bitboard start = ONE << startIndex;
@@ -51,8 +43,8 @@ void Board::MakeMove(const move &move, bitboard &zobristKey)
 			startPiece = i + colorIndex;
 			pieceBoards[startPiece] ^= start | target;
 			colorBoards[ncolor] ^= start | target;
-			zobristKey ^= hashes[startPiece * startIndex];
-			zobristKey ^= hashes[startPiece * targetIndex];
+			zobristKey ^= hashes[startPiece * 64 + startIndex];
+			zobristKey ^= hashes[startPiece * 64 + targetIndex];
 			break;
 		}
 	}
@@ -71,10 +63,36 @@ void Board::MakeMove(const move &move, bitboard &zobristKey)
 			targetPiece = i + otherColorIndex;
 			pieceBoards[targetPiece] ^= target;
 			colorBoards[color] ^= target;
-			zobristKey ^= hashes[targetPiece * targetIndex];
+			zobristKey ^= hashes[targetPiece * 64 + targetIndex];
 			nonReversibleMoves = 0;
 			break;
 		}
+	}
+
+	// Enpassant: if pawn moves to unoccupied square, remove enemy pawn at one rank below(above) target. Will only affect en passant moves
+	if (startPiece == colorIndex && ghostBoard > 0)
+	{
+		square ghostLocation = PopLsb(ghostBoard);
+		zobristKey ^= hashes[ENPASSANT + (ghostLocation >> 3)];
+		if (targetIndex == ghostLocation)
+		{
+			if (color)
+			{
+				pieceBoards[otherColorIndex] ^= target << NO;
+				colorBoards[color] ^= target << NO;
+				zobristKey ^= hashes[otherColorIndex * 64 + (targetIndex + NO)];
+			}
+			else
+			{
+				pieceBoards[otherColorIndex] ^= target >> NO;
+				colorBoards[color] ^= target >> NO;
+				zobristKey ^= hashes[otherColorIndex * 64 + (targetIndex - NO)];
+			}
+		}
+	}
+	else
+	{
+		ghostBoard = ZERO;
 	}
 
 	// Pawn double pushes. leaves ghost
@@ -84,29 +102,12 @@ void Board::MakeMove(const move &move, bitboard &zobristKey)
 		if (diff == NONO)
 		{
 			ghostBoard |= start >> NO;
-			zobristKey ^= hashes[12 * 16 + 5 + ((startIndex - NO) >> 3)];
+			zobristKey ^= hashes[ENPASSANT + ((startIndex - NO) >> 3)];
 		}
 		else if (diff == -NONO)
 		{
 			ghostBoard |= start << NO;
-			zobristKey ^= hashes[12 * 16 + 5 + ((startIndex + NO) >> 3)];
-		}
-	}
-
-	// Enpassant: if pawn moves to unoccupied square, remove enemy pawn at one rank below(above) target. Will only affect en passant moves
-	if (startPiece == colorIndex && targetPiece < A8)
-	{
-		if (color)
-		{
-			pieceBoards[otherColorIndex] &= ~(target << NO);
-			colorBoards[color] &= ~(target << NO);
-			zobristKey &= ~hashes[otherColorIndex * (targetIndex + NO)];
-		}
-		else
-		{
-			pieceBoards[otherColorIndex] &= ~(target >> NO);
-			colorBoards[color] &= ~(target >> NO);
-			zobristKey &= ~hashes[otherColorIndex * (targetIndex - NO)];
+			zobristKey ^= hashes[ENPASSANT + ((startIndex + NO) >> 3)];
 		}
 	}
 
@@ -118,56 +119,56 @@ void Board::MakeMove(const move &move, bitboard &zobristKey)
 		{
 			pieceBoards[ROOK + colorIndex] ^= target >> EA | target << EA;
 			colorBoards[ncolor] ^= target >> EA | target << EA;
-			zobristKey ^= hashes[(3 + colorIndex) * (targetIndex - EA)];
-			zobristKey ^= hashes[(3 + colorIndex) * (targetIndex + EA)];
+			zobristKey ^= hashes[(ROOK + colorIndex) * 64 + (targetIndex - EA)];
+			zobristKey ^= hashes[(ROOK + colorIndex) * 64 + (targetIndex + EA)];
 		}
 		castleTarget = color ? C1 : C8;
 		if (targetIndex == castleTarget)
 		{
 			pieceBoards[ROOK + colorIndex] ^= target << EA | target >> EAEA;
 			colorBoards[ncolor] ^= target << EA | target >> EAEA;
-			zobristKey ^= hashes[(3 + colorIndex) * (targetIndex + EA)];
-			zobristKey ^= hashes[(3 + colorIndex) * (targetIndex - EAEA)];
+			zobristKey ^= hashes[(ROOK + colorIndex) * 64 + (targetIndex + EA)];
+			zobristKey ^= hashes[(ROOK + colorIndex) * 64 + (targetIndex - EAEA)];
 		}
 		nonReversibleMoves = 0;
 	}
 
 	// Promotions
-	if (((move & PROMOTION) >> 15) == 1)
+	if ((move & PROMOTION) > 0)
 	{
 		pieceBoards[colorIndex] ^= target;
 		colorBoards[ncolor] ^= target;
 		pieceBoards[colorIndex + ((move & CNVTO) >> 12)] ^= target;
 		colorBoards[ncolor] ^= target;
-		zobristKey ^= hashes[(colorIndex + ((move & CNVTO) >> 12)) * targetIndex];
-		zobristKey ^= hashes[colorIndex * targetIndex];
+		zobristKey ^= hashes[(colorIndex + ((move & CNVTO) >> 12)) * 64 + targetIndex];
+		zobristKey ^= hashes[colorIndex * 64 + targetIndex];
 	}
 
 	// Update castling flags
-	if (startIndex == H1 || targetIndex == H1 || startIndex == E1)
+	if ((startIndex == H1 || targetIndex == H1 || startIndex == E1) && (flags & KCW) > 0)
 	{
-		flags &= nKCW;
-		zobristKey ^= hashes[12 * 64 + 1];
+		flags ^= KCW;
+		zobristKey ^= hashes[KCWHASH];
 	}
-	if (startIndex == A1 || targetIndex == A1 || startIndex == E1)
+	if ((startIndex == A1 || targetIndex == A1 || startIndex == E1) && (flags & QCW) > 0)
 	{
-		flags &= nQCW;
-		zobristKey ^= hashes[12 * 64 + 2];
+		flags ^= QCW;
+		zobristKey ^= hashes[QCWHASH];
 	}
-	if (startIndex == H8 || targetIndex == H8 || startIndex == E8)
+	if ((startIndex == H8 || targetIndex == H8 || startIndex == E8) && (flags & KCB) > 0)
 	{
 		flags &= nKCB;
-		zobristKey ^= hashes[12 * 64 + 3];
+		zobristKey ^= hashes[KCBHASH];
 	}
-	if (startIndex == A8 || targetIndex == A8 || startIndex == E8)
+	if ((startIndex == A8 || targetIndex == A8 || startIndex == E8) && (flags & QCB) > 0)
 	{
 		flags &= nQCB;
-		zobristKey ^= hashes[12 * 64 + 4];
+		zobristKey ^= hashes[QCBHASH];
 	}
 
 	// Update turn flag
 	flags ^= PTM;
-	zobristKey ^= hashes[12 * 64];
+	zobristKey ^= hashes[BLACKTOMOVE];
 }
 
 void Board::MakeSimpleMove(const move &move)
@@ -208,18 +209,26 @@ void Board::MakeSimpleMove(const move &move)
 	}
 
 	// Enpassant: if pawn moves to unoccupied square, remove enemy pawn at one rank below(above) target. Will only affect en passant moves
-	if (startPiece == colorIndex && targetPiece < A8)
+	if (startPiece == colorIndex && ghostBoard > 0)
 	{
-		if (color)
+		square ghostLocation = PopLsb(ghostBoard);
+		if (targetIndex == ghostLocation)
 		{
-			pieceBoards[otherColorIndex] &= ~(target << NO);
-			colorBoards[color] &= ~(target << NO);
+			if (color)
+			{
+				pieceBoards[otherColorIndex] ^= target << NO;
+				colorBoards[color] ^= target << NO;
+			}
+			else
+			{
+				pieceBoards[otherColorIndex] ^= target >> NO;
+				colorBoards[color] ^= target >> NO;
+			}
 		}
-		else
-		{
-			pieceBoards[otherColorIndex] &= ~(target >> NO);
-			colorBoards[color] &= ~(target >> NO);
-		}
+	}
+	else
+	{
+		ghostBoard = ZERO;
 	}
 
 	// Update turn flag
