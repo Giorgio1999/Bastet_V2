@@ -31,6 +31,7 @@ public:
 	void Boot();
 	void NewGame();					   // clears board for new game
 	void SetBoard(const Board &board); // Resets engine and sets board as current board
+	bitboard InitialiseZobristHash();  // Initialises the Zobrist Key
 	Board &CurrentBoard();			   // Reference to the current board
 	// --------------------------------------------------------------------------------------------
 
@@ -57,8 +58,9 @@ public:
 
 	// Debugging
 	// --------------------------------------------------------------------------------------------
-	std::string ShowBoard(); // Debug tool to display current board in console
-	float Evaluate();		 // Debug tool to return static evaluation of current position
-							 // --------------------------------------------------------------------------------------------
+	std::string ShowBoard();  // Debug tool to display current board in console
+	float Evaluate();		  // Debug tool to return static evaluation of current position
+	void HashTest(int depth); // Testing Zobrist Key generation
+							  // --------------------------------------------------------------------------------------------
 };
 // ------------------------------------------------------------

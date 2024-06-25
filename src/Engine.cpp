@@ -11,6 +11,7 @@
 #include <string>
 #include <cstring>
 #include <iostream>
+#include <cassert>
 
 // This is the engine class implementation
 // Initialising and accessing the engine
@@ -42,42 +43,49 @@ void Engine::SetBoard(const Board &newBoard)
 	gameHistoryIndex = 0;
 	CurrentBoard() = newBoard;
 	CurrentBoard().InitialiseColorBoards();
-	currentZobristKey = 0;
+	currentZobristKey = InitialiseZobristHash();
+}
+
+bitboard Engine::InitialiseZobristHash()
+{
+	Board newBoard = CurrentBoard();
+	bitboard zobrist = ZERO;
 	for (uint i = 0; i < 12; i++)
 	{
 		bitboard pieceBoard = newBoard.pieceBoards[i];
 		while (pieceBoard > 0)
 		{
 			square location = PopLsb(pieceBoard);
-			currentZobristKey ^= hashes[i * location];
+			zobrist ^= hashes[i * location];
 		}
 	}
 	if ((newBoard.flags & 1) == 1)
 	{
-		currentZobristKey ^= hashes[12 * 16];
+		zobrist ^= hashes[12 * 16];
 	}
 	if ((newBoard.flags & 0b00000010) > 0)
 	{
-		currentZobristKey ^= hashes[12 * 16 + 1];
+		zobrist ^= hashes[12 * 16 + 1];
 	}
 	if ((newBoard.flags & 0b00000100) > 0)
 	{
-		currentZobristKey ^= hashes[12 * 16 + 2];
+		zobrist ^= hashes[12 * 16 + 2];
 	}
 	if ((newBoard.flags & 0b00001000) > 0)
 	{
-		currentZobristKey ^= hashes[12 * 16 + 3];
+		zobrist ^= hashes[12 * 16 + 3];
 	}
 	if ((newBoard.flags & 0b00010000) > 0)
 	{
-		currentZobristKey ^= hashes[12 * 16 + 4];
+		zobrist ^= hashes[12 * 16 + 4];
 	}
 	bitboard ghostBoard = newBoard.ghostBoard;
 	if (ghostBoard > 0)
 	{
 		square location = PopLsb(ghostBoard);
-		currentZobristKey ^= hashes[12 * 16 + 1 + 4 + (location >> 3)];
+		zobrist ^= hashes[12 * 16 + 1 + 4 + (location >> 3)];
 	}
+	return zobrist;
 }
 
 Board &Engine::CurrentBoard()
@@ -190,6 +198,28 @@ float Engine::Evaluate()
 {
 	auto color = (CurrentBoard().flags & 1) == 1;
 	auto colorMultipliyer = color ? 1 : -1;
-	return colorMultipliyer * Evaluation::StaticEvaluation(*this)/(float)pieceValues[0];
+	return colorMultipliyer * Evaluation::StaticEvaluation(*this) / (float)pieceValues[0];
+}
+
+void Engine::HashTest(int depth)
+{
+	std::array<move, 256> moveHolder;
+	uint moveHolderIndex = 0;
+	GetLegalMoves(moveHolder, moveHolderIndex, false);
+	if (depth <= 1)
+	{
+		return;
+	}
+	for (uint i = 0; i < moveHolderIndex; i++)
+	{
+		MakeMove(moveHolder[i]);
+		bitboard newHash = InitialiseZobristHash();
+		assert(newHash==currentZobristKey);
+		if (!stopFlag)
+		{
+			HashTest(depth - 1);
+		}
+		UndoLastMove();
+	}
 }
 // --------------------------------------------------------------------------------------------

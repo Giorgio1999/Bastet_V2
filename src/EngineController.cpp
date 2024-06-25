@@ -231,6 +231,16 @@ std::string EngineController::Evaluate()
 	std::string result = std::to_string(engine.Evaluate());
 	return result;
 }
+
+void EngineController::HashTest(int depth)
+{
+	if (!isReady)
+	{
+		BootEngine();
+	}
+	SetPosition();
+	engine.HashTest(depth);
+}
 // -------------------------------------------------------------------
 
 // Debugging

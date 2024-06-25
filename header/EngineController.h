@@ -40,6 +40,7 @@ public:
 	void Bench();					   // Benchmarking with a fixed depth perft on a large number of positions
 	void Validate();				   // Validates move generation on test suit
 	std::string Evaluate();			   // Evaluate the current position to test static evaluation
+	void HashTest(int depth);		   // Testing if the Zobrist generation is valid
 	// -------------------------------------------------------------------
 
 	// Debugging
