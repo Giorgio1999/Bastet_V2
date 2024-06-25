@@ -25,7 +25,7 @@ transposition::Tt::Tt(int ttSize)
 //     tt = nullptr;
 // }
 
-void transposition::Tt::Save(int depthRemaining, int score, NodeType node, bitboard zobrist)
+void transposition::Tt::Save(const int depthRemaining, const int score, const NodeType node, const bitboard zobrist)
 {
     int index = (numEntries - 1) & zobrist;
     TtEntry entry = tt[index];
@@ -41,7 +41,7 @@ void transposition::Tt::Save(int depthRemaining, int score, NodeType node, bitbo
     ttFill++;
 }
 
-bool transposition::Tt::Pull(int &score, int depthRemaining, int alpha, int beta, bitboard zobrist)
+bool transposition::Tt::Pull(int &score, const int depthRemaining, const int alpha, const int beta, const bitboard zobrist)
 {
     int index = (numEntries - 1) & zobrist;
     TtEntry entry = tt[index];
@@ -56,13 +56,15 @@ bool transposition::Tt::Pull(int &score, int depthRemaining, int alpha, int beta
         return true;
         break;
     case LOWER:
-        if(entry.score<=alpha){
-            score=alpha;
+        if (entry.score <= alpha)
+        {
+            score = alpha;
             return true;
         }
         break;
     case UPPER:
-        if(entry.score>=beta){
+        if (entry.score >= beta)
+        {
             score = beta;
             return true;
         }

@@ -54,10 +54,7 @@ move Search::GetBestMove(Engine &engine, Timer &timer)
                 }
 
                 engine.MakeMove(moveHolder[i]);
-                if (!engine.tt.Pull(scores[i], currentDepth, alpha, beta, engine.currentZobristKey))
-                {
-                    scores[i] = AlphaBetaMin(engine, alpha, beta, currentDepth, nodes);
-                }
+                scores[i] = AlphaBetaMin(engine, alpha, beta, currentDepth, nodes);
                 engine.UndoLastMove();
 
                 if (scores[i] > alpha) // If the obtained score is higher than the lower bound, we can update the lower bound to reflect the fact that we are guaranteed this score by making this move
@@ -106,10 +103,7 @@ move Search::GetBestMove(Engine &engine, Timer &timer)
                 }
 
                 engine.MakeMove(moveHolder[i]);
-                if (!engine.tt.Pull(scores[i], currentDepth, alpha, beta, engine.currentZobristKey))
-                {
-                    scores[i] = AlphaBetaMax(engine, alpha, beta, currentDepth, nodes);
-                }
+                scores[i] = AlphaBetaMax(engine, alpha, beta, currentDepth, nodes);
                 engine.UndoLastMove();
 
                 if (scores[i] < beta) // Black will try to lower the upper bound of the score; so if the current move results in a lower score than the current upper bound, update it
@@ -152,49 +146,49 @@ int AlphaBetaMin(Engine &engine, int alpha, int beta, int depthRemaining, bitboa
         depthRemaining++;
     }
 
-    if (depthRemaining == 0) // If target depth is reached, return static evaluation of the position
+    if (!engine.tt.Pull(beta, depthRemaining, alpha, beta, engine.currentZobristKey))
     {
-        // return Evaluation::StaticEvaluation(engine);
-        int score = QuiescenceMin(engine, alpha, beta, nodes);
-        engine.tt.Save(depthRemaining, score, transposition::PV, engine.currentZobristKey);
-        return score;
-    }
 
-    // Get Legal moves
-    uint moveHolderIndex = 0;
-    std::array<move, 256> moveHolder;
-    engine.GetLegalMoves(moveHolder, moveHolderIndex, false);
-
-    if (!isCheck && moveHolderIndex == 0)
-    { // Stalemate -> return 0
-        nodes++;
-        return 0;
-    }
-
-    for (uint i = 0; i < moveHolderIndex; i++) // Check every move i can make and see if i can improve the score
-    {
-        engine.MakeMove(moveHolder[i]);
-        int tmpScore = 0;
-        if (!engine.tt.Pull(tmpScore, depthRemaining - 1, alpha, beta, engine.currentZobristKey))
+        if (depthRemaining == 0) // If target depth is reached, return static evaluation of the position
         {
-            tmpScore = AlphaBetaMax(engine, alpha, beta, depthRemaining - 1, nodes);
+            int score = QuiescenceMin(engine, alpha, beta, nodes);
+            engine.tt.Save(0, score, transposition::PV, engine.currentZobristKey);
+            return score;
         }
-        engine.UndoLastMove();
 
-        if (tmpScore <= alpha) // If the minimizing players move leads to a score lower than the lower bound, we can stop considering these branches, since the maximizing player will choose the path corresponding to the lower bound
-        {
+        // Get Legal moves
+        uint moveHolderIndex = 0;
+        std::array<move, 256> moveHolder;
+        engine.GetLegalMoves(moveHolder, moveHolderIndex, false);
+
+        if (!isCheck && moveHolderIndex == 0)
+        { // Stalemate -> return 0
             nodes++;
-            engine.tt.Save(depthRemaining, alpha, transposition::LOWER, engine.currentZobristKey);
-            return alpha;
+            engine.tt.Save(depthRemaining, 0, transposition::PV, engine.currentZobristKey);
+            return 0;
         }
 
-        if (tmpScore < beta) // The minimizing player will choose the move that lowers the upper bound the most
+        for (uint i = 0; i < moveHolderIndex; i++) // Check every move i can make and see if i can improve the score
         {
-            beta = tmpScore;
+            engine.MakeMove(moveHolder[i]);
+            int tmpScore = AlphaBetaMax(engine, alpha, beta, depthRemaining - 1, nodes);
+            engine.UndoLastMove();
+
+            if (tmpScore <= alpha) // If the minimizing players move leads to a score lower than the lower bound, we can stop considering these branches, since the maximizing player will choose the path corresponding to the lower bound
+            {
+                nodes++;
+                engine.tt.Save(depthRemaining, alpha, transposition::LOWER, engine.currentZobristKey);
+                return alpha;
+            }
+
+            if (tmpScore < beta) // The minimizing player will choose the move that lowers the upper bound the most
+            {
+                beta = tmpScore;
+            }
         }
+        engine.tt.Save(depthRemaining, beta, transposition::PV, engine.currentZobristKey);
     }
     nodes++;
-    engine.tt.Save(depthRemaining, beta, transposition::UPPER, engine.currentZobristKey);
     return beta;
 }
 
@@ -213,48 +207,47 @@ int AlphaBetaMax(Engine &engine, int alpha, int beta, int depthRemaining, bitboa
         depthRemaining++;
     }
 
-    if (depthRemaining == 0) // If target depth is reached, return static evaluation of the position
+    if (!engine.tt.Pull(alpha, depthRemaining, alpha, beta, engine.currentZobristKey))
     {
-        int score = QuiescenceMax(engine, alpha, beta, nodes);
-        engine.tt.Save(depthRemaining, score, transposition::PV, engine.currentZobristKey);
-        return score;
-        // return Evaluation::StaticEvaluation(engine);
-    }
-
-    // Get Legal moves
-    uint moveHolderIndex = 0;
-    std::array<move, 256> moveHolder;
-    engine.GetLegalMoves(moveHolder, moveHolderIndex, false);
-
-    if (!isCheck && moveHolderIndex == 0)
-    { // Stalemate -> return 0
-        nodes++;
-        return 0;
-    }
-
-    for (uint i = 0; i < moveHolderIndex; i++) // Check every move i can make and see if i can improve the score
-    {
-        engine.MakeMove(moveHolder[i]);
-        int tmpScore = 0;
-        if (!engine.tt.Pull(tmpScore, depthRemaining - 1, alpha, beta, engine.currentZobristKey))
+        if (depthRemaining == 0) // If target depth is reached, return static evaluation of the position
         {
-            tmpScore = AlphaBetaMin(engine, alpha, beta, depthRemaining - 1, nodes);
+            int score = QuiescenceMax(engine, alpha, beta, nodes);
+            engine.tt.Save(0, score, transposition::PV, engine.currentZobristKey);
+            return score;
         }
-        engine.UndoLastMove();
 
-        if (tmpScore >= beta) // If the maximizing player has a move even better than the upper bound, the minimizing player will rather choose the path corresponding to that upper bound
-        {
+        // Get Legal moves
+        uint moveHolderIndex = 0;
+        std::array<move, 256> moveHolder;
+        engine.GetLegalMoves(moveHolder, moveHolderIndex, false);
+
+        if (!isCheck && moveHolderIndex == 0)
+        { // Stalemate -> return 0
             nodes++;
-            engine.tt.Save(depthRemaining, beta, transposition::UPPER, engine.currentZobristKey);
-            return beta;
+            engine.tt.Save(depthRemaining, 0, transposition::PV, engine.currentZobristKey);
+            return 0;
         }
 
-        if (tmpScore > alpha)
-        { // The maximizing player will seek to increase the lower bound
-            alpha = tmpScore;
+        for (uint i = 0; i < moveHolderIndex; i++) // Check every move i can make and see if i can improve the score
+        {
+            engine.MakeMove(moveHolder[i]);
+            int tmpScore = AlphaBetaMin(engine, alpha, beta, depthRemaining - 1, nodes);
+            engine.UndoLastMove();
+
+            if (tmpScore >= beta) // If the maximizing player has a move even better than the upper bound, the minimizing player will rather choose the path corresponding to that upper bound
+            {
+                nodes++;
+                engine.tt.Save(depthRemaining - 1, beta, transposition::UPPER, engine.currentZobristKey);
+                return beta;
+            }
+
+            if (tmpScore > alpha)
+            { // The maximizing player will seek to increase the lower bound
+                alpha = tmpScore;
+            }
         }
+        engine.tt.Save(depthRemaining - 1, alpha, transposition::PV, engine.currentZobristKey);
     }
-    engine.tt.Save(depthRemaining, alpha, transposition::LOWER, engine.currentZobristKey);
     nodes++;
     return alpha;
 }
@@ -273,6 +266,7 @@ int QuiescenceMin(Engine &engine, int alpha, int beta, bitboard &nodes)
     if (standPat <= alpha) // If the score is already lower than the lower bound, the maximizing player will choose a different path
     {
         nodes++;
+        engine.tt.Save(0, alpha, transposition::LOWER, engine.currentZobristKey);
         return alpha;
     }
 
@@ -281,26 +275,31 @@ int QuiescenceMin(Engine &engine, int alpha, int beta, bitboard &nodes)
         beta = standPat;
     }
 
-    uint moveHolderIndex = 0;
-    std::array<move, 256> moveHolder;
-    engine.GetLegalMoves(moveHolder, moveHolderIndex, true);
-
-    for (uint i = 0; i < moveHolderIndex; i++)
+    if (!engine.tt.Pull(beta, 0, alpha, beta, engine.currentZobristKey))
     {
-        engine.MakeMove(moveHolder[i]);
-        int tmpScore = QuiescenceMax(engine, alpha, beta, nodes);
-        engine.UndoLastMove();
+        uint moveHolderIndex = 0;
+        std::array<move, 256> moveHolder;
+        engine.GetLegalMoves(moveHolder, moveHolderIndex, true);
 
-        if (tmpScore <= alpha) // If the minimizing players move leads to a score lower than the lower bound, we can stop considering these branches, since the maximizing player will choose the path corresponding to the lower bound
+        for (uint i = 0; i < moveHolderIndex; i++)
         {
-            nodes++;
-            return alpha;
-        }
+            engine.MakeMove(moveHolder[i]);
+            int tmpScore = QuiescenceMax(engine, alpha, beta, nodes);
+            engine.UndoLastMove();
 
-        if (tmpScore < beta) // The minimizing player will choose the move that lowers the upper bound the most
-        {
-            beta = tmpScore;
+            if (tmpScore <= alpha) // If the minimizing players move leads to a score lower than the lower bound, we can stop considering these branches, since the maximizing player will choose the path corresponding to the lower bound
+            {
+                nodes++;
+                engine.tt.Save(0, alpha, transposition::LOWER, engine.currentZobristKey);
+                return alpha;
+            }
+
+            if (tmpScore < beta) // The minimizing player will choose the move that lowers the upper bound the most
+            {
+                beta = tmpScore;
+            }
         }
+        engine.tt.Save(0, beta, transposition::PV, engine.currentZobristKey);
     }
     nodes++;
     return beta;
@@ -320,6 +319,7 @@ int QuiescenceMax(Engine &engine, int alpha, int beta, bitboard &nodes)
     if (standPat >= beta) // If the score is already higher than the upper bound, the minimizing player will choose a different path
     {
         nodes++;
+        engine.tt.Save(0, beta, transposition::UPPER, engine.currentZobristKey);
         return beta;
     }
 
@@ -328,26 +328,32 @@ int QuiescenceMax(Engine &engine, int alpha, int beta, bitboard &nodes)
         alpha = standPat;
     }
 
-    uint moveHolderIndex = 0;
-    std::array<move, 256> moveHolder;
-    engine.GetLegalMoves(moveHolder, moveHolderIndex, true);
-
-    for (uint i = 0; i < moveHolderIndex; i++)
+    if (!engine.tt.Pull(alpha, 0, alpha, beta, engine.currentZobristKey))
     {
-        engine.MakeMove(moveHolder[i]);
-        int tmpScore = QuiescenceMax(engine, alpha, beta, nodes);
-        engine.UndoLastMove();
 
-        if (tmpScore >= beta) // If the maximizing players move leads to a score higher than the upper bound, we can stop considering these branches, since the minimizing player will choose the path corresponding to the upper bound
-        {
-            nodes++;
-            return beta;
-        }
+        uint moveHolderIndex = 0;
+        std::array<move, 256> moveHolder;
+        engine.GetLegalMoves(moveHolder, moveHolderIndex, true);
 
-        if (tmpScore > alpha) // The maximizing player will choose the move that raises the lower bound the most
+        for (uint i = 0; i < moveHolderIndex; i++)
         {
-            alpha = tmpScore;
+            engine.MakeMove(moveHolder[i]);
+            int tmpScore = QuiescenceMax(engine, alpha, beta, nodes);
+            engine.UndoLastMove();
+
+            if (tmpScore >= beta) // If the maximizing players move leads to a score higher than the upper bound, we can stop considering these branches, since the minimizing player will choose the path corresponding to the upper bound
+            {
+                nodes++;
+                engine.tt.Save(0, beta, transposition::UPPER, engine.currentZobristKey);
+                return beta;
+            }
+
+            if (tmpScore > alpha) // The maximizing player will choose the move that raises the lower bound the most
+            {
+                alpha = tmpScore;
+            }
         }
+        engine.tt.Save(0, alpha, transposition::PV, engine.currentZobristKey);
     }
     nodes++;
     return alpha;
