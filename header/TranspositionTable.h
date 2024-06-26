@@ -22,12 +22,12 @@ namespace transposition
     {
     public:
         TtEntry *tt = nullptr;
-        int ttEntrySize;
-        int numEntries;
-        int ttFill;
+        bitboard ttEntrySize;
+        bitboard numEntries;
+        bitboard ttFill=0;
 
         Tt();
-        Tt(int ttSize);
+        Tt(bitboard ttSize);
         // ~Tt();
         void Save(const int depthRemaining, const int score, const NodeType node, const bitboard zobrist);
         bool Pull(int &score, const int depthRemaining, const int alpha, const int beta, const bitboard zobrist);

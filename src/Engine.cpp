@@ -36,6 +36,7 @@ void Engine::NewGame()
 {
 	gameHistoryIndex = 0;
 	CurrentBoard() = Board();
+	tt = transposition::Tt(ttSize);
 }
 
 void Engine::SetBoard(const Board &newBoard)

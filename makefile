@@ -1,6 +1,6 @@
 CXX = g++
 CXXFLAGS = -Iheader -Wall -Wextra -Ofast 
-DEBUGCXXFLAGS = -Iheader -Wall -Wextra -g #-fsanitize=address -fsanitize=undefined
+DEBUGCXXFLAGS = -Iheader -Wall -Wextra -g -fsanitize=address -fsanitize=undefined
 TARGET = Bastet
 DEBUGTARGET = Bastet_Debug
 SRCS = $(wildcard src/*.cpp)

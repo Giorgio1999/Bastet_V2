@@ -9,13 +9,15 @@
 #include <iostream>
 #include <array>
 
-EngineController::EngineController() {}
+EngineController::EngineController()
+{
+	engine = Engine();
+}
 
 // UCI
 // -------------------------------------------------------------------
 bool EngineController::BootEngine()
 {
-	engine = Engine();
 	startpos = Fen2Position();
 	engine.Boot();
 	isReady = true;
@@ -86,7 +88,7 @@ std::string EngineController::Search(const int wTime, const int bTime, const int
 
 std::string EngineController::Options()
 {
-	std::string res = "option name Hash type spin default " + std::to_string(engine.ttSize) + " min 0 max 128";
+	std::string res = "option name Hash type spin default " + std::to_string(engine.ttSize) + " min 0 max 1024";
 	return res;
 }
 
