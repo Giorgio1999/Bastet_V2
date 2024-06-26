@@ -41,10 +41,10 @@ void transposition::Tt::Save(const int depthRemaining, const int score, const No
 {
     bitboard index = (numEntries - 1) & zobrist;
     TtEntry entry = tt[index];
-    // if (entry.depthRemaining > depthRemaining)
-    // {
-    //     return;
-    // }
+    if (entry.depthRemaining > depthRemaining)
+    {
+        return;
+    }
     if (entry.depthRemaining == -1)
     {
         ttFill++;

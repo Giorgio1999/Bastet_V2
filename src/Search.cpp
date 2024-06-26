@@ -62,6 +62,8 @@ move Search::GetBestMove(Engine &engine, Timer &timer)
                     alpha = scores[i];
                 }
 
+                // engine.tt.Save(currentDepth, scores[i], transposition::PV, engine.currentZobristKey);
+
                 estimatedTimeConsumption += timer.TimeElapsed();
             }
 
@@ -110,6 +112,8 @@ move Search::GetBestMove(Engine &engine, Timer &timer)
                 {
                     beta = scores[i];
                 }
+
+                // engine.tt.Save(currentDepth, scores[i], transposition::PV, engine.currentZobristKey);
 
                 estimatedTimeConsumption += timer.TimeElapsed();
             }
