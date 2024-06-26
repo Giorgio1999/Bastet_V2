@@ -50,7 +50,7 @@ bitboard Engine::InitialiseZobristHash()
 {
 	Board newBoard = CurrentBoard();
 	bitboard zobrist = ZERO;
-	for (uint i = PAWN; i < BLACKPIECES + KING; i++)
+	for (uint i = PAWN; i <= BLACKPIECES + KING; i++)
 	{
 		bitboard pieceBoard = newBoard.pieceBoards[i];
 		while (pieceBoard > 0)
@@ -217,7 +217,7 @@ void Engine::HashTest(int depth)
 		if (newHash != currentZobristKey)
 		{
 			std::cerr << ShowBoard() << newHash << std::endl;
-			for (int i = 0; i <= gameHistoryIndex; i++)
+			for (uint i = 0; i <= gameHistoryIndex; i++)
 			{
 				UndoLastMove();
 				std::cerr << ShowBoard();

@@ -14,7 +14,7 @@ void Validate();
 void PrngTest(std::string path);
 void TimerTest();
 void SortTest();
-void HashTest(int depth);
+void HashTest(std::string arg);
 // -------------------------------------------------------------------
 
 // Main loop
@@ -50,10 +50,10 @@ int main(int argc, char *argv[])
 		{
 			SortTest();
 		}
-		if(command == "hashtest"){
+		if (command == "hashtest")
+		{
 			std::string arg = argv[2];
-			int depth = std::stoi(arg);
-			HashTest(depth);
+			HashTest(arg);
 		}
 	}
 	else
@@ -128,9 +128,18 @@ void SortTest()
 	std::cout << std::endl;
 }
 
-void HashTest(int depth){
+void HashTest(std::string arg)
+{
 	EngineController engineController = EngineController();
-	engineController.HashTest(depth);
+	if (arg != "full")
+	{
+		int depth = std::stoi(arg);
+		engineController.HashTest(depth);
+	}
+	else
+	{
+		engineController.HashTest();
+	}
 	std::cout << "done" << std::endl;
 }
 // -------------------------------------------------------------------

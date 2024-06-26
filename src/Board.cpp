@@ -146,25 +146,51 @@ void Board::MakeMove(const move &move, bitboard &zobristKey)
 	}
 
 	// Update castling flags
-	if ((startIndex == H1 || targetIndex == H1 || startIndex == E1) && (flags & KCW) > 0)
+	if ((startIndex == H1 || targetIndex == H1) && (flags & KCW) > 0)
 	{
 		flags ^= KCW;
 		zobristKey ^= hashes[KCWHASH];
 	}
-	if ((startIndex == A1 || targetIndex == A1 || startIndex == E1) && (flags & QCW) > 0)
+	if ((startIndex == A1 || targetIndex == A1) && (flags & QCW) > 0)
 	{
 		flags ^= QCW;
 		zobristKey ^= hashes[QCWHASH];
 	}
-	if ((startIndex == H8 || targetIndex == H8 || startIndex == E8) && (flags & KCB) > 0)
+	if ((startIndex == H8 || targetIndex == H8) && (flags & KCB) > 0)
 	{
 		flags ^= KCB;
 		zobristKey ^= hashes[KCBHASH];
 	}
-	if ((startIndex == A8 || targetIndex == A8 || startIndex == E8) && (flags & QCB) > 0)
+	if ((startIndex == A8 || targetIndex == A8) && (flags & QCB) > 0)
 	{
 		flags ^= QCB;
 		zobristKey ^= hashes[QCBHASH];
+	}
+	if (startIndex == E1)
+	{
+		if ((flags & KCW) > 0)
+		{
+			flags ^= KCW;
+			zobristKey ^= hashes[KCWHASH];
+		}
+		if ((flags & QCW) > 0)
+		{
+			flags ^= QCW;
+			zobristKey ^= hashes[QCWHASH];
+		}
+	}
+	if (startIndex == E8)
+	{
+		if ((flags & KCB) > 0)
+		{
+			flags ^= KCB;
+			zobristKey ^= hashes[KCBHASH];
+		}
+		if ((flags & QCB) > 0)
+		{
+			flags ^= QCB;
+			zobristKey ^= hashes[QCBHASH];
+		}
 	}
 
 	// Update turn flag

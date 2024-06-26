@@ -13,7 +13,7 @@ int Evaluation::StaticEvaluation(Engine &engine)
     Board &currentBoard = engine.CurrentBoard();
 
     int evaluation = 0;
-    bitboard countBoard = ZERO;
+    // bitboard countBoard = ZERO;
     for (auto i = 0; i < 6; i++)
     {
         // countBoard = currentBoard.pieceBoards[i];

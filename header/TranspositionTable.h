@@ -22,7 +22,6 @@ namespace transposition
     {
     public:
         TtEntry *tt = nullptr;
-        int ttSize;
         int ttEntrySize;
         int numEntries;
         int ttFill;

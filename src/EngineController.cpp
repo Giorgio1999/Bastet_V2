@@ -241,6 +241,32 @@ void EngineController::HashTest(int depth)
 	SetPosition();
 	engine.HashTest(depth);
 }
+
+void EngineController::HashTest()
+{
+	if (!isReady)
+	{
+		BootEngine();
+	}
+	for (uint i = 0; i < fullPerftSuite.size(); i++)
+	{
+		std::string line = fullPerftSuite.at(i);
+		std::string fen = line.substr(0, line.find(','));
+		std::cout << "Position: " << fen << std::endl;
+		engine.SetBoard(Fen2Position(fen));
+		line = line.substr(fen.size() + 1, line.size());
+		int depth = 1;
+		while (line.size() > 0 && !engine.stopFlag)
+		{
+			engine.HashTest(depth);
+			std::string ref = line.substr(0, line.find_first_of(';'));
+			line = line.substr(ref.size() + 1, line.size());
+			std::cout << "\t depth: " << depth << " done" << std::endl;
+			depth++;
+		}
+		std::cout << "Done" << std::endl;
+	}
+}
 // -------------------------------------------------------------------
 
 // Debugging
