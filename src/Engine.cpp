@@ -75,7 +75,7 @@ bitboard Engine::InitialiseZobristHash()
 	{
 		zobrist ^= hashes[KCBHASH];
 	}
-	if ((newBoard.flags & QCW) > 0)
+	if ((newBoard.flags & QCB) > 0)
 	{
 		zobrist ^= hashes[QCBHASH];
 	}
@@ -214,7 +214,18 @@ void Engine::HashTest(int depth)
 	{
 		MakeMove(moveHolder[i]);
 		bitboard newHash = InitialiseZobristHash();
-		assert(newHash == currentZobristKey);
+		if (newHash != currentZobristKey)
+		{
+			std::cerr << ShowBoard() << newHash << std::endl;
+			for (int i = 0; i <= gameHistoryIndex; i++)
+			{
+				UndoLastMove();
+				std::cerr << ShowBoard();
+				bitboard tempNewHash = InitialiseZobristHash();
+				std::cerr << tempNewHash << std::endl;
+			}
+			assert(newHash == currentZobristKey);
+		}
 		if (!stopFlag)
 		{
 			HashTest(depth - 1);

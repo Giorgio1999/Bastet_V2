@@ -90,9 +90,10 @@ void Board::MakeMove(const move &move, bitboard &zobristKey)
 			}
 		}
 	}
-	else
+	else if (ghostBoard > 0)
 	{
-		ghostBoard = ZERO;
+		square ghostLocation = PopLsb(ghostBoard);
+		zobristKey ^= hashes[ENPASSANT + (ghostLocation >> 3)];
 	}
 
 	// Pawn double pushes. leaves ghost
@@ -157,12 +158,12 @@ void Board::MakeMove(const move &move, bitboard &zobristKey)
 	}
 	if ((startIndex == H8 || targetIndex == H8 || startIndex == E8) && (flags & KCB) > 0)
 	{
-		flags &= nKCB;
+		flags ^= KCB;
 		zobristKey ^= hashes[KCBHASH];
 	}
 	if ((startIndex == A8 || targetIndex == A8 || startIndex == E8) && (flags & QCB) > 0)
 	{
-		flags &= nQCB;
+		flags ^= QCB;
 		zobristKey ^= hashes[QCBHASH];
 	}
 
@@ -225,10 +226,6 @@ void Board::MakeSimpleMove(const move &move)
 				colorBoards[color] ^= target >> NO;
 			}
 		}
-	}
-	else
-	{
-		ghostBoard = ZERO;
 	}
 
 	// Update turn flag
