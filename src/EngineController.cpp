@@ -11,13 +11,13 @@
 
 EngineController::EngineController()
 {
-	engine = Engine();
 }
 
 // UCI
 // -------------------------------------------------------------------
 bool EngineController::BootEngine()
 {
+	engine = Engine();
 	startpos = Fen2Position();
 	engine.Boot();
 	isReady = true;
@@ -94,8 +94,10 @@ std::string EngineController::Options()
 
 void EngineController::SetOptions(int _ttSize)
 {
-	engine.ttSize = _ttSize;
-	BootEngine();
+	if(!isReady){
+		BootEngine();
+	}
+	engine.SetTtSize(_ttSize);
 }
 // -------------------------------------------------------------------
 

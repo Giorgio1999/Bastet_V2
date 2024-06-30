@@ -34,6 +34,7 @@ void Engine::Boot()
 
 void Engine::NewGame()
 {
+	repetitionTable.clear();
 	gameHistoryIndex = 0;
 	CurrentBoard() = Board();
 	tt = transposition::Tt(ttSize);
@@ -41,6 +42,7 @@ void Engine::NewGame()
 
 void Engine::SetBoard(const Board &newBoard)
 {
+	repetitionTable.clear();
 	gameHistoryIndex = 0;
 	CurrentBoard() = newBoard;
 	CurrentBoard().InitialiseColorBoards();
@@ -92,6 +94,12 @@ bitboard Engine::InitialiseZobristHash()
 Board &Engine::CurrentBoard()
 {
 	return gameHistory[gameHistoryIndex];
+}
+
+void Engine::SetTtSize(int _ttSize)
+{
+	ttSize = (bitboard)_ttSize;
+	tt = transposition::Tt(ttSize);
 }
 // --------------------------------------------------------------------------------------------
 

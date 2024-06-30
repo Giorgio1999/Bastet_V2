@@ -22,7 +22,7 @@ public:
 	std::vector<bitboard> repetitionTable;	  // Table of zobrist hashes to check for repetitions
 	bitboard currentZobristKey;				  // Zobrist key of the current position
 	MathUtility::Random<int> *prng = nullptr; // PseudoNumberGenerator
-	int ttSize = 64;						  // Transposition table size in MB
+	bitboard ttSize = 64;					  // Transposition table size in MB
 	transposition::Tt tt;					  // Transposition table
 
 	// Initialising and accessing the engine
@@ -33,6 +33,7 @@ public:
 	void SetBoard(const Board &board); // Resets engine and sets board as current board
 	bitboard InitialiseZobristHash();  // Initialises the Zobrist Key
 	Board &CurrentBoard();			   // Reference to the current board
+	void SetTtSize(int _ttSize);	   // Resizes tt table
 	// --------------------------------------------------------------------------------------------
 
 	// Core functionality
