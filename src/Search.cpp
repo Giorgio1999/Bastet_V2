@@ -178,6 +178,7 @@ AlphaBetaMin (Engine &engine, int alpha, int beta, int depthRemaining, bitboard 
                              // evaluation of the position
         {
             int score = QuiescenceMin (engine, alpha, beta, nodes);
+            engine.tt.Save (0, score, transposition::PV, engine.currentZobristKey);
             return score;
         }
 
@@ -189,6 +190,7 @@ AlphaBetaMin (Engine &engine, int alpha, int beta, int depthRemaining, bitboard 
     if (!isCheck && moveHolderIndex == 0)
         { // Stalemate -> return 0
             nodes++;
+            engine.tt.Save (depthRemaining, 0, transposition::PV, engine.currentZobristKey);
             return 0;
         }
 
@@ -205,6 +207,8 @@ AlphaBetaMin (Engine &engine, int alpha, int beta, int depthRemaining, bitboard 
                                    // corresponding to the lower bound
                 {
                     nodes++;
+                    engine.tt.Save (depthRemaining, alpha, transposition::LOWER,
+                                    engine.currentZobristKey);
                     return alpha;
                 }
 
@@ -215,6 +219,7 @@ AlphaBetaMin (Engine &engine, int alpha, int beta, int depthRemaining, bitboard 
                 }
         }
     nodes++;
+    engine.tt.Save (depthRemaining, beta, transposition::PV, engine.currentZobristKey);
     return beta;
 }
 
@@ -242,6 +247,7 @@ AlphaBetaMax (Engine &engine, int alpha, int beta, int depthRemaining, bitboard 
                              // evaluation of the position
         {
             int score = QuiescenceMax (engine, alpha, beta, nodes);
+            engine.tt.Save (0, score, transposition::PV, engine.currentZobristKey);
             return score;
         }
 
@@ -253,6 +259,7 @@ AlphaBetaMax (Engine &engine, int alpha, int beta, int depthRemaining, bitboard 
     if (!isCheck && moveHolderIndex == 0)
         { // Stalemate -> return 0
             nodes++;
+            engine.tt.Save (depthRemaining, 0, transposition::PV, engine.currentZobristKey);
             return 0;
         }
 
@@ -268,6 +275,8 @@ AlphaBetaMax (Engine &engine, int alpha, int beta, int depthRemaining, bitboard 
                                   // path corresponding to that upper bound
                 {
                     nodes++;
+                    engine.tt.Save (depthRemaining, beta, transposition::UPPER,
+                                    engine.currentZobristKey);
                     return beta;
                 }
 
@@ -278,6 +287,7 @@ AlphaBetaMax (Engine &engine, int alpha, int beta, int depthRemaining, bitboard 
                 }
         }
     nodes++;
+    engine.tt.Save (depthRemaining, alpha, transposition::PV, engine.currentZobristKey);
     return alpha;
 }
 
