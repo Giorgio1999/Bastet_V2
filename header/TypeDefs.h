@@ -4,9 +4,10 @@
 
 // Declaration of types
 // ----------------------------------------
-using bitboard = uint64_t;   // 64 bits representing the squares of a chessboard
-using line = uint8_t;        // 8 bits representing one line of the board
-using move = uint16_t;       // 16 bits for representing moves (promotion:1,convertTo:3,targetIndex:6,startIndex:6)
+using bitboard = uint64_t; // 64 bits representing the squares of a chessboard
+using line = uint8_t;      // 8 bits representing one line of the board
+using move = uint16_t;     // 16 bits for representing moves
+                       // (promotion:1,convertTo:3,targetIndex:6,startIndex:6)
 using flag = uint8_t;        // 8 bits for bundling together different booleans
 using square = uint_fast8_t; // 8 bits for representing a specific square
 // -----------------------------------------
@@ -34,12 +35,12 @@ const int EA = 1;                    // Offset for east (a -> h) movement
 const int EAEA = 2;                  // Offset for 2east movement
 const int NOEA = 7;                  // Offset for northeast (a1 -> h8) movement
 const int SOEA = 9;                  // Offset for southeast (a8 -> h1) movement
-const int NONOEA = 15;               // Offset for moving like a knight 2north 1east
-const int NOEAEA = 6;                // Offset for moving like a knight 1north 2east
-const int SOEAEA = 10;               // Offset for moving like a knight 1south 2east
-const int SOSOEA = 17;               // Offset for moving like a knight 2south 1east
-const int WHITEPIECES = 0;           // Offset of white pieces in pieceboards
-const int BLACKPIECES = 6;           // Offset of black pieces in pieceboard
+const int NONOEA = 15;     // Offset for moving like a knight 2north 1east
+const int NOEAEA = 6;      // Offset for moving like a knight 1north 2east
+const int SOEAEA = 10;     // Offset for moving like a knight 1south 2east
+const int SOSOEA = 17;     // Offset for moving like a knight 2south 1east
+const int WHITEPIECES = 0; // Offset of white pieces in pieceboards
+const int BLACKPIECES = 6; // Offset of black pieces in pieceboard
 // -----------------------------------------
 
 // Declaration of lookup tables
@@ -49,36 +50,52 @@ extern bitboard rankMasks[8];
 extern bitboard diagonalAttackMasks[64];
 extern bitboard antiDiagonalAttackMasks[64];
 extern bitboard rankAttackMasks[64];
-extern bitboard hashes[781]; // Hash table for: pieces*square + black to move + castling rights + enpassant file
+extern bitboard hashes[781]; // Hash table for: pieces*square + black to move +
+                             // castling rights + enpassant file
 
-extern bitboard knightMoves[64];       // lookup table for all knight moves indexed by: square
-extern bitboard kingMoves[64];         // lookup table for all king moves indexed by: square
-extern bitboard pawnAttacks[2][2][64]; // lookup table for all pawn attackes indexed by: color,direction,index
-extern bitboard fillUpAttacks[8][64];  // lookup table for fill up attacks for kindergarten bitboards indexed by: file,occupation,
-                                       // contains bitboards consisting of 8 copies of first rank attacks for the given file and occupation
-extern bitboard aFileAttacks[8][64];   // lookup table for attacks on the a file indexed by: rank,occupation
+extern bitboard
+    knightMoves[64]; // lookup table for all knight moves indexed by: square
+extern bitboard
+    kingMoves[64]; // lookup table for all king moves indexed by: square
+extern bitboard pawnAttacks[2][2][64]; // lookup table for all pawn attackes
+                                       // indexed by: color,direction,index
+extern bitboard
+    fillUpAttacks[8][64]; // lookup table for fill up attacks for kindergarten
+                          // bitboards indexed by: file,occupation, contains
+                          // bitboards consisting of 8 copies of first rank
+                          // attacks for the given file and occupation
+extern bitboard aFileAttacks[8][64]; // lookup table for attacks on the a file
+                                     // indexed by: rank,occupation
 // -----------------------------------------
 
-// Constants to convert between representation and human readable notation of squares and piecetypes
+// Constants to convert between representation and human readable notation of
+// squares and piecetypes
 // -----------------------------------------------------------
-const std::string rows = "87654321";      // Hardcoded translations of the rows or y
-const std::string cols = "abcdefgh";      // Hardcoded translations of the cols or x
-const std::string types = "-pnbrqk";      // Hardcoded translations from int to piecetypes
+const std::string rows = "87654321"; // Hardcoded translations of the rows or y
+const std::string cols = "abcdefgh"; // Hardcoded translations of the cols or x
+const std::string types =
+    "-pnbrqk"; // Hardcoded translations from int to piecetypes
 const std::string whiteTypes = "PNBRQKG"; // Fen representation
 const std::string blackTypes = "pnbrqkg";
 // -----------------------------------------------------------
 
 // Starting positions
 // -------------------------------------------------------------------
-const std::string startingPosition = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"; // hardcoded starting position
-// const std::string startingPosition = "2b5/1p4k1/p2R2P1/4Np2/1P3Pp1/1r6/5K2/8 w - - 0 1"; // hardcoded starting position
-// const std::string startingPosition = "8/k7/8/8/8/8/3B3p/3K24 b - - 0 1"; // illegal move d2c3
-// const std::string startingPosition = "8/3k1p2/p1pP4/1p2P3/1P6/P7/3B3b/3K3q";
-// const std::string startingPosition = "r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - 0 1"; //temporary testing
-// const std::string startingPosition = "r7/7k/8/8/8/8/8/K7 w - - 0 1";
-// const std::string startingPosition = "r3k2r/Pppp1ppp/1b3nbN/nP6/BBP1P3/q4N2/Pp1P2PP/R2Q1RK1 w kq - 0 1";
-// const std::string startingPosition = "rnbq1k1r/pp1Pbppp/2p5/8/2B5/8/PPP1NnPP/RNBQK2R w KQ - 1 8";
-// const std::string startingPosition = "8/2p5/3p4/KP5r/1R3p1k/8/4P1P1/8 w - - 0 1";
+const std::string startingPosition =
+    "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"; // hardcoded
+                                                                // starting
+                                                                // position
+// const std::string startingPosition = "2b5/1p4k1/p2R2P1/4Np2/1P3Pp1/1r6/5K2/8
+// w - - 0 1"; // hardcoded starting position const std::string startingPosition
+// = "8/k7/8/8/8/8/3B3p/3K24 b - - 0 1"; // illegal move d2c3 const std::string
+// startingPosition = "8/3k1p2/p1pP4/1p2P3/1P6/P7/3B3b/3K3q"; const std::string
+// startingPosition = "r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w
+// KQkq - 0 1"; //temporary testing const std::string startingPosition =
+// "r7/7k/8/8/8/8/8/K7 w - - 0 1"; const std::string startingPosition =
+// "r3k2r/Pppp1ppp/1b3nbN/nP6/BBP1P3/q4N2/Pp1P2PP/R2Q1RK1 w kq - 0 1"; const
+// std::string startingPosition =
+// "rnbq1k1r/pp1Pbppp/2p5/8/2B5/8/PPP1NnPP/RNBQK2R w KQ - 1 8"; const
+// std::string startingPosition = "8/2p5/3p4/KP5r/1R3p1k/8/4P1P1/8 w - - 0 1";
 // -------------------------------------------------------------------
 
 // Fen notation constants
@@ -89,14 +106,18 @@ const std::string blackPieceCodings = "PNBRQK";
 
 // Constant masks
 // -------------------------------------------------------------------
-const bitboard castleMasks[2][2] = {{0x6000000000000000, 0x0E00000000000000}, {0x0000000000000060, 0x000000000000000E}}; // white kingside    whitequeenside      black kingside      black queenside
-const bitboard antiDiac7h2 = 0x0204081020408000;                                                                         // anti Diagonal c7h2
-                                                                                                                         // -------------------------------------------------------------------
+const bitboard castleMasks[2][2] = {
+    {0x6000000000000000, 0x0E00000000000000},
+    {0x0000000000000060,
+     0x000000000000000E}}; // white kingside    whitequeenside      black
+                           // kingside      black queenside
+const bitboard antiDiac7h2 =
+    0x0204081020408000; // anti Diagonal c7h2
+                        // -------------------------------------------------------------------
 
 // Enums
 // -------------------------------------------------------------------
-enum Square
-{
+enum Square {
     A8,
     B8,
     C8,
@@ -163,31 +184,11 @@ enum Square
     H1
 };
 
-enum File
-{
-    A,
-    B,
-    C,
-    D,
-    E,
-    F,
-    G,
-    H
-};
+enum File { A, B, C, D, E, F, G, H };
 
-enum PieceTypes
-{
-    NONE = -1,
-    PAWN,
-    KNIGHT,
-    BISHOP,
-    ROOK,
-    QUEEN,
-    KING
-};
+enum PieceTypes { NONE = -1, PAWN, KNIGHT, BISHOP, ROOK, QUEEN, KING };
 
-enum HashOffsets
-{
+enum HashOffsets {
     PIECES,
     BLACKTOMOVE = 768,
     KCWHASH,

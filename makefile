@@ -1,4 +1,4 @@
-CXX = g++
+CX = g++
 CXXFLAGS = -Iheader -Wall -Wextra -Ofast 
 DEBUGCXXFLAGS = -Iheader -Wall -Wextra -g -fsanitize=address -fsanitize=undefined
 TARGET = Bastet
