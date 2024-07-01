@@ -55,7 +55,7 @@ transposition::Tt::Save (const int depthRemaining, const int score, const NodeTy
                          const bitboard zobrist)
 {
     bitboard index = (numEntries - 1) & zobrist;
-    TtEntry entry = tt[index];
+    TtEntry entry = tt.at (index);
     if (entry.depthRemaining > depthRemaining)
         {
             return;
@@ -68,7 +68,7 @@ transposition::Tt::Save (const int depthRemaining, const int score, const NodeTy
     entry.depthRemaining = depthRemaining;
     entry.score = score;
     entry.nodeType = node;
-    tt[index] = entry;
+    tt.at (index) = entry;
 }
 
 bool
