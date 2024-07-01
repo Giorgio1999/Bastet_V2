@@ -38,23 +38,6 @@ void Engine::Boot() {
     tt = transposition::Tt(ttSize);
 }
 
-<<<<<<< HEAD
-void Engine::NewGame()
-{
-	repetitionTable.clear();
-	gameHistoryIndex = 0;
-	CurrentBoard() = Board();
-	tt = transposition::Tt(ttSize);
-}
-
-void Engine::SetBoard(const Board &newBoard)
-{
-	repetitionTable.clear();
-	gameHistoryIndex = 0;
-	CurrentBoard() = newBoard;
-	CurrentBoard().InitialiseColorBoards();
-	currentZobristKey = InitialiseZobristHash();
-=======
 void Engine::NewGame() {
     std::cerr << "Engine: Starting newgame" << std::endl;
     gameHistoryIndex = 0;
@@ -73,7 +56,6 @@ void Engine::SetBoard(const Board &newBoard) {
     CurrentBoard().InitialiseColorBoards();
     std::cerr << "Engine: Calling InitialiseZobristHash()" << std::endl;
     currentZobristKey = InitialiseZobristHash();
->>>>>>> 87046fdab86c38cbb4cb9538d95fcf3529b9b36e
 }
 
 bitboard Engine::InitialiseZobristHash() {
@@ -110,20 +92,7 @@ bitboard Engine::InitialiseZobristHash() {
     return zobrist;
 }
 
-<<<<<<< HEAD
-Board &Engine::CurrentBoard()
-{
-	return gameHistory[gameHistoryIndex];
-}
-
-void Engine::SetTtSize(int _ttSize)
-{
-	ttSize = (bitboard)_ttSize;
-	tt = transposition::Tt(ttSize);
-}
-=======
 Board &Engine::CurrentBoard() { return gameHistory[gameHistoryIndex]; }
->>>>>>> 87046fdab86c38cbb4cb9538d95fcf3529b9b36e
 // --------------------------------------------------------------------------------------------
 
 // Core functionality

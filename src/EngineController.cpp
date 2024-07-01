@@ -9,21 +9,6 @@
 #include <iostream>
 #include <string>
 
-<<<<<<< HEAD
-EngineController::EngineController()
-{
-}
-
-// UCI
-// -------------------------------------------------------------------
-bool EngineController::BootEngine()
-{
-	engine = Engine();
-	startpos = Fen2Position();
-	engine.Boot();
-	isReady = true;
-	return true;
-=======
 EngineController::EngineController() {}
 
 // UCI
@@ -37,7 +22,6 @@ bool EngineController::BootEngine() {
     engine.Boot();
     isReady = true;
     return true;
->>>>>>> 87046fdab86c38cbb4cb9538d95fcf3529b9b36e
 }
 
 void EngineController::SetStopFlag(const bool &value) {
@@ -117,14 +101,6 @@ std::string EngineController::Options() {
     return res;
 }
 
-<<<<<<< HEAD
-void EngineController::SetOptions(int _ttSize)
-{
-	if(!isReady){
-		BootEngine();
-	}
-	engine.SetTtSize(_ttSize);
-=======
 void EngineController::SetOptions(int _ttSize) {
     std::cerr << "EngineController: Receive Command setoptions name Hash value "
               << _ttSize << std::endl;
@@ -132,7 +108,6 @@ void EngineController::SetOptions(int _ttSize) {
     std::cerr << "EngineController: Calling transposition::Tt(" << _ttSize
               << ")" << std::endl;
     engine.tt = transposition::Tt(engine.ttSize);
->>>>>>> 87046fdab86c38cbb4cb9538d95fcf3529b9b36e
 }
 // -------------------------------------------------------------------
 
