@@ -8,7 +8,7 @@
 #include "MathUtility.h"
 #include "UciHandler.h"
 
-// This is laptopbranch
+// This is merge training
 
 // Functions for testing
 // -------------------------------------------------------------------
