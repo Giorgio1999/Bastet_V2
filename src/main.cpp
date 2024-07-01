@@ -8,8 +8,6 @@
 #include "MathUtility.h"
 #include "UciHandler.h"
 
-// This is master
-
 // Functions for testing
 // -------------------------------------------------------------------
 void Bench();
