@@ -1,4 +1,5 @@
 #include "TranspositionTable.h"
+#include "TypeDefs.h"
 #include <cassert>
 #include <exception>
 #include <iostream>
@@ -7,41 +8,40 @@ transposition::Tt::Tt () {}
 
 transposition::Tt::Tt (bitboard ttSize)
 {
-    std::cerr << "Tt: Constructor[Tt](" << ttSize << ")" << std::endl;
+    CERR << "Tt: Constructor[Tt](" << ttSize << ")" << std::endl;
     ttEntrySize = sizeof (TtEntry);
     numEntries = ttSize * 1024 * 1024 / ttEntrySize;
-    std::cerr << "Tt: Calculating number of Entries" << std::endl;
+    CERR << "Tt: Calculating number of Entries" << std::endl;
 
     if ((numEntries & (numEntries - 1)) != 0)
         {
-            std::cerr << "Tt: number of entries " << numEntries << " not power of two."
-                      << std::endl;
+            CERR << "Tt: number of entries " << numEntries << " not power of two." << std::endl;
             uint32_t power = 1;
             while (power <= numEntries)
                 {
                     power <<= 1;
                 }
             numEntries = power >> 1;
-            std::cerr << "Tt: reduce to " << numEntries << std::endl;
+            CERR << "Tt: reduce to " << numEntries << std::endl;
         }
 
-    std::cerr << "Tt: Clear old tt" << std::endl;
+    CERR << "Tt: Clear old tt" << std::endl;
     tt.clear ();
-    std::cerr << "Tt: Allocate new tt" << std::endl;
+    CERR << "Tt: Allocate new tt" << std::endl;
     try
         {
             tt.resize (numEntries);
         }
     catch (std::runtime_error &e)
         {
-            std::cerr << "Runtime Error: " << e.what () << std::endl;
+            CERR << "Runtime Error: " << e.what () << std::endl;
         }
     catch (std::exception &e)
         {
-            std::cerr << "Exception: " << e.what () << std::endl;
+            CERR << "Exception: " << e.what () << std::endl;
         }
 
-    std::cerr << "Tt: Allocation successful" << std::endl;
+    CERR << "Tt: Allocation successful" << std::endl;
 }
 
 // transposition::Tt::~Tt()
@@ -77,27 +77,30 @@ transposition::Tt::Pull (int &score, const int depthRemaining, const int alpha, 
 {
     bitboard index = (numEntries - 1) & zobrist;
     TtEntry entry = tt[index];
-    if (entry.zobristKey != zobrist || entry.depthRemaining < depthRemaining)
+    if (entry.zobristKey != zobrist || entry.depthRemaining <= depthRemaining)
         {
             return false;
         }
     switch (entry.nodeType)
         {
-        case PV:
+        case PV: // PV score
             score = entry.score;
+            CERR << "Tt: PV Pull successful" << std::endl;
             return true;
             break;
-        case LOWER:
+        case LOWER: // If score was a lower bound and is lower than current lower bound
             if (entry.score <= alpha)
                 {
                     score = alpha;
+                    CERR << "Tt: LOWER Pull successful" << std::endl;
                     return true;
                 }
             break;
-        case UPPER:
+        case UPPER: // If score was an upper bound and is higher than current upper bound
             if (entry.score >= beta)
                 {
                     score = beta;
+                    CERR << "Tt: UPPER Pull successful" << std::endl;
                     return true;
                 }
             break;

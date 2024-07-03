@@ -7,6 +7,7 @@
 #include <chrono>
 #include <iostream>
 #include <string>
+#include "TypeDefs.h"
 
 EngineController::EngineController () {}
 
@@ -15,11 +16,11 @@ EngineController::EngineController () {}
 bool
 EngineController::BootEngine ()
 {
-    std::cerr << "EngineController: Booting Engine" << std::endl;
-    std::cerr << "EngineController: Calling Engine()" << std::endl;
+    CERR << "EngineController: Booting Engine" << std::endl;
+    CERR << "EngineController: Calling Engine()" << std::endl;
     engine = Engine ();
     startpos = Fen2Position ();
-    std::cerr << "EngineController: Calling engine.Boot()" << std::endl;
+    CERR << "EngineController: Calling engine.Boot()" << std::endl;
     engine.Boot ();
     isReady = true;
     return true;
@@ -34,45 +35,46 @@ EngineController::SetStopFlag (const bool &value)
 void
 EngineController::NewGame ()
 {
-    std::cerr << "EngineController: Receive Command newgame" << std::endl;
+    CERR << "EngineController: Receive Command newgame" << std::endl;
     if (!isReady)
         {
             BootEngine ();
         }
-    std::cerr << "EngineController: Calling engine.NewGame()" << std::endl;
+    CERR << "EngineController: Calling engine.NewGame()" << std::endl;
     engine.NewGame ();
 }
 
 void
 EngineController::SetPosition ()
 {
-    std::cerr << "EngineController: Receive Command position startpos" << std::endl;
+    CERR << "EngineController: Receive Command position startpos" << std::endl;
     if (!isReady)
         {
             BootEngine ();
         }
-    std::cerr << "EngineController: Calling engine.SetBoard(startpos)" << std::endl;
+    CERR << "EngineController: Calling engine.SetBoard(startpos)" << std::endl;
     engine.SetBoard (startpos);
 }
 
 void
 EngineController::SetPosition (const std::string &fenString)
 {
-    std::cerr << "EngineController: Receive Command position " << fenString << std::endl;
+    CERR << "EngineController: Receive Command position " << fenString << std::endl;
     if (!isReady)
         {
             BootEngine ();
         }
-    std::cerr << "EngineController: Calling engine.SetBoard(" << fenString << ")" << std::endl;
+    CERR << "EngineController: Calling engine.SetBoard(" << fenString << ")" << std::endl;
     engine.SetBoard (Fen2Position (fenString));
 }
 
 void
 EngineController::MakeMoves (std::string &moveHistory)
 {
-    std::cerr << "EngineController: Receive Command moves " << moveHistory << std::endl;
+    CERR << "EngineController: Receive Command moves " << moveHistory << std::endl;
     std::vector<Mover> movers = Str2Moves (moveHistory);
-    std::cerr << "EngineController: Calling engine.MakePermanentMove(" << moveHistory << ")" << std::endl;
+    CERR << "EngineController: Calling engine.MakePermanentMove(" << moveHistory << ")"
+         << std::endl;
     for (const auto &mover : movers)
         {
             engine.MakePermanentMove (Mover2Move (mover));
@@ -82,14 +84,14 @@ EngineController::MakeMoves (std::string &moveHistory)
 void
 EngineController::TestReady ()
 {
-    std::cerr << "EngineController: EngineController: Receive Command testready" << std::endl;
+    CERR << "EngineController: EngineController: Receive Command testready" << std::endl;
     isReady = true;
 }
 
 bool
 EngineController::IsReady ()
 {
-    std::cerr << "EngineController: Receive Command isready" << std::endl;
+    CERR << "EngineController: Receive Command isready" << std::endl;
     if (!isReady)
         {
             BootEngine ();
@@ -100,26 +102,28 @@ EngineController::IsReady ()
 std::string
 EngineController::Search (const int wTime, const int bTime, const int winc, const int binc)
 {
-    std::cerr << "EngineController: Receive Command go wtime " << wTime << " btime " << bTime << " winc " << winc << " binc " << binc << std::endl;
+    CERR << "EngineController: Receive Command go wtime " << wTime << " btime " << bTime << " winc "
+         << winc << " binc " << binc << std::endl;
     Timer timer (wTime, bTime, winc, binc);
-    std::cerr << "EngineController: Calling engine.GetBestMove()" << std::endl;
+    CERR << "EngineController: Calling engine.GetBestMove()" << std::endl;
     return Move2Str (engine.GetBestMove (timer));
 }
 
 std::string
 EngineController::Options ()
 {
-    std::cerr << "EngineController: Printing options" << std::endl;
-    std::string res = "option name Hash type spin default " + std::to_string (engine.ttSize) + " min 0 max 1024";
+    CERR << "EngineController: Printing options" << std::endl;
+    std::string res = "option name Hash type spin default " + std::to_string (engine.ttSize)
+                      + " min 0 max 1024";
     return res;
 }
 
 void
 EngineController::SetOptions (int _ttSize)
 {
-    std::cerr << "EngineController: Receive Command setoptions name Hash value " << _ttSize << std::endl;
+    CERR << "EngineController: Receive Command setoptions name Hash value " << _ttSize << std::endl;
     engine.ttSize = _ttSize;
-    std::cerr << "EngineController: Calling transposition::Tt(" << _ttSize << ")" << std::endl;
+    CERR << "EngineController: Calling transposition::Tt(" << _ttSize << ")" << std::endl;
     engine.tt = transposition::Tt (engine.ttSize);
 }
 // -------------------------------------------------------------------
@@ -183,7 +187,9 @@ EngineController::FullPerftTest ()
                     auto start = std::chrono::high_resolution_clock::now ();
                     bitboard result = engine.Perft (depth);
                     auto end = std::chrono::high_resolution_clock::now ();
-                    float duration = std::chrono::duration_cast<std::chrono::milliseconds> (end - start).count ();
+                    float duration
+                        = std::chrono::duration_cast<std::chrono::milliseconds> (end - start)
+                              .count ();
                     auto mnps = result / duration / 1000000. * 1000.;
                     std::string ref = line.substr (0, line.find_first_of (';'));
                     std::cout << result << "(" << ref << ")";
@@ -194,7 +200,8 @@ EngineController::FullPerftTest ()
                 }
         }
     auto fullEnd = std::chrono::high_resolution_clock::now ();
-    float duration = std::chrono::duration_cast<std::chrono::seconds> (fullEnd - fullStart).count ();
+    float duration
+        = std::chrono::duration_cast<std::chrono::seconds> (fullEnd - fullStart).count ();
     std::cout << "Done! Total time: " << duration << "s" << std::endl;
 }
 
@@ -215,8 +222,10 @@ EngineController::Bench ()
             nodesVisited += engine.Perft (fixedDepth);
         }
     auto fullEnd = std::chrono::steady_clock::now ();
-    float duration = std::chrono::duration_cast<std::chrono::milliseconds> (fullEnd - fullStart).count ();
-    std::cout << std::to_string (nodesVisited) << " nodes " << std::to_string ((int)(nodesVisited / duration * 1000)) << " nps" << std::endl;
+    float duration
+        = std::chrono::duration_cast<std::chrono::milliseconds> (fullEnd - fullStart).count ();
+    std::cout << std::to_string (nodesVisited) << " nodes "
+              << std::to_string ((int)(nodesVisited / duration * 1000)) << " nps" << std::endl;
 }
 
 void
@@ -250,8 +259,10 @@ EngineController::Validate ()
                 }
         }
     auto end = std::chrono::steady_clock::now ();
-    auto duration = std::chrono::duration_cast<std::chrono::milliseconds> (end - start).count () / 1000;
-    std::cout << (valid ? "Is valid, " : "Is not valid, ") << std::to_string (duration) << "s" << std::endl;
+    auto duration
+        = std::chrono::duration_cast<std::chrono::milliseconds> (end - start).count () / 1000;
+    std::cout << (valid ? "Is valid, " : "Is not valid, ") << std::to_string (duration) << "s"
+              << std::endl;
 }
 
 std::string

@@ -57,7 +57,12 @@ Search::GetBestMove (Engine &engine, Timer &timer)
                                 }
 
                             engine.MakeMove (moveHolder[i]);
-                            scores[i] = AlphaBetaMin (engine, alpha, beta, currentDepth, nodes);
+                            if (!engine.tt.Pull (scores[i], currentDepth, alpha, beta,
+                                                 engine.currentZobristKey))
+                                {
+                                    scores[i]
+                                        = AlphaBetaMin (engine, alpha, beta, currentDepth, nodes);
+                                }
                             engine.UndoLastMove ();
 
                             if (scores[i] > alpha) // If the obtained score is higher than the lower
@@ -117,7 +122,12 @@ Search::GetBestMove (Engine &engine, Timer &timer)
                                 }
 
                             engine.MakeMove (moveHolder[i]);
-                            scores[i] = AlphaBetaMax (engine, alpha, beta, currentDepth, nodes);
+                            if (!engine.tt.Pull (scores[i], currentDepth, alpha, beta,
+                                                 engine.currentZobristKey))
+                                {
+                                    scores[i]
+                                        = AlphaBetaMax (engine, alpha, beta, currentDepth, nodes);
+                                }
                             engine.UndoLastMove ();
 
                             if (scores[i]
@@ -198,7 +208,13 @@ AlphaBetaMin (Engine &engine, int alpha, int beta, int depthRemaining, bitboard 
          i++) // Check every move i can make and see if i can improve the score
         {
             engine.MakeMove (moveHolder[i]);
-            int tmpScore = AlphaBetaMax (engine, alpha, beta, depthRemaining - 1, nodes);
+            int tmpScore;
+            if (!engine.tt.Pull (tmpScore, depthRemaining - 1, alpha, beta,
+                                 engine.currentZobristKey))
+                {
+
+                    tmpScore = AlphaBetaMax (engine, alpha, beta, depthRemaining - 1, nodes);
+                }
             engine.UndoLastMove ();
 
             if (tmpScore <= alpha) // If the minimizing players move leads to a score lower than
@@ -207,7 +223,7 @@ AlphaBetaMin (Engine &engine, int alpha, int beta, int depthRemaining, bitboard 
                                    // corresponding to the lower bound
                 {
                     nodes++;
-                    engine.tt.Save (depthRemaining, alpha, transposition::LOWER,
+                    engine.tt.Save (depthRemaining - 1, alpha, transposition::LOWER,
                                     engine.currentZobristKey);
                     return alpha;
                 }
@@ -219,7 +235,7 @@ AlphaBetaMin (Engine &engine, int alpha, int beta, int depthRemaining, bitboard 
                 }
         }
     nodes++;
-    engine.tt.Save (depthRemaining, beta, transposition::PV, engine.currentZobristKey);
+    engine.tt.Save (depthRemaining - 1, beta, transposition::PV, engine.currentZobristKey);
     return beta;
 }
 
@@ -267,7 +283,13 @@ AlphaBetaMax (Engine &engine, int alpha, int beta, int depthRemaining, bitboard 
          i++) // Check every move i can make and see if i can improve the score
         {
             engine.MakeMove (moveHolder[i]);
-            int tmpScore = AlphaBetaMin (engine, alpha, beta, depthRemaining - 1, nodes);
+            int tmpScore;
+            if (!engine.tt.Pull (tmpScore, depthRemaining - 1, alpha, beta,
+                                 engine.currentZobristKey))
+                {
+
+                    tmpScore = AlphaBetaMin (engine, alpha, beta, depthRemaining - 1, nodes);
+                }
             engine.UndoLastMove ();
 
             if (tmpScore >= beta) // If the maximizing player has a move even better than the
@@ -275,7 +297,7 @@ AlphaBetaMax (Engine &engine, int alpha, int beta, int depthRemaining, bitboard 
                                   // path corresponding to that upper bound
                 {
                     nodes++;
-                    engine.tt.Save (depthRemaining, beta, transposition::UPPER,
+                    engine.tt.Save (depthRemaining - 1, beta, transposition::UPPER,
                                     engine.currentZobristKey);
                     return beta;
                 }
@@ -287,7 +309,7 @@ AlphaBetaMax (Engine &engine, int alpha, int beta, int depthRemaining, bitboard 
                 }
         }
     nodes++;
-    engine.tt.Save (depthRemaining, alpha, transposition::PV, engine.currentZobristKey);
+    engine.tt.Save (depthRemaining - 1, alpha, transposition::PV, engine.currentZobristKey);
     return alpha;
 }
 

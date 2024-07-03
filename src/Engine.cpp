@@ -8,6 +8,7 @@
 #include "Search.h"
 #include "Timer.h"
 #include "TranspositionTable.h"
+#include "TypeDefs.h"
 #include <cassert>
 #include <cstring>
 #include <iostream>
@@ -18,7 +19,7 @@
 // --------------------------------------------------------------------------------------------
 Engine::Engine ()
 {
-    std::cerr << "Engine: Constructor[Engine]" << std::endl;
+    CERR << "Engine: Constructor[Engine]" << std::endl;
     gameHistoryIndex = 0;
     CurrentBoard () = Board ();
     stopFlag = false;
@@ -28,24 +29,24 @@ Engine::Engine ()
 void
 Engine::Boot ()
 {
-    std::cerr << "Engine: Booting Engine" << std::endl;
-    std::cerr << "Engine: Calling ComputeMasks()" << std::endl;
+    CERR << "Engine: Booting Engine" << std::endl;
+    CERR << "Engine: Calling ComputeMasks()" << std::endl;
     ComputeMasks ();
-    std::cerr << "Engine: Calling MoveGenerator::PreComputeMoves()" << std::endl;
+    CERR << "Engine: Calling MoveGenerator::PreComputeMoves()" << std::endl;
     MoveGenerator::PreComputeMoves ();
-    std::cerr << "Engine: Calling ComputeHashes()" << std::endl;
+    CERR << "Engine: Calling ComputeHashes()" << std::endl;
     ComputeHashes ();
-    std::cerr << "Engine: Calling transposition::Tt(" << ttSize << ")" << std::endl;
+    CERR << "Engine: Calling transposition::Tt(" << ttSize << ")" << std::endl;
     tt = transposition::Tt (ttSize);
 }
 
 void
 Engine::NewGame ()
 {
-    std::cerr << "Engine: Starting newgame" << std::endl;
+    CERR << "Engine: Starting newgame" << std::endl;
     gameHistoryIndex = 0;
     CurrentBoard () = Board ();
-    std::cerr << "Engine: Calling transposition::Tt(" << ttSize << ")" << std::endl;
+    CERR << "Engine: Calling transposition::Tt(" << ttSize << ")" << std::endl;
     tt = transposition::Tt (ttSize);
     repetitionTable.clear ();
 }
@@ -53,19 +54,19 @@ Engine::NewGame ()
 void
 Engine::SetBoard (const Board &newBoard)
 {
-    std::cerr << "Engine: Setting board" << std::endl;
+    CERR << "Engine: Setting board" << std::endl;
     gameHistoryIndex = 0;
     CurrentBoard () = newBoard;
-    std::cerr << "Engine: Calling CurrentBoard().InitialiseColorBoards()" << std::endl;
+    CERR << "Engine: Calling CurrentBoard().InitialiseColorBoards()" << std::endl;
     CurrentBoard ().InitialiseColorBoards ();
-    std::cerr << "Engine: Calling InitialiseZobristHash()" << std::endl;
+    CERR << "Engine: Calling InitialiseZobristHash()" << std::endl;
     currentZobristKey = InitialiseZobristHash ();
 }
 
 bitboard
 Engine::InitialiseZobristHash ()
 {
-    std::cerr << "Engine: Initialising zobrist hash" << std::endl;
+    CERR << "Engine: Initialising zobrist hash" << std::endl;
     Board newBoard = CurrentBoard ();
     bitboard zobrist = ZERO;
     for (uint i = PAWN; i <= BLACKPIECES + KING; i++)
@@ -249,13 +250,13 @@ Engine::HashTest (int depth)
             bitboard newHash = InitialiseZobristHash ();
             if (newHash != currentZobristKey)
                 {
-                    std::cerr << ShowBoard () << newHash << std::endl;
+                    CERR << ShowBoard () << newHash << std::endl;
                     for (uint i = 0; i <= gameHistoryIndex; i++)
                         {
                             UndoLastMove ();
-                            std::cerr << ShowBoard ();
+                            CERR << ShowBoard ();
                             bitboard tempNewHash = InitialiseZobristHash ();
-                            std::cerr << tempNewHash << std::endl;
+                            CERR << tempNewHash << std::endl;
                         }
                     assert (newHash == currentZobristKey);
                 }
