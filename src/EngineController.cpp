@@ -73,8 +73,7 @@ EngineController::MakeMoves (std::string &moveHistory)
 {
     CERR << "EngineController: Receive Command moves " << moveHistory << std::endl;
     std::vector<Mover> movers = Str2Moves (moveHistory);
-    CERR << "EngineController: Calling engine.MakePermanentMove(" << moveHistory << ")"
-         << std::endl;
+    CERR << "EngineController: Calling engine.MakePermanentMove(" << moveHistory << ")" << std::endl;
     for (const auto &mover : movers)
         {
             engine.MakePermanentMove (Mover2Move (mover));
@@ -100,10 +99,28 @@ EngineController::IsReady ()
 }
 
 std::string
+EngineController::Search (Timer timer)
+{
+    CERR << "EngineController: Receive Command go";
+    CERR << " wtime " << timer.wTime;
+    CERR << " btime " << timer.bTime;
+    CERR << " winc " << timer.winc;
+    CERR << " binc " << timer.binc;
+    CERR << (timer.inf ? " infinite " : "");
+    CERR << " searchmoves " << timer.searchmoveslist;
+    CERR << " nodes " << timer.nodes;
+    CERR << " depth " << timer.depth;
+    CERR << " movetime " << timer.movetime;
+    CERR << " movestogo " << timer.movestogo;
+    CERR << std::endl;
+    CERR << "EngineController: Calling engine.GetBestMove()" << std::endl;
+    return Move2Str (engine.GetBestMove (timer));
+}
+
+std::string
 EngineController::Search (const int wTime, const int bTime, const int winc, const int binc)
 {
-    CERR << "EngineController: Receive Command go wtime " << wTime << " btime " << bTime << " winc "
-         << winc << " binc " << binc << std::endl;
+    CERR << "EngineController: Receive Command go wtime " << wTime << " btime " << bTime << " winc " << winc << " binc " << binc << std::endl;
     Timer timer (wTime, bTime, winc, binc);
     CERR << "EngineController: Calling engine.GetBestMove()" << std::endl;
     return Move2Str (engine.GetBestMove (timer));
@@ -113,8 +130,7 @@ std::string
 EngineController::Options ()
 {
     CERR << "EngineController: Printing options" << std::endl;
-    std::string res = "option name Hash type spin default " + std::to_string (engine.ttSize)
-                      + " min 0 max 1024";
+    std::string res = "option name Hash type spin default " + std::to_string (engine.ttSize) + " min 0 max 1024";
     return res;
 }
 
@@ -187,9 +203,7 @@ EngineController::FullPerftTest ()
                     auto start = std::chrono::high_resolution_clock::now ();
                     bitboard result = engine.Perft (depth);
                     auto end = std::chrono::high_resolution_clock::now ();
-                    float duration
-                        = std::chrono::duration_cast<std::chrono::milliseconds> (end - start)
-                              .count ();
+                    float duration = std::chrono::duration_cast<std::chrono::milliseconds> (end - start).count ();
                     auto mnps = result / duration / 1000000. * 1000.;
                     std::string ref = line.substr (0, line.find_first_of (';'));
                     std::cout << result << "(" << ref << ")";
@@ -200,8 +214,7 @@ EngineController::FullPerftTest ()
                 }
         }
     auto fullEnd = std::chrono::high_resolution_clock::now ();
-    float duration
-        = std::chrono::duration_cast<std::chrono::seconds> (fullEnd - fullStart).count ();
+    float duration = std::chrono::duration_cast<std::chrono::seconds> (fullEnd - fullStart).count ();
     std::cout << "Done! Total time: " << duration << "s" << std::endl;
 }
 
@@ -222,10 +235,8 @@ EngineController::Bench ()
             nodesVisited += engine.Perft (fixedDepth);
         }
     auto fullEnd = std::chrono::steady_clock::now ();
-    float duration
-        = std::chrono::duration_cast<std::chrono::milliseconds> (fullEnd - fullStart).count ();
-    std::cout << std::to_string (nodesVisited) << " nodes "
-              << std::to_string ((int)(nodesVisited / duration * 1000)) << " nps" << std::endl;
+    float duration = std::chrono::duration_cast<std::chrono::milliseconds> (fullEnd - fullStart).count ();
+    std::cout << std::to_string (nodesVisited) << " nodes " << std::to_string ((int)(nodesVisited / duration * 1000)) << " nps" << std::endl;
 }
 
 void
@@ -259,10 +270,8 @@ EngineController::Validate ()
                 }
         }
     auto end = std::chrono::steady_clock::now ();
-    auto duration
-        = std::chrono::duration_cast<std::chrono::milliseconds> (end - start).count () / 1000;
-    std::cout << (valid ? "Is valid, " : "Is not valid, ") << std::to_string (duration) << "s"
-              << std::endl;
+    auto duration = std::chrono::duration_cast<std::chrono::milliseconds> (end - start).count () / 1000;
+    std::cout << (valid ? "Is valid, " : "Is not valid, ") << std::to_string (duration) << "s" << std::endl;
 }
 
 std::string
