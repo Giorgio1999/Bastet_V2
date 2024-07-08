@@ -76,8 +76,8 @@ transposition::Tt::Pull (int &score, const int depthRemaining, const int alpha, 
                          const bitboard zobrist)
 {
     bitboard index = (numEntries - 1) & zobrist;
-    TtEntry entry = tt[index];
-    if (entry.zobristKey != zobrist || entry.depthRemaining <= depthRemaining)
+    TtEntry entry = tt.at (index);
+    if (entry.zobristKey != zobrist || entry.depthRemaining < depthRemaining)
         {
             return false;
         }
