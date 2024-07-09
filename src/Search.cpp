@@ -47,6 +47,7 @@ Search::GetBestMove (Engine &engine, Timer &timer)
     int maxdepth = std::min (20, timer.depth - 1);
     int currentDepth = 1;
     bitboard nodes = 0;
+    std::array<std::vector<move>, 256> pvs;
     if (color)
         {
             float allowedTime = (timer.wTime + timer.winc) / allowedTimeFraction;
@@ -72,9 +73,10 @@ Search::GetBestMove (Engine &engine, Timer &timer)
                                 {
                                     std::cout << "info currmove " << Move2Str (Move2Mover (moveHolder[i])) << " currmovenumber " << i << std::endl;
                                 }
-
+                            pvs[i].clear ();
+                            pvs[i].push_back (moveHolder[i]);
                             engine.MakeMove (moveHolder[i]);
-                            scores[i] = AlphaBetaMin (engine, alpha, beta, currentDepth - 1, nodes);
+                            scores[i] = AlphaBetaMin (engine, alpha, beta, currentDepth - 1, nodes, pvs[i]);
                             engine.UndoLastMove ();
 
                             if (scores[i] > alpha) // If the obtained score is higher than the lower
@@ -88,15 +90,15 @@ Search::GetBestMove (Engine &engine, Timer &timer)
                             estimatedTimeConsumption += timer.TimeElapsed ();
                         }
 
-                    MathUtility::Sort<move, int, 256> (moveHolder, scores, moveHolderIndex, color);
+                    MathUtility::Sort<move, std::vector<move>, int, 256> (moveHolder, pvs, scores, moveHolderIndex, color);
                     auto time = timer.TimeElapsed ();
-                    currentDepth++;
 
                     float numEntries = (float)engine.tt.numEntries;
                     float hashfull = (float)engine.tt.ttFill / numEntries * 1000;
 
                     std::cout << "info depth " << currentDepth << " score cp " << colorMultiplier * scores[0] << " time " << time << " nodes " << nodes;
-                    std::cout << " nps " << nodes / time * 1000 << " pv " << Move2Str (Move2Mover (moveHolder[0])) << " hashfull " << std::round (hashfull) << std::endl;
+                    std::cout << " nps " << nodes / time * 1000 << " pv" << Moves2Str (pvs[0]) << "hashfull " << std::round (hashfull) << std::endl;
+                    currentDepth++;
                 }
         }
     else
@@ -124,9 +126,10 @@ Search::GetBestMove (Engine &engine, Timer &timer)
                                 {
                                     std::cout << "info currmove " << Move2Str (Move2Mover (moveHolder[i])) << " currmovenumber " << i << std::endl;
                                 }
-
+                            pvs[i].clear ();
+                            pvs[i].push_back (moveHolder[i]);
                             engine.MakeMove (moveHolder[i]);
-                            scores[i] = AlphaBetaMax (engine, alpha, beta, currentDepth - 1, nodes);
+                            scores[i] = AlphaBetaMax (engine, alpha, beta, currentDepth - 1, nodes, pvs[i]);
                             engine.UndoLastMove ();
 
                             if (scores[i] < beta) // Black will try to lower the upper bound of the
@@ -139,15 +142,15 @@ Search::GetBestMove (Engine &engine, Timer &timer)
                             estimatedTimeConsumption += timer.TimeElapsed ();
                         }
 
-                    MathUtility::Sort<move, int, 256> (moveHolder, scores, moveHolderIndex, color);
+                    MathUtility::Sort<move, std::vector<move>, int, 256> (moveHolder, pvs, scores, moveHolderIndex, color);
                     auto time = timer.TimeElapsed ();
-                    currentDepth++;
 
                     float numEntries = (float)engine.tt.numEntries;
                     float hashfull = (float)engine.tt.ttFill / numEntries * 1000;
 
                     std::cout << "info depth " << currentDepth << " score cp " << colorMultiplier * scores[0] << " time " << time << " nodes " << nodes;
-                    std::cout << " nps " << nodes / time * 1000 << " pv " << Move2Str (Move2Mover (moveHolder[0])) << " hashfull " << std::round (hashfull) << std::endl;
+                    std::cout << " nps " << nodes / time * 1000 << " pv" << Moves2Str (pvs[0]) << "hashfull " << std::round (hashfull) << std::endl;
+                    currentDepth++;
                 }
         }
     return moveHolder[0];
@@ -158,7 +161,7 @@ Search::GetBestMove (Engine &engine, Timer &timer)
 // --------------------------------------------------------
 
 int
-AlphaBetaMin (Engine &engine, int alpha, int beta, int depthRemaining, bitboard &nodes)
+AlphaBetaMin (Engine &engine, int alpha, int beta, int depthRemaining, bitboard &nodes, std::vector<move> &pv)
 {
     if (std::count (engine.repetitionTable.begin (), engine.repetitionTable.end (),
                     engine.currentZobristKey) >= 2 || engine.CurrentBoard ().nonReversibleMoves >= 50) // Repetition or fifty move rule -> return 0
@@ -177,7 +180,7 @@ AlphaBetaMin (Engine &engine, int alpha, int beta, int depthRemaining, bitboard 
     if (depthRemaining == 0) // If target depth is reached, return static
                              // evaluation of the position
         {
-            int score = QuiescenceMin (engine, alpha, beta, nodes);
+            int score = QuiescenceMin (engine, alpha, beta, nodes, pv);
             return score;
         }
 
@@ -193,11 +196,13 @@ AlphaBetaMin (Engine &engine, int alpha, int beta, int depthRemaining, bitboard 
             nodes++;
             return 0;
         }
-
+    auto count = pv.size ();
+    std::vector<move> tmpPv = pv;
     for (uint i = 0; i < moveHolderIndex && !engine.stopFlag; i++) // Check every move i can make and see if i can improve the score
         {
+            tmpPv.push_back (moveHolder[i]);
             engine.MakeMove (moveHolder[i]);
-            tmpScore = AlphaBetaMax (engine, alpha, beta, depthRemaining - 1, nodes);
+            tmpScore = AlphaBetaMax (engine, alpha, beta, depthRemaining - 1, nodes, tmpPv);
             engine.UndoLastMove ();
 
             if (tmpScore <= alpha) // If the minimizing players move leads to a score lower than
@@ -212,15 +217,17 @@ AlphaBetaMin (Engine &engine, int alpha, int beta, int depthRemaining, bitboard 
             if (tmpScore < beta) // The minimizing player will choose the move that
                                  // lowers the upper bound the most
                 {
+                    pv = tmpPv;
                     beta = tmpScore;
                 }
+            tmpPv.resize (count);
         }
     nodes++;
     return beta;
 }
 
 int
-AlphaBetaMax (Engine &engine, int alpha, int beta, int depthRemaining, bitboard &nodes)
+AlphaBetaMax (Engine &engine, int alpha, int beta, int depthRemaining, bitboard &nodes, std::vector<move> &pv)
 {
     if (std::count (engine.repetitionTable.begin (), engine.repetitionTable.end (),
                     engine.currentZobristKey) >= 2 || engine.CurrentBoard ().nonReversibleMoves >= 50) // Repetition or fifty move rule -> return 0
@@ -239,7 +246,7 @@ AlphaBetaMax (Engine &engine, int alpha, int beta, int depthRemaining, bitboard 
     if (depthRemaining == 0) // If target depth is reached, return static
                              // evaluation of the position
         {
-            int score = QuiescenceMax (engine, alpha, beta, nodes);
+            int score = QuiescenceMax (engine, alpha, beta, nodes, pv);
             return score;
         }
 
@@ -255,11 +262,13 @@ AlphaBetaMax (Engine &engine, int alpha, int beta, int depthRemaining, bitboard 
             nodes++;
             return 0;
         }
-
+    auto count = pv.size ();
+    std::vector<move> tmpPv = pv;
     for (uint i = 0; i < moveHolderIndex && !engine.stopFlag; i++) // Check every move i can make and see if i can improve the score
         {
+            tmpPv.push_back (moveHolder[i]);
             engine.MakeMove (moveHolder[i]);
-            tmpScore = AlphaBetaMin (engine, alpha, beta, depthRemaining - 1, nodes);
+            tmpScore = AlphaBetaMin (engine, alpha, beta, depthRemaining - 1, nodes, tmpPv);
             engine.UndoLastMove ();
 
             if (tmpScore >= beta) // If the maximizing player has a move even better than the
@@ -272,16 +281,18 @@ AlphaBetaMax (Engine &engine, int alpha, int beta, int depthRemaining, bitboard 
 
             if (tmpScore > alpha)
                 { // The maximizing player will seek to increase
-                  // the lower bound
+                    // the lower bound
+                    pv = tmpPv;
                     alpha = tmpScore;
                 }
+            tmpPv.resize (count);
         }
     nodes++;
     return alpha;
 }
 
 int
-QuiescenceMin (Engine &engine, int alpha, int beta, bitboard &nodes)
+QuiescenceMin (Engine &engine, int alpha, int beta, bitboard &nodes, std::vector<move> &pv)
 {
 
     if (std::count (engine.repetitionTable.begin (), engine.repetitionTable.end (),
@@ -309,10 +320,13 @@ QuiescenceMin (Engine &engine, int alpha, int beta, bitboard &nodes)
     std::array<move, 256> moveHolder;
     engine.GetLegalMoves (moveHolder, moveHolderIndex, true);
 
+    auto count = pv.size ();
+    std::vector<move> tmpPv = pv;
     for (uint i = 0; i < moveHolderIndex && !engine.stopFlag; i++)
         {
+            tmpPv.push_back (moveHolder[i]);
             engine.MakeMove (moveHolder[i]);
-            int tmpScore = QuiescenceMax (engine, alpha, beta, nodes);
+            int tmpScore = QuiescenceMax (engine, alpha, beta, nodes, tmpPv);
             engine.UndoLastMove ();
 
             if (tmpScore <= alpha) // If the minimizing players move leads to a score lower than
@@ -327,15 +341,17 @@ QuiescenceMin (Engine &engine, int alpha, int beta, bitboard &nodes)
             if (tmpScore < beta) // The minimizing player will choose the move that
                                  // lowers the upper bound the most
                 {
+                    pv = tmpPv;
                     beta = tmpScore;
                 }
+            tmpPv.resize (count);
         }
     nodes++;
     return beta;
 }
 
 int
-QuiescenceMax (Engine &engine, int alpha, int beta, bitboard &nodes)
+QuiescenceMax (Engine &engine, int alpha, int beta, bitboard &nodes, std::vector<move> &pv)
 {
 
     if (std::count (engine.repetitionTable.begin (), engine.repetitionTable.end (),
@@ -363,10 +379,13 @@ QuiescenceMax (Engine &engine, int alpha, int beta, bitboard &nodes)
     std::array<move, 256> moveHolder;
     engine.GetLegalMoves (moveHolder, moveHolderIndex, true);
 
+    auto count = pv.size ();
+    std::vector<move> tmpPv = pv;
     for (uint i = 0; i < moveHolderIndex && !engine.stopFlag; i++)
         {
+            tmpPv.push_back (moveHolder[i]);
             engine.MakeMove (moveHolder[i]);
-            int tmpScore = QuiescenceMax (engine, alpha, beta, nodes);
+            int tmpScore = QuiescenceMax (engine, alpha, beta, nodes, tmpPv);
             engine.UndoLastMove ();
 
             if (tmpScore >= beta) // If the maximizing players move leads to a score higher than
@@ -381,11 +400,12 @@ QuiescenceMax (Engine &engine, int alpha, int beta, bitboard &nodes)
             if (tmpScore > alpha) // The maximizing player will choose the move that
                                   // raises the lower bound the most
                 {
+                    pv = tmpPv;
                     alpha = tmpScore;
                 }
+            tmpPv.resize (count);
         }
     nodes++;
     return alpha;
 }
-
 // --------------------------------------------------------
