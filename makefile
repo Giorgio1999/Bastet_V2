@@ -10,7 +10,11 @@ DEBUGOBJS = $(patsubst src/%.cpp,obj/%_Debug.o,$(SRCS))
 FLAGS_FILE = .flags
 TMP_FLAGS_FILE = .tmpflags
 
-all: check_flags $(TARGET)
+all: dirs check_flags $(TARGET)
+
+dirs:
+	mkdir -p obj
+	mkdir -p build
 
 $(TARGET): $(OBJS)
 	$(CXX) $(CXXFLAGS) -o build/$@ $^
