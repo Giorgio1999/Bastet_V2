@@ -40,7 +40,7 @@ testResults
 .accesstoken
 .flags
 .tmpflags
-.*.nix
+*.nix
 
 # Visual Studio 2015/2017 cache/options directory
 .build/
